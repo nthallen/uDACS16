@@ -342,6 +342,34 @@ void system_init(void)
 {
 	init_mcu();
 
+	// GPIO on PB08
+
+	gpio_set_pin_level(SPR7,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(SPR7, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(SPR7, GPIO_PIN_FUNCTION_OFF);
+
+	// GPIO on PB09
+
+	gpio_set_pin_level(SPR8,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(SPR8, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(SPR8, GPIO_PIN_FUNCTION_OFF);
+
 	VMON_ADC_init();
 
 	TIMER_0_init();

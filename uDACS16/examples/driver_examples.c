@@ -149,17 +149,17 @@ void PSD_SPI_example(void)
 
 static uint8_t example_USART_CTRL[12] = "Hello World!";
 
-static void tx_cb_USART_CTRL(const struct usart_async_descriptor *const io_descr)
+/*static void tx_cb_USART_CTRL(const struct usart_async_descriptor *const io_descr)
 {
-	/* Transfer completed */
-}
+	// Transfer completed 
+}*/
 
 void USART_CTRL_example(void)
 {
 	struct io_descriptor *io;
 
-	usart_async_register_callback(&USART_CTRL, USART_ASYNC_TXC_CB, tx_cb_USART_CTRL);
-	/*usart_async_register_callback(&USART_CTRL, USART_ASYNC_RXC_CB, rx_cb);
+	/*usart_async_register_callback(&USART_CTRL, USART_ASYNC_TXC_CB, tx_cb_USART_CTRL);
+	usart_async_register_callback(&USART_CTRL, USART_ASYNC_RXC_CB, rx_cb);
 	usart_async_register_callback(&USART_CTRL, USART_ASYNC_ERROR_CB, err_cb);*/
 	usart_async_get_io_descriptor(&USART_CTRL, &io);
 	usart_async_enable(&USART_CTRL);

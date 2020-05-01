@@ -5,3 +5,4 @@ Debug_SN*
 *.atzip
 .atmel-start-backup
 *.sr
+*.log

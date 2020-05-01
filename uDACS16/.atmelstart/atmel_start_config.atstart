@@ -950,6 +950,18 @@ pads:
     mode: Analog
     user_label: VMON1
     configuration: null
+  SPR7:
+    name: PB08
+    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PB08
+    mode: Digital output
+    user_label: SPR7
+    configuration: null
+  SPR8:
+    name: PB09
+    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PB09
+    mode: Digital output
+    user_label: SPR8
+    configuration: null
   AOMON3:
     name: PA04
     definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PA04
