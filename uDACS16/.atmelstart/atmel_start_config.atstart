@@ -849,7 +849,7 @@ drivers:
       usart_arch_sampa: 7-8-9 (3-4-5 8-bit over-sampling)
       usart_arch_sampr: 16x arithmetic
       usart_arch_sfde: false
-      usart_baud_rate: 9600
+      usart_baud_rate: 57600
       usart_character_size: 8 bits
       usart_parity: No parity
       usart_rx_enable: true
@@ -1069,5 +1069,17 @@ pads:
     definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PB23
     mode: Peripheral IO
     user_label: URXFTX
+    configuration: null
+  J35_EN:
+    name: PB02
+    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PB02
+    mode: Digital output
+    user_label: J35_EN
+    configuration: null
+  J34_EN:
+    name: PB03
+    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PB03
+    mode: Digital output
+    user_label: J34_EN
     configuration: null
 toolchain_options: []

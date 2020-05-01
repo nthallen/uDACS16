@@ -5,6 +5,7 @@
 #include "subbus.h"
 #include "control.h"
 #include "driver_temp.h"
+#include "commands.h"
 
 int main(void)
 {
@@ -16,6 +17,7 @@ int main(void)
 	  subbus_add_driver(&sb_fail_sw) ||
 	  subbus_add_driver(&sb_board_desc)
 	  || subbus_add_driver(&sb_control)
+	  || subbus_add_driver(&sb_cmd)
 	  // || subbus_add_driver(&sb_spi)
 	  // || subbus_add_driver(&sb_rtc)
 	  ) {

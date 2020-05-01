@@ -345,6 +345,35 @@ void system_init(void)
 {
 	init_mcu();
 
+	// GPIO on PB02
+
+	gpio_set_pin_level(J35_EN,
+			// <y> Initial level
+			// <id> pad_initial_level
+			// <false"> Low
+			// <true"> High
+	false);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(J35_EN, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(J35_EN, GPIO_PIN_FUNCTION_OFF);
+
+	// GPIO on PB03
+
+	gpio_set_pin_level(J34_EN,
+			// <y> Initial level
+			// <id> pad_initial_level
+			// <false"> Low
+			// <true"> High
+	false);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(J34_EN, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(J34_EN, GPIO_PIN_FUNCTION_OFF);
+
+
 	// GPIO on PB08
 
 	gpio_set_pin_level(SPR7,

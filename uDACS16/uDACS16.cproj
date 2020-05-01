@@ -141,9 +141,9 @@
           <AcmeProjectActionInfo Action="File" Source="hri/hri_tsens_c21.h" IsConfig="false" Hash="OFh3vm9bu5bqLHs8A9r6tA" />
           <AcmeProjectActionInfo Action="File" Source="hri/hri_wdt_c21.h" IsConfig="false" Hash="Mv9f3Eq4CdnYzB5ovab7Ew" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="w4gbKOzBI0N7L4FZvu1HlQ" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="nICmkgJY39/qAV8SPHXylA" />
           <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="HM277cPZmlctXyqDF+8fvQ" />
-          <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="BrlBMPzxZn4nYuZLzzbDgw" />
+          <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="yLkfb024TPpsqKKmk+X46Q" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="hgVCtpp3OCmKtyQDusdwCw" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="d0idzSRUX4Nxv+ssBaiJwA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_divas_config.h" IsConfig="false" Hash="guqltsUm9QXCxoea3f+S6g" />
@@ -198,7 +198,7 @@
           <AcmeProjectActionInfo Action="File" Source="config/hpl_oscctrl_config.h" IsConfig="true" Hash="iq+WLoLR0ENniRdCX/E8NQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_port_config.h" IsConfig="true" Hash="rMTNR+5FXtu+wfT1NbfRRA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_rtc_config.h" IsConfig="true" Hash="2oUsD+oL+zRIf6Yed5JPlQ" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_sercom_config.h" IsConfig="true" Hash="X/sxBf17o7F1U5Bkf/Gs+Q" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_sercom_config.h" IsConfig="true" Hash="dnTtJSX7TvoJK/Ukwf24OQ" />
           <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="npvJCYDRbiSCMfhe5R4Stw" />
         </AcmeActionInfos>
       </AcmeProjectConfig>
@@ -438,6 +438,15 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="atmel_start.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="atmel_start.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="atmel_start_pins.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="config\hpl_adc_config.h">
       <SubType>compile</SubType>
     </Compile>
