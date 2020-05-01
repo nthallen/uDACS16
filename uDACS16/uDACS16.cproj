@@ -438,15 +438,6 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="atmel_start.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="atmel_start.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="atmel_start_pins.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="config\hpl_adc_config.h">
       <SubType>compile</SubType>
     </Compile>
@@ -486,16 +477,22 @@
     <Compile Include="config\RTE_Components.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="control.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Device_Startup\startup_samc21.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Device_Startup\system_samc21.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="driver_init.c">
+    <Compile Include="driver_temp.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="driver_init.h">
+    <Compile Include="driver_temp.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="examples\driver_examples.c">
@@ -895,6 +892,24 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="serial_num.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="subbus.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="subbus.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="uDACS_pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="usart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="usart.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
