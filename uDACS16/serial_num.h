@@ -18,7 +18,7 @@
 // These parameters are common to all boards built with this code
 #define SUBBUS_BOARD_FIRMWARE_REV "V1.0"
 #define SUBBUS_BOARD_BUILD_NUM 1
-#define SUBBUS_BOARD_SN 1
+#define SUBBUS_BOARD_SN 2
 //#define HAVE_RTC
 
 /**
@@ -41,6 +41,8 @@
 //  #define SB_FAIL_PIN SPR7
 //  #define SB_FAIL_PIN2 SPR29
 //  #define SB_FAIL_TIMEOUT_SECS 20
+#define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
+#define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
 
 #ifndef SUBBUS_SUBFUNCTION_HEX
 #define SUBBUS_SUBFUNCTION_HEX SUBBUS_SUBFUNCTION
