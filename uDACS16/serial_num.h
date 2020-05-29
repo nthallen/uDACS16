@@ -18,7 +18,7 @@
 // These parameters are common to all boards built with this code
 #define SUBBUS_BOARD_FIRMWARE_REV "V1.0"
 #define SUBBUS_BOARD_BUILD_NUM 1
-#define SUBBUS_BOARD_SN 1
+// #define SUBBUS_BOARD_SN 1
 //#define HAVE_RTC
 
 /**
@@ -31,18 +31,28 @@
 
 #define SUBBUS_SUBFUNCTION 15
 #define SUBBUS_SUBFUNCTION_HEX F
-#define SUBBUS_BOARD_ID 1
-
 #define SUBBUS_BOARD_BOARD_REV "Rev A"
-
 #define SUBBUS_BOARD_INSTRUMENT_ID 7
 #define SUBBUS_BOARD_INSTRUMENT "DPOPS"
 #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
-//  #define SB_FAIL_PIN SPR7
-//  #define SB_FAIL_PIN2 SPR29
-//  #define SB_FAIL_TIMEOUT_SECS 20
-#define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
-#define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
+
+#if SUBBUS_BOARD_SN == 1
+  #define SUBBUS_BOARD_ID 1 // uDACS "A"
+#elif SUBBUS_BOARD_SN == 2
+  #define SUBBUS_BOARD_ID 2 // uDACS "B"
+#endif
+
+#if ! defined(SUBBUS_BOARD_ID)
+#error Must define SUBBUS_BOARD_ID
+#endif
+
+#if SUBBUS_BOARD_ID == 1 // uDACS "A"
+  // #define SB_FAIL_PIN SPR7
+  //  #define SB_FAIL_PIN2 SPR29
+  //  #define SB_FAIL_TIMEOUT_SECS 20
+  #define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
+  #define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
+#endif
 
 #ifndef SUBBUS_SUBFUNCTION_HEX
 #define SUBBUS_SUBFUNCTION_HEX SUBBUS_SUBFUNCTION

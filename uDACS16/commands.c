@@ -3,6 +3,7 @@
 // #include "spi.h"
 
 static void commands_init(void) {
+#if SUBBUS_BOARD_ID == 1
 	gpio_set_pin_level(J34_CNTL, false);
 	gpio_set_pin_direction(J34_CNTL, GPIO_DIRECTION_OUT);
 	gpio_set_pin_function(J34_CNTL, GPIO_PIN_FUNCTION_OFF);
@@ -10,7 +11,7 @@ static void commands_init(void) {
     gpio_set_pin_level(PPWR_CNTL, false);
     gpio_set_pin_direction(PPWR_CNTL, GPIO_DIRECTION_OUT);
     gpio_set_pin_function(PPWR_CNTL, GPIO_PIN_FUNCTION_OFF);
-	
+#endif
   //#ifdef uDACS_B
     //gpio_set_pin_level(PPMP_CNTL, false);
     //gpio_set_pin_direction(PPMP_CNTL, GPIO_DIRECTION_OUT);
@@ -55,6 +56,7 @@ static void cmd_poll(void) {
   //uint16_t status;
   if (subbus_cache_iswritten(&sb_cmd, CMD_BASE_ADDR, &cmd)) {
     switch (cmd) {
+#if SUBBUS_BOARD_ID == 1
       case 0: // both Load Switches off
       case 1: // both Load Switches on
         gpio_set_pin_level(J34_CNTL, cmd);
@@ -68,12 +70,13 @@ static void cmd_poll(void) {
       case 5:
         gpio_set_pin_level(PPWR_CNTL, cmd & 1);
         break;
+#endif
       default:
         break;
     }
   }
   // No status on Load switches
-  // 
+  //
   //status = 0;
   //update_status(&status, PPMP_CNTL, 0x01);
   //update_status(&status, PPMPS, 0x02);
