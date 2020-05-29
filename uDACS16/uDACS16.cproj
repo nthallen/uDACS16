@@ -670,9 +670,6 @@
     <Compile Include="atmel_start.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="atmel_start_pins.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="commands.c">
       <SubType>compile</SubType>
     </Compile>

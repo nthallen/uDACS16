@@ -8,7 +8,8 @@
 #ifndef DRIVER_INIT_INCLUDED
 #define DRIVER_INIT_INCLUDED
 
-#include "atmel_start_pins.h"
+// #include "atmel_start_pins.h"
+#include "uDACS_pins.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,10 +67,11 @@ void PSD_SPI_PORT_init(void);
 void PSD_SPI_CLOCK_init(void);
 void PSD_SPI_init(void);
 
+#if 0	// Replaced on usart.c
 void USART_CTRL_PORT_init(void);
 void USART_CTRL_CLOCK_init(void);
 void USART_CTRL_init(void);
-
+#endif
 /**
  * \brief Perform system initialization, initialize pins and clocks for
  * peripherals

@@ -6,7 +6,8 @@
  * to avoid losing it when reconfiguring.
  */
 
-#include "driver_init.h"
+// #include "driver_init.h"
+#include "driver_temp.h"
 #include <peripheral_clk_config.h>
 #include <utils.h>
 #include <hal_init.h>
@@ -282,7 +283,7 @@ void PSD_SPI_init(void)
 	PSD_SPI_PORT_init();
 }
 
-#if 0
+#if 0  // replaced on usart.c
 /**
  * \brief USART Clock initialization function
  *
@@ -321,6 +322,7 @@ void USART_CTRL_init(void)
 	USART_CTRL_PORT_init();
 }
 #endif
+
 void CAN_CTRL_PORT_init(void)
 {
 
@@ -413,6 +415,6 @@ void system_init(void)
 	PMON_I2C_init();
 
 	PSD_SPI_init();
-	// USART_CTRL_init();
+	// USART_CTRL_init();	// replaced in usart.c
 	CAN_CTRL_init();
 }
