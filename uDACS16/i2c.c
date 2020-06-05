@@ -199,7 +199,7 @@ static bool ads1115_poll(void) {
 }
 
 static bool ad5665_poll() {
-  return false;
+  return true;
 }
 
 static void i2c_write(int16_t i2c_addr, const uint8_t *obuf, int16_t nbytes) {

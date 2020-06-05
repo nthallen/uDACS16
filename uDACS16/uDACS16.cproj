@@ -664,12 +664,6 @@
     <OutputPath>bin\Debug_SN2\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="atmel_start.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="atmel_start.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="commands.c">
       <SubType>compile</SubType>
     </Compile>
