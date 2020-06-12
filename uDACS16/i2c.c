@@ -35,7 +35,11 @@ static void i2c_read(int16_t i2c_addr, uint8_t *ibuf, int16_t nbytes);
  * 0x26 R:  AIN5
  * 0x27 R:  AIN6
  * 0x28 R:  AIN7
- * 0x29 R:  AD5665 TBD
+ * 0x29 R:  N_reads before conversion complete
+ * 0x2A R:  AD5665 DAC0
+ * 0x2B R:  AD5665 DAC1
+ * 0x2C R:  AD5665 DAC2
+ * 0x2D R:  AD5665 DAC3
  */
 static subbus_cache_word_t i2c_cache[I2C_HIGH_ADDR-I2C_BASE_ADDR+1] = {
   // Value, Wvalue, readable, was_read, writable, written, dynamic
@@ -51,7 +55,12 @@ static subbus_cache_word_t i2c_cache[I2C_HIGH_ADDR-I2C_BASE_ADDR+1] = {
   { 0, 0, true,  false, false, false, false },  // AIN6
   { 0, 0, true,  false, false, false, false },  // AIN7
   { 0, 0, true,  false, false, false, false },  // N_reads before conversion complete
-  // AD5665: TBD
+  // AD5665 DAC Outouts
+  { 0, 0, true,  false,  true, false, false }, // Offset 0x00: RW: DAC Setpoint 0
+  { 0, 0, true,  false,  true, false, false }, // Offset 0x01: RW: DAC Setpoint 1
+  { 0, 0, true,  false,  true, false, false }, // Offset 0x02: RW: DAC Setpoint 2
+  { 0, 0, true,  false,  true, false, false }, // Offset 0x03: RW: DAC Setpoint 3
+  // { 0, 0, true,  false,  true, false, false }, // Offset 0x07: RW: All DACs
 };
 
 enum ads_state_t {ads_t1_init, ads_t1_init_tx, ads_t1_read_cfg,
@@ -198,7 +207,65 @@ static bool ads1115_poll(void) {
   return true;
 }
 
-static bool ad5665_poll() {
+/* 
+ * DAC: poll AD5665 on i2c bus
+ */
+typedef struct {
+ bool enabled;
+ uint16_t offs[4];	// Changed to (cache) offset 
+ uint16_t current;
+} dac_poll_def;	// removed SPI CS_pin and state
+
+static dac_poll_def AD5665 = {
+	I2C_AD5665_ENABLED,
+	{I2C_AD5665_OFFSET, I2C_AD5665_OFFSET +1, I2C_AD5665_OFFSET +2, I2C_AD5665_OFFSET +3},	// new offs[4]; offset within cache
+	0 };
+
+enum dac_state_t {dac_init, dac_tx, dac_idle};
+static enum dac_state_t dac_state = dac_init;
+
+static uint8_t dac_ref_en_cmd[3] = {0x38, 0x00, 0x01};
+static uint8_t DACupdate[3];
+static uint8_t dac_slave_addr = 0x10; // 7-bit i2c device address for AD5665 Quad DAC
+
+static bool dac_vref_enabled = false;
+
+/**
+ * @return true if the bus is free and available for another device
+ */
+static bool ad5665_poll(void) {
+  uint16_t value;	// might declare outside poll loops
+  switch (dac_state) {
+    case dac_init: // Initialize DAC: Enable internal Ref
+      i2c_write(dac_slave_addr, dac_ref_en_cmd, 3);	// Should look for no Error here..
+      dac_vref_enabled = true;	// .. before declaring Ref is Enabled. 
+      dac_state = dac_tx;
+      return false;	// keep bus until done
+	  
+    case dac_tx:	// delay ?
+      dac_state = dac_vref_enabled ? dac_idle : dac_init;	// dac_tx not needed ?
+      return true;
+	  
+    case dac_idle:
+      if (sb_cache_iswritten(i2c_cache, AD5665.offs[AD5665.current], &value)) {
+        DACupdate[0] = 0x18+AD5665.current;	// 0x18 is correct for "write to and update DACn"
+        DACupdate[1] = (value>>8) & 0xFF;
+        DACupdate[2] = value & 0xFF;
+		
+		i2c_write(dac_slave_addr, DACupdate, 3);
+
+        sb_cache_update(i2c_cache, AD5665.offs[AD5665.current], value);
+		
+        AD5665.current = (AD5665.current + 1) & 0x3;	// Increment to check next DAC
+        dac_state = dac_tx;
+        return false;
+      } else {
+        AD5665.current = (AD5665.current + 1) & 0x3;	// Increment to check next DAC
+        return true;
+      }
+    default:
+      assert(false,__FILE__,__LINE__);
+  }
   return true;
 }
 
