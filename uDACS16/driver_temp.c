@@ -28,8 +28,8 @@
 
 struct adc_async_descriptor         VMON_ADC;
 struct adc_async_channel_descriptor VMON_ADC_ch[VMON_ADC_CH_AMOUNT];
-struct timer_descriptor             TIMER_0;
 // struct usart_async_descriptor       USART_CTRL;
+struct timer_descriptor             TIMER_0;
 struct can_async_descriptor         CAN_CTRL;
 
 static uint8_t VMON_ADC_buffer[VMON_ADC_BUFFER_SIZE];
