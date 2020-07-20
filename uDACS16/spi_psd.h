@@ -12,7 +12,7 @@
 
 #define PSD_SPI_MAX_READ_LENGTH 32
 #define PSD_SPI_BASE_ADDR 0x10
-#define PSD_SPI_HIGH_ADDR 0x1D
+#define PSD_SPI_HIGH_ADDR 0x1E
 
 #define ADC_LSW_OFFSET(x) (5+2*(x))
 #define ADC_MSB_OFFSET(x) (6+2*(x))
