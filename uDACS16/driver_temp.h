@@ -8,8 +8,7 @@
 #ifndef DRIVER_INIT_INCLUDED
 #define DRIVER_INIT_INCLUDED
 
-// #include "atmel_start_pins.h"
-#include "uDACS_pins.h"
+#include "uDACS_pins.h"	// #include "atmel_start_pins.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,8 +23,6 @@ extern "C" {
 
 #include <hal_adc_async.h>
 
-#include <hal_timer.h>
-
 #include <hal_spi_m_async.h>
 
 #include <hal_i2c_m_async.h>
@@ -34,10 +31,11 @@ extern "C" {
 
 #include <hal_spi_m_async.h>
 #include <hal_usart_async.h>
+#include <hal_timer.h>
+#include <hpl_tc_base.h>
 #include <hal_can_async.h>
 
 extern struct adc_async_descriptor VMON_ADC;
-extern struct timer_descriptor     TIMER_0;
 
 extern struct spi_m_async_descriptor PMOD_SPI;
 
@@ -47,6 +45,7 @@ extern struct i2c_m_async_desc PMON_I2C;
 
 extern struct spi_m_async_descriptor PSD_SPI;
 extern struct usart_async_descriptor USART_CTRL;
+extern struct timer_descriptor       TIMER_0;
 extern struct can_async_descriptor   CAN_CTRL;
 
 void VMON_ADC_init(void);

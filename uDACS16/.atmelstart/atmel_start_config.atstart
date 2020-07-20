@@ -2,16 +2,16 @@ format_version: '2'
 name: uDACS16
 versions:
   api: '1.0'
-  backend: 1.7.303
-  commit: 1e07622763d149970fd8808a8f12ff3b1e84e0d7
+  backend: 1.7.391
+  commit: d4b7e9f65a05ebffcb0986e4060cb8c0a313e69a
   content: unknown
   content_pack_name: unknown
   format: '2'
-  frontend: 1.7.303
-  packs_version_avr8: 1.0.1410
+  frontend: 1.7.391
+  packs_version_avr8: 1.0.1421
   packs_version_qtouch: unknown
-  packs_version_sam: 1.0.1554
-  version_backend: 1.7.303
+  packs_version_sam: 1.0.1658
+  version_backend: 1.7.391
   version_frontend: ''
 board:
   identifier: CustomBoard
@@ -419,7 +419,7 @@ drivers:
       enable_gclk_gen_2__externalclock: 1000000
       enable_gclk_gen_3: true
       enable_gclk_gen_3__externalclock: 1000000
-      enable_gclk_gen_4: false
+      enable_gclk_gen_4: true
       enable_gclk_gen_4__externalclock: 1000000
       enable_gclk_gen_5: false
       enable_gclk_gen_5__externalclock: 1000000
@@ -447,7 +447,7 @@ drivers:
       gclk_arch_gen_3_oe: false
       gclk_arch_gen_3_oov: false
       gclk_arch_gen_3_runstdby: false
-      gclk_arch_gen_4_enable: false
+      gclk_arch_gen_4_enable: true
       gclk_arch_gen_4_idc: false
       gclk_arch_gen_4_oe: false
       gclk_arch_gen_4_oov: false
@@ -479,9 +479,9 @@ drivers:
       gclk_gen_3_div: 4
       gclk_gen_3_div_sel: false
       gclk_gen_3_oscillator: Generic clock generator 1
-      gclk_gen_4_div: 1
+      gclk_gen_4_div: 16
       gclk_gen_4_div_sel: false
-      gclk_gen_4_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
+      gclk_gen_4_oscillator: Generic clock generator 1
       gclk_gen_5_div: 1
       gclk_gen_5_div_sel: false
       gclk_gen_5_oscillator: External Crystal Oscillator 0.4-32MHz (XOSC)
@@ -631,37 +631,6 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-  TIMER_0:
-    user_label: TIMER_0
-    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::RTC::driver_config_definition::Timer::HAL:Driver:Timer
-    functionality: Timer
-    api: HAL:Driver:Timer
-    configuration:
-      rtc_arch_comp_val: 32
-      rtc_arch_init_reset: true
-      rtc_arch_prescaler: OFF(Peripheral clock divided by 1)
-      rtc_cmpeo0: false
-      rtc_event_control: false
-      rtc_ovfeo: false
-      rtc_pereo0: false
-      rtc_pereo1: false
-      rtc_pereo2: false
-      rtc_pereo3: false
-      rtc_pereo4: false
-      rtc_pereo5: false
-      rtc_pereo6: false
-      rtc_pereo7: false
-    optional_signals: []
-    variant: null
-    clocks:
-      domain_group:
-        nodes:
-        - name: RTC
-          input: RTC source
-          external: false
-          external_frequency: 0
-        configuration:
-          rtc_clk_selection: RTC source
   PMOD_SPI:
     user_label: PMOD_SPI
     definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::SERCOM1::driver_config_definition::SPI.Master::HAL:Driver:SPI.Master.Async
@@ -879,6 +848,37 @@ drivers:
         configuration:
           core_gclk_selection: Generic clock generator 0
           slow_gclk_selection: Generic clock generator 3
+  TIMER_0:
+    user_label: TIMER_0
+    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::TC0::driver_config_definition::Timer::HAL:Driver:Timer
+    functionality: Timer
+    api: HAL:Driver:Timer
+    configuration:
+      tc_arch_dbgrun: false
+      tc_arch_evact: Event action disabled
+      tc_arch_mceo0: false
+      tc_arch_mceo1: false
+      tc_arch_ondemand: false
+      tc_arch_ovfeo: false
+      tc_arch_presync: Reload or reset counter on next GCLK
+      tc_arch_runstdby: false
+      tc_arch_tcei: false
+      tc_arch_tcinv: false
+      timer_advanced_configuration: false
+      timer_event_control: false
+      timer_prescaler: No division
+      timer_tick: 1000
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: TC
+          input: Generic clock generator 4
+          external: false
+          external_frequency: 0
+        configuration:
+          tc_gclk_selection: Generic clock generator 4
   CAN_CTRL:
     user_label: CAN_CTRL
     definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::CAN0::driver_config_definition::CAN::HAL:Driver:CAN.Async
@@ -998,6 +998,13 @@ pads:
     mode: I2C
     user_label: DADC_SCL
     configuration: null
+  P_CS:
+    name: PB11
+    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PB11
+    mode: Digital output
+    user_label: P_CS
+    configuration:
+      pad_initial_level: High
   SD_MOSI:
     name: PA12
     definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PA12

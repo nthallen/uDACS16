@@ -14,8 +14,6 @@ extern "C" {
 
 void VMON_ADC_example(void);
 
-void TIMER_0_example(void);
-
 void PMOD_SPI_example(void);
 
 void DADC_I2C_example(void);
@@ -25,6 +23,8 @@ void PMON_I2C_example(void);
 void PSD_SPI_example(void);
 
 void USART_CTRL_example(void);
+
+void TIMER_0_example(void);
 
 void CAN_CTRL_example(void);
 

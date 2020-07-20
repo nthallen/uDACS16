@@ -13,7 +13,6 @@
 #include <hal_init.h>
 
 #include <hpl_adc_base.h>
-#include <hpl_rtc_base.h>
 
 /* The channel amount for ADC */
 #define VMON_ADC_CH_AMOUNT 1
@@ -84,17 +83,6 @@ void VMON_ADC_init(void)
 	gpio_set_pin_direction(AOMON0, GPIO_DIRECTION_OFF);
 
 	gpio_set_pin_function(AOMON0, PINMUX_PA07B_ADC0_AIN7);
-}
-
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-static void TIMER_0_init(void)
-{
-	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
-	timer_init(&TIMER_0, RTC, _rtc_get_timer());
 }
 
 void PMOD_SPI_PORT_init(void)
@@ -323,6 +311,19 @@ void USART_CTRL_init(void)
 }
 #endif
 
+/**
+ * \brief Timer initialization function
+ *
+ * Enables Timer peripheral, clocks and initializes Timer driver
+ */
+static void TIMER_0_init(void)
+{
+	hri_mclk_set_APBCMASK_TC0_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	timer_init(&TIMER_0, TC0, _tc_get_timer());
+}
+
 void CAN_CTRL_PORT_init(void)
 {
 
@@ -403,10 +404,22 @@ void system_init(void)
 	gpio_set_pin_direction(SPR8, GPIO_DIRECTION_OUT);
 
 	gpio_set_pin_function(SPR8, GPIO_PIN_FUNCTION_OFF);
+	
+	// GPIO on PB11
+
+	gpio_set_pin_level(P_CS,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   true);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(P_CS, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(P_CS, GPIO_PIN_FUNCTION_OFF);
 
 	VMON_ADC_init();
-
-	TIMER_0_init();
 
 	PMOD_SPI_init();
 
@@ -416,5 +429,7 @@ void system_init(void)
 
 	PSD_SPI_init();
 	// USART_CTRL_init();	// replaced in usart.c
+	
+	TIMER_0_init();
 	CAN_CTRL_init();
 }

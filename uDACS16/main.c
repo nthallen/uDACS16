@@ -2,9 +2,11 @@
 //#include "utils.h"
 #include <hal_init.h>
 #include "usart.h"
-#include "i2c.h"
 #include "subbus.h"
 #include "control.h"
+#include "spi_psd.h"
+#include "i2c.h"
+#include "rtc_timer.h"
 #include "driver_temp.h"	// in place for driver_init
 #include "commands.h"
 
@@ -21,10 +23,10 @@ int main(void)
 	  || subbus_add_driver(&sb_cmd)
       || subbus_add_driver(&sb_i2c)
       // || subbus_add_driver(&sb_can)
-	  // || subbus_add_driver(&sb_spi)
+	  || subbus_add_driver(&sb_spi)
 	  // || subbus_add_driver(&sb_rtc)
 	  ) {
-	  while (true) ; // some driver is misconfigured.
+	  while (true) ; // some driver is mis-configured.
   }
   subbus_reset();
   while (1) {

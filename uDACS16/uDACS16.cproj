@@ -253,8 +253,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
@@ -294,8 +294,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
@@ -319,8 +319,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
@@ -360,8 +360,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
@@ -402,8 +402,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
@@ -428,8 +428,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
@@ -471,8 +471,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
@@ -514,8 +514,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
@@ -540,8 +540,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
@@ -584,8 +584,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
@@ -627,8 +627,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
@@ -653,8 +653,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
@@ -664,6 +664,15 @@
     <OutputPath>bin\Debug_SN2\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="atmel_start.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="atmel_start.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="atmel_start_pins.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="commands.c">
       <SubType>compile</SubType>
     </Compile>
@@ -697,10 +706,10 @@
     <Compile Include="config\hpl_port_config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="config\hpl_rtc_config.h">
+    <Compile Include="config\hpl_sercom_config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="config\hpl_sercom_config.h">
+    <Compile Include="config\hpl_tc_config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="config\peripheral_clk_config.h">
@@ -719,6 +728,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Device_Startup\system_samc21.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="driver_init.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="driver_init.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="driver_temp.c">
@@ -778,9 +793,6 @@
     <Compile Include="hal\include\hpl_adc_sync.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hal\include\hpl_calendar.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="hal\include\hpl_can.h">
       <SubType>compile</SubType>
     </Compile>
@@ -821,6 +833,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_missing_features.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\include\hpl_pwm.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_reset.h">
@@ -922,9 +937,6 @@
     <Compile Include="hal\utils\include\utils_assert.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hal\utils\include\utils_decrement_macro.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="hal\utils\include\utils_event.h">
       <SubType>compile</SubType>
     </Compile>
@@ -932,9 +944,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\utils\include\utils_list.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hal\utils\include\utils_recursion_macro.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\utils\include\utils_repeat_macro.h">
@@ -1009,13 +1018,13 @@
     <Compile Include="hpl\port\hpl_gpio_base.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hpl\rtc\hpl_rtc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hpl\rtc\hpl_rtc_base.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="hpl\sercom\hpl_sercom.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hpl\tc\hpl_tc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hpl\tc\hpl_tc_base.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hri\hri_ac_c21.h">
@@ -1132,7 +1141,19 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rtc_timer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rtc_timer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="serial_num.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="spi_psd.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="spi_psd.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="subbus.c">
@@ -1173,8 +1194,8 @@
     <Folder Include="hpl\oscctrl\" />
     <Folder Include="hpl\pm\" />
     <Folder Include="hpl\port\" />
-    <Folder Include="hpl\rtc\" />
     <Folder Include="hpl\sercom\" />
+    <Folder Include="hpl\tc\" />
     <Folder Include="hri\" />
   </ItemGroup>
   <ItemGroup>
