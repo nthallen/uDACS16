@@ -2,12 +2,15 @@
 #include <peripheral_clk_config.h>
 #include <hpl_pm_base.h>
 #include <hpl_gclk_base.h>
+#include <hpl_tc_base.h>
 // #include <hpl_rtc_base.h>
 #include <hal_timer.h>
 #include "rtc_timer.h"
 
 struct timer_descriptor       TIMER_0;
 
+#if 0
+// Leave TIMER_0_init to driver_temp.c
 /**
  * \brief Timer initialization function
  *
@@ -15,10 +18,12 @@ struct timer_descriptor       TIMER_0;
  */
 static void TIMER_0_init(void)
 {
-	_pm_enable_bus_clock(PM_BUS_APBA, RTC);
-	_gclk_enable_channel(RTC_GCLK_ID, CONF_GCLK_RTC_SRC);
-	timer_init(&TIMER_0, RTC, _rtc_get_timer());
+	hri_mclk_set_APBCMASK_TC0_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	timer_init(&TIMER_0, TC0, _tc_get_timer());
 }
+#endif
 
 uint32_t rtc_current_count;
 #ifdef RTC_USE_MAX_DURATION_REFERENCE
@@ -33,6 +38,7 @@ static bool rtc_current_count_set;
  */
 int32_t uDACS_timer_start(struct timer_descriptor *const descr)
 {
+#ifdef USING_RTC
   struct _timer_device *dev;
   uint16_t register_value;
 	ASSERT(descr);
@@ -59,6 +65,9 @@ int32_t uDACS_timer_start(struct timer_descriptor *const descr)
 	hri_rtcmode0_set_CTRL_ENABLE_bit(dev->hw);
 
 	return ERR_NONE;
+#else
+  return timer_start(descr);
+#endif
 }
 
 static subbus_cache_word_t rtc_cache[RTC_HIGH_ADDR-RTC_BASE_ADDR+1] = {
@@ -72,7 +81,7 @@ static subbus_cache_word_t rtc_cache[RTC_HIGH_ADDR-RTC_BASE_ADDR+1] = {
 };
 
 static void rtc_reset() {
-  TIMER_0_init();
+  // TIMER_0_init(); Done in driver_temp
   uDACS_timer_start(&TIMER_0);
 }
 
