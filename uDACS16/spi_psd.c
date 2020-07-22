@@ -12,6 +12,8 @@
 #include "subbus.h"
 #include "rtc_timer.h"
 
+#define pow2(X) (double)(1<<X)
+
 static volatile bool PSD_SPI_txfr_complete = true;
 static bool spi_enabled = PSD_SPI_ENABLE_DEFAULT;
 // static bool ms5607_enabled = PSD_SPI_MS5607_ENABLED;
@@ -67,6 +69,10 @@ static uint8_t ms_read_coeff[24] = {	// May want to use MS_PROM_RD ?
   MS_ADC_READ, 		// Send ADC Read command
   0x00, 0x00, 0x00 	// read back ADC on SDO
 };
+
+static uint8_t ms_reset_cmd = MS_RESET;
+static uint8_t ms_conv_D1_osr;
+static uint8_t ms_conv_D2_osr;
 
 /* These addresses belong to the PSD_SPI module
  * 0x10 R:  PL: 16b Compensated Pressure LSW
@@ -142,7 +148,6 @@ static ms5607_poll_def ms5607 = {
 //	, 0, 0
 };
 
-
 /**
  * poll_ms5607() is only called when PSD_SPI_txfr_complete is non-zero
  *    and SPI bus is free 
@@ -157,7 +162,7 @@ static bool poll_ms5607() {
   if (!PSD_SPI_MS5607_ENABLED) return true;
   switch (ms5607.state) {
     case ms5607_init: 
-      start_spi_transfer(ms5607.cs_pin, MS_RESET, 1, SPI_MODE_0);
+      start_spi_transfer(ms5607.cs_pin, &ms_reset_cmd, 1, SPI_MODE_0);
       ms5607.state = ms5607_init_tx;
       return false;
 
@@ -174,8 +179,11 @@ static bool poll_ms5607() {
       return true;
 
     case ms5607_readcal: 
-	  // need to send 6 / receive 12 bytes to get 6 x 16b coefficients
-	  start_spi_transfer(ms5607.cs_pin, ms_read_coeff, 18, SPI_MODE_0);
+	  // need to send 8 / receive 12 bytes to get 
+	  // 1 x 8b Manuf info (TBD)
+	  // 6 x 16b coefficients
+	  // 1 x 8b CRC (TBD)
+	  start_spi_transfer(ms5607.cs_pin, ms_read_coeff, 24, SPI_MODE_0);
       ms5607.state = ms5607_readcal_tx;
       return false;
 
@@ -195,8 +203,8 @@ static bool poll_ms5607() {
 
 	// return loop here
     case ms5607_convp:
-	  osr_offs = 2 * psd_spi_cache[0x0E].cache; // Update OSR offset
-      start_spi_transfer(ms5607.cs_pin, (MS_CONV_D1 + osr_offs), 1, SPI_MODE_0); // Send Convert D1 (P)
+	  ms_conv_D1_osr = MS_CONV_D1 + (2 * psd_spi_cache[0x0E].cache); // Update CONV_D1 cmd with OSR offset
+      start_spi_transfer(ms5607.cs_pin, &ms_conv_D1_osr, 1, SPI_MODE_0); // Send Convert D1 (P)
 	  //  ADC OSR=256 	600us ~1ms
 	  //  ADC OSR=512 	1.17ms ~2ms
 	  //  ADC OSR=1024	2.28ms ~3ms
@@ -243,8 +251,8 @@ static bool poll_ms5607() {
       return true;
 
     case ms5607_convt:
-	  uint8_t osr_offs = 2 * psd_spi_cache[0x0E].cache; // Update OSR offset
-      start_spi_transfer(ms5607.cs_pin, (MS_CONV_D2 + osr_offs), 1, SPI_MODE_0); // Send Convert D2 (T)
+	  ms_conv_D2_osr = MS_CONV_D2 + (2 * psd_spi_cache[0x0E].cache); // Update CONV_D1 cmd with OSR offset
+      start_spi_transfer(ms5607.cs_pin, &ms_conv_D2_osr, 1, SPI_MODE_0); // Send Convert D2 (T)
       ms5607.state = ms5607_convt_tx;
       return false;
 
@@ -275,14 +283,14 @@ static bool poll_ms5607() {
 		| ((uint32_t)psd_spi_cache[0x1C].cache);	// Update ms5607.D2 for T calculation 
 		
 	  // Perform Compensation calculations here and update cache
-	  dT = ((float)ms5607.D2) - ((float)(ms5607.cal[5]<<8));
-	  OFF = ((float)(ms5607.cal[2]<<17)) + dT * ((float)(ms5607.cal[4]>>6));
-	  SENS = ((float)(ms5607.cal[1]<<16)) + dT * ((float)(ms5607.cal[3]>>7));
-	  T = (2000 + (dT * ((float)(ms5607.cal[6]>>23))));  // div by 100 for degC?
-	  P = (((((float)ms5607.D1 * SENS)>>21) - OFF)>>15); // div by 100 for mBar?
-	  // P and T result could be higher by x100 
-	  psd_spi_cache[0x01].cache = (uint16_t)T; // update cache for T
-	  psd_spi_cache[0x00].cache = (uint16_t)P; // update cache for P
+	  dT = ((double)ms5607.D2) - ((double)(ms5607.cal[5]) * pow2(8));
+	  OFF = ((double)(ms5607.cal[2]) * pow2(17)) + (dT * ((double)(ms5607.cal[4]))) / pow2(6);
+	  SENS = ((double)(ms5607.cal[1]) * pow2(16)) + (dT * ((double)(ms5607.cal[3]))) / pow2(7);
+	  ms5607.T = 2000 + ((dT * (double)(ms5607.cal[6])) / pow2(23));  // further div by 100 for degC?
+	  ms5607.P = ((((double)(ms5607.D1) * SENS) / pow2(21)) - OFF) / pow2(15); // further div by 100 for mBar?
+	  // P and T result are x 100 
+	  psd_spi_cache[0x01].cache = (uint16_t)ms5607.T; // update cache for T. Div by 100 here?
+	  psd_spi_cache[0x00].cache = (uint16_t)ms5607.P; // update cache for P. Div by 100 here?
 	  
       chip_deselect(ms5607.cs_pin);
 	  PSD_SPI_txfr_complete = true;	
