@@ -2,8 +2,11 @@
 #include <peripheral_clk_config.h>
 #include <hpl_pm_base.h>
 #include <hpl_gclk_base.h>
+#ifdef USING_RTC
+#include <hpl_rtc_base.h>
+#else
 #include <hpl_tc_base.h>
-// #include <hpl_rtc_base.h>
+#endif
 #include <hal_timer.h>
 #include "rtc_timer.h"
 
@@ -93,7 +96,11 @@ static void rtc_reset() {
  * Checks to see if this is a new maximum, and if so, stores it in offset 3.
  */
 static void rtc_poll() {
+  #ifdef USING_RTC
   uint32_t cur_time = hri_rtcmode0_read_COUNT_reg(RTC);
+  #else
+  uint32_t cur_time = hri_tccount32_read_COUNT_COUNT_bf(TIMER_0.device->hw);
+  #endif
   sb_cache_update32(rtc_cache,RTC_ELAPSED_OFFSET,&cur_time);
   if (rtc_current_count_set) {
     uint16_t dt = cur_time - rtc_current_count;
