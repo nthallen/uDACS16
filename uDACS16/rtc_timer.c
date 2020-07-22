@@ -99,7 +99,7 @@ static void rtc_poll() {
   #ifdef USING_RTC
   uint32_t cur_time = hri_rtcmode0_read_COUNT_reg(RTC);
   #else
-  uint32_t cur_time = hri_tccount32_read_COUNT_COUNT_bf(TIMER_0.device->hw);
+  uint32_t cur_time = hri_tccount32_read_COUNT_COUNT_bf(TIMER_0.device.hw);
   #endif
   sb_cache_update32(rtc_cache,RTC_ELAPSED_OFFSET,&cur_time);
   if (rtc_current_count_set) {
