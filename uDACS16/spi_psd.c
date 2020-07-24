@@ -154,8 +154,7 @@ static ms5607_poll_def ms5607 = {
  * @return true if we are relinquishing the SPI bus
  */
 static bool poll_ms5607() {
-  uint32_t delay;
-  uint8_t osr_offs;
+  uint32_t delay = 0x00000000;
   double dT; 	// difference between actual and measured temperature
   double OFF; 	// offset at actual temperature
   double SENS; 	// sensitivity at actual temperature
@@ -200,6 +199,8 @@ static bool poll_ms5607() {
 	  PSD_SPI_txfr_complete = true;	
       ms5607.state = ms5607_readp;
       return true;
+
+// Probably need _delay state here...
 
 	// return loop here
     case ms5607_convp:
@@ -300,6 +301,7 @@ static bool poll_ms5607() {
     default:
       assert(false, __FILE__, __LINE__);
    }
+   return true; 
 }
 
 // For P and T 

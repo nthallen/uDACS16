@@ -24,7 +24,7 @@ int main(void)
       || subbus_add_driver(&sb_i2c)
       // || subbus_add_driver(&sb_can)
 	  || subbus_add_driver(&sb_spi)
-	  // || subbus_add_driver(&sb_rtc)
+	  || subbus_add_driver(&sb_rtc)
 	  ) {
 	  while (true) ; // some driver is mis-configured.
   }

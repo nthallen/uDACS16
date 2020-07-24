@@ -324,6 +324,7 @@ static void TIMER_0_init(void)
 	timer_init(&TIMER_0, TC0, _tc_get_timer());
 }
 
+#if 0
 void CAN_CTRL_PORT_init(void)
 {
 
@@ -343,6 +344,7 @@ void CAN_CTRL_init(void)
 	can_async_init(&CAN_CTRL, CAN0);
 	CAN_CTRL_PORT_init();
 }
+#endif
 
 void system_init(void)
 {
@@ -431,5 +433,5 @@ void system_init(void)
 	// USART_CTRL_init();	// replaced in usart.c
 	
 	TIMER_0_init();
-	CAN_CTRL_init();
+	// CAN_CTRL_init();  //  No CAN yet
 }
