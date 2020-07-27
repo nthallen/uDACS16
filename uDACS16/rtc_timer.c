@@ -98,11 +98,13 @@ static void rtc_reset() {
  * Checks to see if this is a new maximum, and if so, stores it in offset 3.
  */
 static void rtc_poll() {
-  #ifdef USING_RTC
+#ifdef USING_RTC
   uint32_t cur_time = hri_rtcmode0_read_COUNT_reg(RTC);
-  #else
+#else
+  hri_tc_clear_CTRLB_CMD_bf(TIMER_0.device.hw, 0xE0);
+  hri_tc_set_CTRLB_CMD_bf(TIMER_0.device.hw, 0x80);
   uint32_t cur_time = hri_tccount32_read_COUNT_COUNT_bf(TIMER_0.device.hw);
-  #endif
+#endif
   sb_cache_update32(rtc_cache,RTC_ELAPSED_OFFSET,&cur_time);
   if (rtc_current_count_set) {
     uint16_t dt = cur_time - rtc_current_count;
