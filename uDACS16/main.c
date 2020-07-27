@@ -20,11 +20,11 @@ int main(void)
 	  || subbus_add_driver(&sb_fail_sw) 
 	  || subbus_add_driver(&sb_board_desc)
 	  || subbus_add_driver(&sb_control)
-	  || subbus_add_driver(&sb_cmd)
-      || subbus_add_driver(&sb_i2c)
-      // || subbus_add_driver(&sb_can)
 	  || subbus_add_driver(&sb_spi)
+      || subbus_add_driver(&sb_i2c)
+	  || subbus_add_driver(&sb_cmd)
 	  || subbus_add_driver(&sb_rtc)
+      // || subbus_add_driver(&sb_can)
 	  ) {
 	  while (true) ; // some driver is mis-configured.
   }

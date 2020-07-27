@@ -730,6 +730,12 @@
     <Compile Include="Device_Startup\system_samc21.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="driver_init.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="driver_init.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="driver_temp.c">
       <SubType>compile</SubType>
     </Compile>

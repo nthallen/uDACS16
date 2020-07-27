@@ -29,8 +29,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
@@ -71,8 +71,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
@@ -97,8 +97,8 @@
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
-      <Value>../hpl/rtc</Value>
       <Value>../hpl/sercom</Value>
+      <Value>../hpl/tc</Value>
       <Value>../hri</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>

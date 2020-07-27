@@ -172,6 +172,7 @@ static bool poll_ms5607() {
 	  
     case ms5607_init_delay:
 	  if ( rtc_current_count <= ms5607.endtime ) return false; 
+//	  for (int j=0; j < 6000; ++j);  // 6000 about 3ms delay
       chip_deselect(ms5607.cs_pin);
 	  PSD_SPI_txfr_complete = true;	
       ms5607.state = ms5607_readcal;
@@ -228,6 +229,7 @@ static bool poll_ms5607() {
 	
     case ms5607_convp_delay:
 	  if ( rtc_current_count <= ms5607.endtime ) return false; 
+//	  for (int j=0; j < 18000; ++j); // 18000 about 10ms delay
       chip_deselect(ms5607.cs_pin);
 	  PSD_SPI_txfr_complete = true;	
       ms5607.state = ms5607_readp;
@@ -264,6 +266,7 @@ static bool poll_ms5607() {
 	
     case ms5607_convt_delay:
 	  if ( rtc_current_count <= ms5607.endtime ) return false; 
+//	  for (int j=0; j < 18000; ++j); // 18000 about 10ms delay
       chip_deselect(ms5607.cs_pin);
 	  PSD_SPI_txfr_complete = true;	
       ms5607.state = ms5607_readt;

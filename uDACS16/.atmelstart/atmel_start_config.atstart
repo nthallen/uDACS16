@@ -439,17 +439,17 @@ drivers:
       gclk_arch_gen_1_runstdby: false
       gclk_arch_gen_2_enable: true
       gclk_arch_gen_2_idc: false
-      gclk_arch_gen_2_oe: true
+      gclk_arch_gen_2_oe: false
       gclk_arch_gen_2_oov: false
       gclk_arch_gen_2_runstdby: false
       gclk_arch_gen_3_enable: true
       gclk_arch_gen_3_idc: false
-      gclk_arch_gen_3_oe: false
+      gclk_arch_gen_3_oe: true
       gclk_arch_gen_3_oov: false
       gclk_arch_gen_3_runstdby: false
       gclk_arch_gen_4_enable: true
       gclk_arch_gen_4_idc: false
-      gclk_arch_gen_4_oe: false
+      gclk_arch_gen_4_oe: true
       gclk_arch_gen_4_oov: false
       gclk_arch_gen_4_runstdby: false
       gclk_arch_gen_5_enable: false
