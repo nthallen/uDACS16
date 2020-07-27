@@ -406,7 +406,7 @@ void system_init(void)
 	gpio_set_pin_direction(SPR8, GPIO_DIRECTION_OUT);
 
 	gpio_set_pin_function(SPR8, GPIO_PIN_FUNCTION_OFF);
-	
+
 	// GPIO on PB11
 
 	gpio_set_pin_level(P_CS,
@@ -431,7 +431,7 @@ void system_init(void)
 
 	PSD_SPI_init();
 	// USART_CTRL_init();	// replaced in usart.c
-	
+
 	TIMER_0_init();
 	// CAN_CTRL_init();  //  No CAN yet
 }
