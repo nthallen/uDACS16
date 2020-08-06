@@ -54,16 +54,21 @@ static void start_spi_transfer(uint8_t pin, uint8_t const *txbuf, int length, en
   spi_m_async_transfer(&PSD_SPI, txbuf, spi_read_data, length);
 }
 
-static uint8_t ms_read_coeff[24] = {	// May want to use MS_PROM_RD ?
-  0xA0, 0x00, 0x00, // Read Manuf info (?)
-  0xA2, 0x00, 0x00, // Read Coeff C1
-  0xA4, 0x00, 0x00, // Read Coeff C2
-  0xA5, 0x00, 0x00, // Read Coeff C3
-  0xA8, 0x00, 0x00, // Read Coeff C4
-  0xAA, 0x00, 0x00, // Read Coeff C5
-  0xAC, 0x00, 0x00, // Read Coeff C6
-  0xAC, 0x00, 0x00  // Read CRC (possible future checks)
+typedef struct {
+	uint8_t cmd[3];	// cmd - Coefficient read commands
+} ms5607_prom_read;
+
+ms5607_prom_read ms_read_coef[8] = {	
+  { {0xA0, 0x00, 0x00} }, // Read Manuf info (?)
+  { {0xA2, 0x00, 0x00} }, // Read Coeff C1
+  { {0xA4, 0x00, 0x00} }, // Read Coeff C2
+  { {0xA5, 0x00, 0x00} }, // Read Coeff C3
+  { {0xA8, 0x00, 0x00} }, // Read Coeff C4
+  { {0xAA, 0x00, 0x00} }, // Read Coeff C5
+  { {0xAC, 0x00, 0x00} }, // Read Coeff C6
+  { {0xAE, 0x00, 0x00} }  // Read CRC (possible future checks)
 };
+static uint8_t coef_num = 0;
 
  static uint8_t ms5607_adc_read[4] = {
   MS_ADC_READ, 		// Send ADC Read command
@@ -106,7 +111,7 @@ static subbus_cache_word_t psd_spi_cache[PSD_SPI_HIGH_ADDR-PSD_SPI_BASE_ADDR+1] 
   { 0, 0, true,  false, false,  false, false }, // Offset 0x0B: R: Raw Pressure MSB
   { 0, 0, true,  false, false,  false, false }, // Offset 0x0C: R: Raw Temperature LSW
   { 0, 0, true,  false, false,  false, false }, // Offset 0x0D: R: Raw Temperature MSB
-  { 4, 0, true,  false,  true,  false,  true }, // Offset 0x0E: RW: OSR select (0:256, 1:512, 2:1024, 3:2048, 4:4096)
+  { 4, 0, true,  false,  true,  false, false }, // Offset 0x0E: RW: OSR select (0:256, 1:512, 2:1024, 3:2048, 4:4096)
 // .cache	.wvalue	.readable	.was_read	.writable	.written	.dynamic
 };
 
@@ -182,21 +187,20 @@ static bool poll_ms5607() {
 	  // 1 x 8b Manuf info (TBD)
 	  // 6 x 16b coefficients
 	  // 1 x 8b CRC (TBD)
-	  start_spi_transfer(ms5607.cs_pin, ms_read_coeff, 24, SPI_MODE_0);
+	  start_spi_transfer(ms5607.cs_pin, (&ms_read_coef[coef_num].cmd[0]), 3, SPI_MODE_0);
       ms5607.state = ms5607_readcal_tx;
       return false;
 
     case ms5607_readcal_tx:
 	  // read coeff from spi_read_data
-	  for (int i = 0; i < 6; ++i) {
-		//	possible check here for 0xFE on every third byte
-		ms5607.cal[i] = ( // update ms5607 struct
-			 (((uint16_t)spi_read_data[3*i+1])<<8) 
-			| ((uint16_t)spi_read_data[3*i+2]));
-		psd_spi_cache[i+4].cache = ms5607.cal[i]; // update cache
-	  }
+	  // possible check here for 0xFE on every third byte
+	  ms5607.cal[coef_num] = ( // update ms5607 struct
+		 (((uint16_t)spi_read_data[coef_num + 1])<<8) 
+	  	| ((uint16_t)spi_read_data[coef_num + 2]));
+	  psd_spi_cache[coef_num + 4].cache = ms5607.cal[coef_num]; // update cache
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readp;
+	  if (coef_num++ < 7) ms5607.state = ms5607_readcal;
       return true;
 
 // Probably need _delay state here...
@@ -238,13 +242,13 @@ static bool poll_ms5607() {
       return false;
 	
     case ms5607_readp_tx: 
-	  psd_spi_cache[0x1A].cache = (  // read P LSW from spi_read_data and update cache
+	  psd_spi_cache[0x0A].cache = (  // read P LSW from spi_read_data and update cache
 	     (((uint16_t)spi_read_data[2])<<8) 
 		| ((uint16_t)spi_read_data[3]));
-	  psd_spi_cache[0x1B].cache = (  // read P MSB from spi_read_data and update cache
+	  psd_spi_cache[0x0B].cache = (  // read P MSB from spi_read_data and update cache
 		  ((uint16_t)spi_read_data[1]));
-	  ms5607.D1 = (((uint32_t)psd_spi_cache[0x1A].cache)<<16) 
-		| ((uint32_t)psd_spi_cache[0x1B].cache);  // Update ms5607.D1 for P calculation
+	  ms5607.D1 = (((uint32_t)psd_spi_cache[0x0A].cache)<<16) 
+		| ((uint32_t)psd_spi_cache[0x0B].cache);  // Update ms5607.D1 for P calculation
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_convt;
       return true;
@@ -273,13 +277,13 @@ static bool poll_ms5607() {
       return false;
 	
     case ms5607_readt_tx: 
-	  psd_spi_cache[0x1C].cache = (
+	  psd_spi_cache[0x0C].cache = (
 	     (((uint16_t)spi_read_data[2])<<8) 
 		| ((uint16_t)spi_read_data[3])); // read T LSW from spi_read_data and update cache
-	  psd_spi_cache[0x1D].cache = (
+	  psd_spi_cache[0x0D].cache = (
 		  ((uint16_t)spi_read_data[1])); // read T MSB from spi_read_data and update cache
-	  ms5607.D2 = ((uint32_t)psd_spi_cache[0x1D].cache)<<16
-		| ((uint32_t)psd_spi_cache[0x1C].cache);	// Update ms5607.D2 for T calculation 
+	  ms5607.D2 = ((uint32_t)psd_spi_cache[0x0D].cache)<<16
+		| ((uint32_t)psd_spi_cache[0x0C].cache);	// Update ms5607.D2 for T calculation 
 		
 	  // Perform Compensation calculations here and update cache
 	  dT = ((double)ms5607.D2) - ((double)(ms5607.cal[5]) * pow2(8));
