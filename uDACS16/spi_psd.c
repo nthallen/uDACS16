@@ -195,9 +195,9 @@ static bool poll_ms5607() {
 	  // read coeff from spi_read_data
 	  // possible check here for 0xFE on every third byte
 	  ms5607.cal[coef_num] = ( // update ms5607 struct
-		 (((uint16_t)spi_read_data[coef_num + 1])<<8) 
-	  	| ((uint16_t)spi_read_data[coef_num + 2]));
-	  psd_spi_cache[coef_num + 4].cache = ms5607.cal[coef_num]; // update cache
+		 (((uint16_t)spi_read_data[1])<<8) 
+	  	| ((uint16_t)spi_read_data[2]));
+	  if (coef_num > 0) psd_spi_cache[coef_num + 3].cache = ms5607.cal[coef_num]; // update cache
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readp;
 	  if (coef_num++ < 7) ms5607.state = ms5607_readcal;
@@ -247,8 +247,8 @@ static bool poll_ms5607() {
 		| ((uint16_t)spi_read_data[3]));
 	  psd_spi_cache[0x0B].cache = (  // read P MSB from spi_read_data and update cache
 		  ((uint16_t)spi_read_data[1]));
-	  ms5607.D1 = (((uint32_t)psd_spi_cache[0x0A].cache)<<16) 
-		| ((uint32_t)psd_spi_cache[0x0B].cache);  // Update ms5607.D1 for P calculation
+	  ms5607.D1 = (((uint32_t)psd_spi_cache[0x0B].cache)<<16) 
+		| ((uint32_t)psd_spi_cache[0x0A].cache);  // Update ms5607.D1 for P calculation
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_convt;
       return true;
@@ -291,9 +291,17 @@ static bool poll_ms5607() {
 	  SENS = ((double)(ms5607.cal[1]) * pow2(16)) + (dT * ((double)(ms5607.cal[3]))) / pow2(7);
 	  ms5607.T = 2000 + ((dT * (double)(ms5607.cal[6])) / pow2(23));  // further div by 100 for degC?
 	  ms5607.P = ((((double)(ms5607.D1) * SENS) / pow2(21)) - OFF) / pow2(15); // further div by 100 for mBar?
-	  // P and T result are x 100 
-	  psd_spi_cache[0x01].cache = (uint16_t)ms5607.T; // update cache for T. Div by 100 here?
-	  psd_spi_cache[0x00].cache = (uint16_t)ms5607.P; // update cache for P. Div by 100 here?
+	  // P and T results are x 100 
+	  
+	  // psd_spi_cache[0x00].cache = ((uint16_t)((ms5607.P + 0.5) / 10));	// 16b update cache for P. rounded to 10th of mBar
+	  // sb_cache_update32(psd_spi_cache, 0, &ms5607.P);	// Didn't work ???
+	  psd_spi_cache[0x00].cache = ((uint16_t)(ms5607.P));
+	  psd_spi_cache[0x01].cache = ((uint16_t)((uint32_t)(ms5607.P)>>16));	// Correct values, but loses precision ?
+	  
+	  // psd_spi_cache[0x02].cache = ((uint16_t)((ms5607.T + 0.5) / 10));	// 16b update cache for T. rounded to 10th of degC
+	  // sb_cache_update32(psd_spi_cache, 2, &ms5607.T);	// Didn't work ???
+	  psd_spi_cache[0x02].cache = ((uint16_t)(ms5607.T));
+	  psd_spi_cache[0x03].cache = ((uint16_t)((uint32_t)(ms5607.T)>>16));	// Correct values, but loses precision ?
 	  
       chip_deselect(ms5607.cs_pin);
 	  ms5607.state = ms5607_convp;	// return to perform next P reading
