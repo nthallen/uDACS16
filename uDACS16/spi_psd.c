@@ -12,7 +12,7 @@
 #include "subbus.h"
 #include "rtc_timer.h"
 
-#define pow2(X) (double)(1<<X)
+#define pow2(X) (float)(1<<X)
 
 static volatile bool PSD_SPI_txfr_complete = true;
 static bool spi_enabled = PSD_SPI_ENABLE_DEFAULT;
@@ -140,8 +140,8 @@ typedef struct {
   uint32_t D1;		// Raw Pressure
   uint32_t D2;		// Raw Temperature
   uint16_t cal[8];	
-  double P; 	// Compensated Pressure
-  double T; 	// Compensated Temperature
+  float P; 	// Compensated Pressure
+  float T; 	// Compensated Temperature
   uint32_t endtime;
 //  uint16_t current;
 } ms5607_poll_def;
@@ -160,9 +160,9 @@ static ms5607_poll_def ms5607 = {
  */
 static bool poll_ms5607() {
   uint32_t delay = 0x00000000;
-  double dT; 	// difference between actual and measured temperature
-  double OFF; 	// offset at actual temperature
-  double SENS; 	// sensitivity at actual temperature
+  float dT; 	// difference between actual and measured temperature
+  float OFF; 	// offset at actual temperature
+  float SENS; 	// sensitivity at actual temperature
   if (!PSD_SPI_MS5607_ENABLED) return true;
   switch (ms5607.state) {
     case ms5607_init: 
@@ -286,22 +286,14 @@ static bool poll_ms5607() {
 		| ((uint32_t)psd_spi_cache[0x0C].cache);	// Update ms5607.D2 for T calculation 
 		
 	  // Perform Compensation calculations here and update cache
-	  dT = ((double)ms5607.D2) - ((double)(ms5607.cal[5]) * pow2(8));
-	  OFF = ((double)(ms5607.cal[2]) * pow2(17)) + (dT * ((double)(ms5607.cal[4]))) / pow2(6);
-	  SENS = ((double)(ms5607.cal[1]) * pow2(16)) + (dT * ((double)(ms5607.cal[3]))) / pow2(7);
-	  ms5607.T = 2000 + ((dT * (double)(ms5607.cal[6])) / pow2(23));  // further div by 100 for degC?
-	  ms5607.P = ((((double)(ms5607.D1) * SENS) / pow2(21)) - OFF) / pow2(15); // further div by 100 for mBar?
-	  // P and T results are x 100 
+	  dT = ((float)ms5607.D2) - ((float)(ms5607.cal[5]) * pow2(8));
+	  OFF = ((float)(ms5607.cal[2]) * pow2(17)) + (dT * ((float)(ms5607.cal[4]))) / pow2(6);
+	  SENS = ((float)(ms5607.cal[1]) * pow2(16)) + (dT * ((float)(ms5607.cal[3]))) / pow2(7);
+	  ms5607.T = ( 2000 + ((dT * (float)(ms5607.cal[6])) / pow2(23))) / 100;  // degC
+	  ms5607.P = ((((float)(ms5607.D1) * SENS) / pow2(21)) - OFF) / pow2(15) / 100; // mBar
 	  
-	  // psd_spi_cache[0x00].cache = ((uint16_t)((ms5607.P + 0.5) / 10));	// 16b update cache for P. rounded to 10th of mBar
-	  // sb_cache_update32(psd_spi_cache, 0, &ms5607.P);	// Didn't work ???
-	  psd_spi_cache[0x00].cache = ((uint16_t)(ms5607.P));
-	  psd_spi_cache[0x01].cache = ((uint16_t)((uint32_t)(ms5607.P)>>16));	// Correct values, but loses precision ?
-	  
-	  // psd_spi_cache[0x02].cache = ((uint16_t)((ms5607.T + 0.5) / 10));	// 16b update cache for T. rounded to 10th of degC
-	  // sb_cache_update32(psd_spi_cache, 2, &ms5607.T);	// Didn't work ???
-	  psd_spi_cache[0x02].cache = ((uint16_t)(ms5607.T));
-	  psd_spi_cache[0x03].cache = ((uint16_t)((uint32_t)(ms5607.T)>>16));	// Correct values, but loses precision ?
+	  sb_cache_update32(psd_spi_cache, 0, &ms5607.P);	// Update cache P
+	  sb_cache_update32(psd_spi_cache, 2, &ms5607.T);	// Update cache T
 	  
       chip_deselect(ms5607.cs_pin);
 	  ms5607.state = ms5607_convp;	// return to perform next P reading
