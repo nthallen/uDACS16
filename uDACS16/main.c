@@ -15,13 +15,13 @@ int main(void)
 	/* Initializes MCU, drivers and middleware */
 	//atmel_start_init();
 	system_init();
-	
-  if (subbus_add_driver(&sb_base) 
-	  || subbus_add_driver(&sb_fail_sw) 
+
+  if (subbus_add_driver(&sb_base)
+	  || subbus_add_driver(&sb_fail_sw)
 	  || subbus_add_driver(&sb_board_desc)
 	  || subbus_add_driver(&sb_control)
 	  || subbus_add_driver(&sb_spi)
-      || subbus_add_driver(&sb_i2c)
+    || subbus_add_driver(&sb_i2c)
 	  || subbus_add_driver(&sb_cmd)
 	  || subbus_add_driver(&sb_rtc)
       // || subbus_add_driver(&sb_can)

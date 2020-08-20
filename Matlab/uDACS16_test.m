@@ -1,16 +1,17 @@
 %%
-cd C:\huarp\ElecCore\uDACS\code\uDACS16\uDACS16\Matlab
+% cd C:\huarp\ElecCore\uDACS\code\uDACS16\uDACS16\Matlab
+cd C:\Users\nort\Documents\Documents\Exp\Boards\uDACS16\uDACS16\Matlab
 %%
 serial_port_clear();
 %%
-[s,port] = serial_port_init('COM9');
+[s,port] = serial_port_init();
 set(s,'BaudRate',57600);
 % set(s,'BaudRate',115200);
 %%
 % First check that the board is a uDACS
 [subfunc,desc] = get_subfunction(s);
 if subfunc ~= 15
-  error('Expected BdID 15. Reported %d', subfunc);
+  error('Expected subfunction 15 for uDACS16. Reported %d', subfunc);
 end
 BoardID = read_subbus(s,2);
 Build = read_subbus(s,3);
@@ -26,13 +27,13 @@ else
   BdCfg = 'uDACS B';
 end
 
-fprintf(1, 'Attached to uDACS S/N %d Build # %d\n', SerialNo, Build);
+fprintf(1, 'Attached to uDACS16 S/N %d Build # %d\n', SerialNo, Build);
 fprintf(1, 'Board is Rev %s configured as "%s"\n', Rev, BdCfg);
 fprintf(1, 'The description is "%s"\n', desc);
 
 
 rm_obj = read_multi_prep([8,40,9,0]);
-[vals,ack] = read_multi(s,rm_obj);
+[vals,~] = read_multi(s,rm_obj);
 even = mod(vals(2:end),256);
 odd = floor(vals(2:end)/256);
 il = [even odd]';
@@ -42,13 +43,15 @@ il = il(1:(nc-1));
 desc = char(il);
 fprintf(1,'Description from FIFO is: %s\n', desc);
 %fprintf(1, 'Now figure out how to interpret the result\n');
+
 %%
+% Read the ADS1115 ADC Section
 rm_obj = read_multi_prep([32,1,41]); % [0x20,1,0x29]
 %
 % while true
 for iadc=1:10
   %%
-  [vals,ack] = read_multi(s,rm_obj);
+  [vals,~] = read_multi(s,rm_obj);
   fprintf(1,'---------\n');
   fprintf(1,'%04X %d\n', vals(1),vals(end));
   adc = vals(2:end-1);
@@ -60,19 +63,16 @@ for iadc=1:10
   %%
   pause(1);
 end
+
 %%
-[value,ack] = read_subbus(s,39); % General read register
-fprintf(1,'ack=%d value=%04X\n', ack,value);
-%%
-write_subbus(s, 17, 0);
-%%
+% Read from Timer section
 rm_obj = read_multi_prep([64,1,68]); % 0x40
 %
 T0 = -1;
 for ielp = 1:100
-  [vals,ack] = read_multi(s,rm_obj);
+  [vals,~] = read_multi(s,rm_obj);
   T1 = vals(1) + vals(2)*65536;
-  if T0 > 0
+  if T0 >= 0
     dT = T1-T0;
     fprintf(1, 'Elapsed/Loop/Max/State: %.5f %.3f %.3f %.0f\n', dT*1e-5, vals(3)*1e-2, vals(4)*1e-2, vals(5));
   end

@@ -70,7 +70,7 @@ int32_t uDACS_timer_start(struct timer_descriptor *const descr)
 	return ERR_NONE;
 #else
   hri_tc_clear_INTEN_OVF_bit(descr->device.hw);
-  NVIC_DisableIRQ(TC0_IRQn);
+  // NVIC_DisableIRQ(TC0_IRQn);
   return timer_start(descr);
 #endif
 }

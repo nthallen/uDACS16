@@ -13,13 +13,17 @@ s = [];
 if nargout > 1
   port_out = '';
 end
-if (nargin < 1 || isempty(port)) && exist('./FCCSerialPort.mat','file')
-  rport = load('./FCCSerialPort.mat');
-  if isfield(rport,'port')
-    port = rport.port;
+if (nargin < 1 || isempty(port))
+  port = '';
+  if exist('./uDACS16SerialPort.mat','file')
+    rport = load('./uDACS16SerialPort.mat');
+    if isfield(rport,'port')
+      port = rport.port;
+    end
+    clear rport
   end
-  clear rport
 end
+
 hw = instrhwinfo('serial');
 if isempty(hw.AvailableSerialPorts)
   port = '';
@@ -48,7 +52,7 @@ if isempty(port)
       return;
     else
       port = hw.AvailableSerialPorts{sel};
-      save FCCSerialPort.mat port
+      save uDACS16SerialPort.mat port
     end
   end
 end

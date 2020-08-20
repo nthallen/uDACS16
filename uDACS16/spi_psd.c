@@ -55,7 +55,7 @@ static void start_spi_transfer(uint8_t pin, uint8_t const *txbuf, int length, en
 }
 
 typedef struct {
-	uint8_t cmd[3];	// cmd - Coefficient read commands
+    uint8_t cmd[3];	// cmd - Coefficient read commands
 } ms5607_prom_read;
 
 ms5607_prom_read ms_read_coef[8] = {	
@@ -126,12 +126,12 @@ static subbus_cache_word_t psd_spi_cache[PSD_SPI_HIGH_ADDR-PSD_SPI_BASE_ADDR+1] 
  *	ms5607_readt - Read Temperature
  */
 enum ms5607_state_t {
-		ms5607_init, ms5607_init_tx, ms5607_init_delay, 
-		ms5607_readcal, ms5607_readcal_tx, 
-		ms5607_convp, ms5607_convp_tx, ms5607_convp_delay, 
-		ms5607_readp, ms5607_readp_tx, 
-		ms5607_convt, ms5607_convt_tx, ms5607_convt_delay, 
-		ms5607_readt, ms5607_readt_tx};
+        ms5607_init, ms5607_init_tx, ms5607_init_delay, 
+        ms5607_readcal, ms5607_readcal_tx, 
+        ms5607_convp, ms5607_convp_tx, ms5607_convp_delay, 
+        ms5607_readp, ms5607_readp_tx, 
+        ms5607_convt, ms5607_convt_tx, ms5607_convt_delay, 
+        ms5607_readt, ms5607_readt_tx};
 
 typedef struct {
   bool enabled;
@@ -147,7 +147,7 @@ typedef struct {
 } ms5607_poll_def;
 
 static ms5607_poll_def ms5607 = {
-	PSD_SPI_MS5607_ENABLED, ms5607_init, P_CS
+    PSD_SPI_MS5607_ENABLED, ms5607_init, P_CS
 //	, 0, 0
 //	, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 //	, 0, 0
@@ -171,142 +171,142 @@ static bool poll_ms5607() {
       return false;
 
     case ms5607_init_tx:
-	  ms5607.endtime = rtc_current_count + ( 3 * RTC_COUNTS_PER_MSEC ); // >2.8mS
+      ms5607.endtime = rtc_current_count + ( 3 * RTC_COUNTS_PER_MSEC ); // >2.8mS
       ms5607.state = ms5607_init_delay;
-	  return false;
-	  
+      return false;
+      
     case ms5607_init_delay:
 //	  if ( rtc_current_count <= ms5607.endtime ) return false; 
-	  for (int j=0; j < 5500; ++j);  // 5500 about 3ms delay
+      for (int j=0; j < 5500; ++j);  // 5500 about 3ms delay
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readcal;
       return true;
 
     case ms5607_readcal: 
-	  // need to send 8 / receive 12 bytes to get 
-	  // 1 x 8b Manuf info (TBD)
-	  // 6 x 16b coefficients
-	  // 1 x 8b CRC (TBD)
-	  start_spi_transfer(ms5607.cs_pin, (&ms_read_coef[coef_num].cmd[0]), 3, SPI_MODE_0);
+      // need to send 8 / receive 12 bytes to get 
+      // 1 x 8b Manuf info (TBD)
+      // 6 x 16b coefficients
+      // 1 x 8b CRC (TBD)
+      start_spi_transfer(ms5607.cs_pin, (&ms_read_coef[coef_num].cmd[0]), 3, SPI_MODE_0);
       ms5607.state = ms5607_readcal_tx;
       return false;
 
     case ms5607_readcal_tx:
-	  // read coeff from spi_read_data
-	  // possible check here for 0xFE on every third byte
-	  ms5607.cal[coef_num] = ( // update ms5607 struct
-		 (((uint16_t)spi_read_data[1])<<8) 
-	  	| ((uint16_t)spi_read_data[2]));
-	  if (coef_num > 0) psd_spi_cache[coef_num + 3].cache = ms5607.cal[coef_num]; // update cache
+      // read coeff from spi_read_data
+      // possible check here for 0xFE on every third byte
+      ms5607.cal[coef_num] = ( // update ms5607 struct
+         (((uint16_t)spi_read_data[1])<<8) 
+          | ((uint16_t)spi_read_data[2]));
+      if (coef_num > 0) psd_spi_cache[coef_num + 3].cache = ms5607.cal[coef_num]; // update cache
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readp;
-	  if (coef_num++ < 7) ms5607.state = ms5607_readcal;
+      if (coef_num++ < 7) ms5607.state = ms5607_readcal;
       return true;
 
 // Probably need _delay state here...
 
-	// return loop here
+    // return loop here
     case ms5607_convp:
-	  ms_conv_D1_osr = MS_CONV_D1 + (2 * psd_spi_cache[0x0E].cache); // Update CONV_D1 cmd with OSR offset
+      ms_conv_D1_osr = MS_CONV_D1 + (2 * psd_spi_cache[0x0E].cache); // Update CONV_D1 cmd with OSR offset
       start_spi_transfer(ms5607.cs_pin, &ms_conv_D1_osr, 1, SPI_MODE_0); // Send Convert D1 (P)
-	  //  ADC OSR=256 	600us ~1ms
-	  //  ADC OSR=512 	1.17ms ~2ms
-	  //  ADC OSR=1024	2.28ms ~3ms
-	  //  ADC OSR=2056	4.54ms ~5ms
-	  //  ADC OSR=4096	9.04ms ~10ms
-	  switch (psd_spi_cache[0x0E].cache) {
-		case 0:	delay = 1 * RTC_COUNTS_PER_MSEC ; break; // 1mS
-		case 1:	delay = 2 * RTC_COUNTS_PER_MSEC ; break; // 2mS
-		case 2:	delay = 3 * RTC_COUNTS_PER_MSEC ; break; // 3mS
-		case 3:	delay = 5 * RTC_COUNTS_PER_MSEC ; break; // 5mS
-		default: delay = 10 * RTC_COUNTS_PER_MSEC ; break; // 10mS : case 4 or default
-	  }
+      //  ADC OSR=256 	600us ~1ms
+      //  ADC OSR=512 	1.17ms ~2ms
+      //  ADC OSR=1024	2.28ms ~3ms
+      //  ADC OSR=2056	4.54ms ~5ms
+      //  ADC OSR=4096	9.04ms ~10ms
+      switch (psd_spi_cache[0x0E].cache) {
+        case 0:	delay = 1 * RTC_COUNTS_PER_MSEC ; break; // 1mS
+        case 1:	delay = 2 * RTC_COUNTS_PER_MSEC ; break; // 2mS
+        case 2:	delay = 3 * RTC_COUNTS_PER_MSEC ; break; // 3mS
+        case 3:	delay = 5 * RTC_COUNTS_PER_MSEC ; break; // 5mS
+        default: delay = 10 * RTC_COUNTS_PER_MSEC ; break; // 10mS : case 4 or default
+      }
       ms5607.state = ms5607_convp_tx;
       return false;
 
     case ms5607_convp_tx:
-	  ms5607.endtime = rtc_current_count + delay ; 
+      ms5607.endtime = rtc_current_count + delay ; 
       ms5607.state = ms5607_convp_delay;
-	  return false;
-	
+      return false;
+    
     case ms5607_convp_delay:
 //	  if ( rtc_current_count <= ms5607.endtime ) return false; 
-	  for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
+      for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readp;
       return true; 
-	
-	case ms5607_readp:
+    
+    case ms5607_readp:
       start_spi_transfer(ms5607.cs_pin, ms5607_adc_read, 4, SPI_MODE_0); 
       ms5607.state = ms5607_readp_tx;
       return false;
-	
+    
     case ms5607_readp_tx: 
-	  psd_spi_cache[0x0A].cache = (  // read P LSW from spi_read_data and update cache
-	     (((uint16_t)spi_read_data[2])<<8) 
-		| ((uint16_t)spi_read_data[3]));
-	  psd_spi_cache[0x0B].cache = (  // read P MSB from spi_read_data and update cache
-		  ((uint16_t)spi_read_data[1]));
-	  ms5607.D1 = (((uint32_t)psd_spi_cache[0x0B].cache)<<16) 
-		| ((uint32_t)psd_spi_cache[0x0A].cache);  // Update ms5607.D1 for P calculation
+      psd_spi_cache[0x0A].cache = (  // read P LSW from spi_read_data and update cache
+         (((uint16_t)spi_read_data[2])<<8) 
+        | ((uint16_t)spi_read_data[3]));
+      psd_spi_cache[0x0B].cache = (  // read P MSB from spi_read_data and update cache
+          ((uint16_t)spi_read_data[1]));
+      ms5607.D1 = (((uint32_t)psd_spi_cache[0x0B].cache)<<16) 
+        | ((uint32_t)psd_spi_cache[0x0A].cache);  // Update ms5607.D1 for P calculation
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_convt;
       return true;
 
     case ms5607_convt:
-	  ms_conv_D2_osr = MS_CONV_D2 + (2 * psd_spi_cache[0x0E].cache); // Update CONV_D1 cmd with OSR offset
+      ms_conv_D2_osr = MS_CONV_D2 + (2 * psd_spi_cache[0x0E].cache); // Update CONV_D1 cmd with OSR offset
       start_spi_transfer(ms5607.cs_pin, &ms_conv_D2_osr, 1, SPI_MODE_0); // Send Convert D2 (T)
       ms5607.state = ms5607_convt_tx;
       return false;
 
     case ms5607_convt_tx:
-	  ms5607.endtime = rtc_current_count + delay ; 
+      ms5607.endtime = rtc_current_count + delay ; 
       ms5607.state = ms5607_convt_delay;
-	  return false;
-	
+      return false;
+    
     case ms5607_convt_delay:
 //	  if ( rtc_current_count <= ms5607.endtime ) return false; 
-	  for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
+      for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readt;
       return true; 
-	
-	case ms5607_readt:
+    
+    case ms5607_readt:
       start_spi_transfer(ms5607.cs_pin, ms5607_adc_read, 4, SPI_MODE_0); 
       ms5607.state = ms5607_readt_tx;
       return false;
-	
+    
     case ms5607_readt_tx: 
-	  psd_spi_cache[0x0C].cache = (
-	     (((uint16_t)spi_read_data[2])<<8) 
-		| ((uint16_t)spi_read_data[3])); // read T LSW from spi_read_data and update cache
-	  psd_spi_cache[0x0D].cache = (
-		  ((uint16_t)spi_read_data[1])); // read T MSB from spi_read_data and update cache
-	  ms5607.D2 = ((uint32_t)psd_spi_cache[0x0D].cache)<<16
-		| ((uint32_t)psd_spi_cache[0x0C].cache);	// Update ms5607.D2 for T calculation 
-		
-	  // Perform Compensation calculations here and update cache
-	  dT = ((double)ms5607.D2) - ((double)(ms5607.cal[5]) * pow2(8));
-	  OFF = ((double)(ms5607.cal[2]) * pow2(17)) + (dT * ((double)(ms5607.cal[4]))) / pow2(6);
-	  SENS = ((double)(ms5607.cal[1]) * pow2(16)) + (dT * ((double)(ms5607.cal[3]))) / pow2(7);
-	  ms5607.T = 2000 + ((dT * (double)(ms5607.cal[6])) / pow2(23));  // further div by 100 for degC?
-	  ms5607.P = ((((double)(ms5607.D1) * SENS) / pow2(21)) - OFF) / pow2(15); // further div by 100 for mBar?
-	  // P and T results are x 100 
-	  
-	  // psd_spi_cache[0x00].cache = ((uint16_t)((ms5607.P + 0.5) / 10));	// 16b update cache for P. rounded to 10th of mBar
-	  // sb_cache_update32(psd_spi_cache, 0, &ms5607.P);	// Didn't work ???
-	  psd_spi_cache[0x00].cache = ((uint16_t)(ms5607.P));
-	  psd_spi_cache[0x01].cache = ((uint16_t)((uint32_t)(ms5607.P)>>16));	// Correct values, but loses precision ?
-	  
-	  // psd_spi_cache[0x02].cache = ((uint16_t)((ms5607.T + 0.5) / 10));	// 16b update cache for T. rounded to 10th of degC
-	  // sb_cache_update32(psd_spi_cache, 2, &ms5607.T);	// Didn't work ???
-	  psd_spi_cache[0x02].cache = ((uint16_t)(ms5607.T));
-	  psd_spi_cache[0x03].cache = ((uint16_t)((uint32_t)(ms5607.T)>>16));	// Correct values, but loses precision ?
-	  
+      psd_spi_cache[0x0C].cache = (
+         (((uint16_t)spi_read_data[2])<<8) 
+        | ((uint16_t)spi_read_data[3])); // read T LSW from spi_read_data and update cache
+      psd_spi_cache[0x0D].cache = (
+          ((uint16_t)spi_read_data[1])); // read T MSB from spi_read_data and update cache
+      ms5607.D2 = ((uint32_t)psd_spi_cache[0x0D].cache)<<16
+        | ((uint32_t)psd_spi_cache[0x0C].cache);	// Update ms5607.D2 for T calculation 
+        
+      // Perform Compensation calculations here and update cache
+      dT = ((double)ms5607.D2) - ((double)(ms5607.cal[5]) * pow2(8));
+      OFF = ((double)(ms5607.cal[2]) * pow2(17)) + (dT * ((double)(ms5607.cal[4]))) / pow2(6);
+      SENS = ((double)(ms5607.cal[1]) * pow2(16)) + (dT * ((double)(ms5607.cal[3]))) / pow2(7);
+      ms5607.T = 2000 + ((dT * (double)(ms5607.cal[6])) / pow2(23));  // further div by 100 for degC?
+      ms5607.P = ((((double)(ms5607.D1) * SENS) / pow2(21)) - OFF) / pow2(15); // further div by 100 for mBar?
+      // P and T results are x 100 
+      
+      // psd_spi_cache[0x00].cache = ((uint16_t)((ms5607.P + 0.5) / 10));	// 16b update cache for P. rounded to 10th of mBar
+      // sb_cache_update32(psd_spi_cache, 0, &ms5607.P);	// Didn't work ???
+      psd_spi_cache[0x00].cache = ((uint16_t)(ms5607.P));
+      psd_spi_cache[0x01].cache = ((uint16_t)((uint32_t)(ms5607.P)>>16));	// Correct values, but loses precision ?
+      
+      // psd_spi_cache[0x02].cache = ((uint16_t)((ms5607.T + 0.5) / 10));	// 16b update cache for T. rounded to 10th of degC
+      // sb_cache_update32(psd_spi_cache, 2, &ms5607.T);	// Didn't work ???
+      psd_spi_cache[0x02].cache = ((uint16_t)(ms5607.T));
+      psd_spi_cache[0x03].cache = ((uint16_t)((uint32_t)(ms5607.T)>>16));	// Correct values, but loses precision ?
+      
       chip_deselect(ms5607.cs_pin);
-	  ms5607.state = ms5607_convp;	// return to perform next P reading
+      ms5607.state = ms5607_convp;	// return to perform next P reading
       return true;
-	
+    
     default:
       assert(false, __FILE__, __LINE__);
    }
