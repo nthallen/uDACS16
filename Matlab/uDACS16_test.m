@@ -92,52 +92,36 @@ figure; plot(curlooptime,'.');
 ylabel('msec');
 
 %%
-% Honeywell Pressure Sensor Readings:
-Honeybase = hex2dec('50');
-%%
-% NWpsdesc = read_subbus(s,Honeybase+9);
-rm_obj = read_multi_prep([Honeybase+9,50,Honeybase+10,0]);
+% MS5607 Barometer :
+ms_base = hex2dec('10'); %% 0x10
+
+% Read Coefficients
+rm_obj = read_multi_prep([ms_base+4,1,ms_base+9]);  % [0x14 - 0x19]
 [vals,~] = read_multi(s,rm_obj);
-if isempty(vals) || vals(1) ~= 46 || vals(1)+1 ~= length(vals)
-  error('vals length was %d, expected 46', length(vals));
-end
+%%
+% if isempty(vals) || length(vals) ~= 6 
+%   error('vals length was %d, expected 6', length(vals));
+% end
 %
-PSdef = struct( ...
-  'PartNumber', { words2txt(vals(2:10)) words2txt(vals(23+(2:10))) }, ...
-  'SerialNumber', { words2txt(vals(11:16)) words2txt(vals(23+(11:16))) }, ...
-  'PressureUnit', { words2txt(vals(17:19)) words2txt(vals(23+(17:19))) }, ...
-  'PressureRef', { words2txt(vals(20)) words2txt(vals(23+20)) }, ...
-  'PressureRange', { typecast(uint32(vals(21)+65536*vals(22)),'single'), ...
-                     typecast(uint32(vals(23+21)+65536*vals(23+22)),'single') }, ...
-  'PressureMin', { typecast(uint32(vals(23)+65536*vals(24)),'single'), ...
-                     typecast(uint32(vals(23+23)+65536*vals(23+24)),'single') });
-%
-for i=1:2
-  fprintf(1, 'Sensor %d:\n', i);
-  fprintf(1, '  Part: %s\n', PSdef(i).PartNumber);
-  fprintf(1, '  S/N:  %s\n', PSdef(i).SerialNumber);
-  fprintf(1, '  Unit: %s %s\n', PSdef(i).PressureUnit, PSdef(i).PressureRef);
-  fprintf(1, '  Min/Range: %f/%f\n', PSdef(i).PressureMin, PSdef(i).PressureRange);
+fprintf(1, '\nMS5607 Coefficients:\n');
+for i=1:6
+  fprintf(1, '  C%d: %x\n', i, vals(i));
 end
 %%
-conv2Torr = struct('PSI', 51.7149, 'inH2O', 1.86645);
-rm_obj = read_multi_prep([Honeybase,1,Honeybase+8]); % 0x40
-%%
-[vals,ack] = read_multi(s, rm_obj);
-status = vals(1);
-fprintf(1,'Status: 0x%X\n', status);
-PSread = struct( ...
-  'T', { typecast(uint32(vals(2)+65536*vals(3)),'single'), ...
-         typecast(uint32(vals(6)+65536*vals(7)),'single') }, ...
-  'P', { typecast(uint32(vals(4)+65536*vals(5)),'single'), ...
-         typecast(uint32(vals(8)+65536*vals(9)),'single') });
-for i=1:2
-  fprintf(1,'P%d: %7.3f %5s %s   T%d: %7.3f\n', i, ...
-    PSread(i).P, PSdef(i).PressureUnit, PSdef(i).PressureRef, ...
-    i, PSread(i).T);
-  fprintf(1,'P%d: %7.3f %5s %s   T%d: %7.3f\n', i, ...
-    PSread(i).P*conv2Torr.(PSdef(i).PressureUnit), 'Torr', PSdef(i).PressureRef, ...
-    i, PSread(i).T);
+rm_obj = read_multi_prep([ms_base,1,ms_base+3]); % 0x10 - 0x13
+
+fprintf(1, '\nMS5607 Pressure and Temperature:\n');
+for i=0:9
+  [vals,ack] = read_multi(s, rm_obj);
+  
+PTread = struct( ...
+  'T', { typecast(uint32(vals(3)+65536*vals(4)),'single') }, ...
+  'P', { typecast(uint32(vals(1)+65536*vals(2)),'single') });
+  
+  fprintf(1,'P%d: %7.3f mBar ( %7.3f Torr )  T%d: %7.3f degC\n', i, ...
+    PTread.P, (PTread.P * 0.750062), i, PTread.T);
+ 
+  pause(1);
 end
-% fprintf(1,'P2: %7.3f %5s %s   T2: %7.3f\n', PS_P2, PSdef(2).PressureUnit, PSdef(2).PressureRef, PS_T2);
+
 
