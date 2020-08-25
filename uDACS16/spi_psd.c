@@ -37,7 +37,7 @@ static void complete_cb_PSD_SPI(const struct spi_m_async_descriptor *const io_de
 static uint8_t spi_read_data[PSD_SPI_MAX_READ_LENGTH];
 
 
-// We will use mode 0 for MS5607 
+// We will use mode 0 for MS5607
 // Might need different mode for SDcard: TBD
 static enum spi_transfer_mode spi_current_transfer_mode = SPI_MODE_0;
 
@@ -58,7 +58,7 @@ typedef struct {
     uint8_t cmd[3];	// cmd - Coefficient read commands
 } ms5607_prom_read;
 
-ms5607_prom_read ms_read_coef[8] = {	
+ms5607_prom_read ms_read_coef[8] = {
   { {0xA0, 0x00, 0x00} }, // Read Manuf info (?)
   { {0xA2, 0x00, 0x00} }, // Read Coeff C1
   { {0xA4, 0x00, 0x00} }, // Read Coeff C2
@@ -88,7 +88,7 @@ static uint8_t ms_conv_D2_osr;
  * 0x15 R:  C2: 16b Pressure offset | OFFT1
  * 0x16 R:  C3: 16b Temperature coeff. of pressure sensitivity | TCS
  * 0x17 R:  C4: 16b Temperature coefficient of pressure offset | TCO
- * 0x18 R:  C5: 16b Reference temperature | TREF 
+ * 0x18 R:  C5: 16b Reference temperature | TREF
  * 0x19 R:  C6: 16b Temperature coefficient of the temperature | TEMPSENS
  * 0x1A R:  D1L:16b Raw Pressure LSW
  * 0x1B R:  D1M:16b Raw Pressure MSB
@@ -105,7 +105,7 @@ static subbus_cache_word_t psd_spi_cache[PSD_SPI_HIGH_ADDR-PSD_SPI_BASE_ADDR+1] 
   { 0, 0, true,  false, false,  false, false }, // Offset 0x05: R: C2: Pressure offset | OFFT1
   { 0, 0, true,  false, false,  false, false }, // Offset 0x06: R: C3: Temperature coefficient of pressure sensitivity | TCS
   { 0, 0, true,  false, false,  false, false }, // Offset 0x07: R: C4: Temperature coefficient of pressure offset | TCO
-  { 0, 0, true,  false, false,  false, false }, // Offset 0x08: R: C5: Reference temperature | TREF 
+  { 0, 0, true,  false, false,  false, false }, // Offset 0x08: R: C5: Reference temperature | TREF
   { 0, 0, true,  false, false,  false, false }, // Offset 0x09: R: C6: Temperature coefficient of the temperature | TEMPSENS
   { 0, 0, true,  false, false,  false, false }, // Offset 0x0A: R: Raw Pressure LSW
   { 0, 0, true,  false, false,  false, false }, // Offset 0x0B: R: Raw Pressure MSB
@@ -121,16 +121,16 @@ static subbus_cache_word_t psd_spi_cache[PSD_SPI_HIGH_ADDR-PSD_SPI_BASE_ADDR+1] 
  *	ms5607_init - Reset MS5607 to initialize
  *	ms5607_readcal - Read Calibration data (6)
  *	ms5607_convp - Send Convert Pressure Command
- *	ms5607_readp - Read Pressure 
+ *	ms5607_readp - Read Pressure
  *	ms5607_convt - Send Convert Temperature Command
  *	ms5607_readt - Read Temperature
  */
 enum ms5607_state_t {
-        ms5607_init, ms5607_init_tx, ms5607_init_delay, 
-        ms5607_readcal, ms5607_readcal_tx, 
-        ms5607_convp, ms5607_convp_tx, ms5607_convp_delay, 
-        ms5607_readp, ms5607_readp_tx, 
-        ms5607_convt, ms5607_convt_tx, ms5607_convt_delay, 
+        ms5607_init, ms5607_init_tx, ms5607_init_delay,
+        ms5607_readcal, ms5607_readcal_tx,
+        ms5607_convp, ms5607_convp_tx, ms5607_convp_delay,
+        ms5607_readp, ms5607_readp_tx,
+        ms5607_convt, ms5607_convt_tx, ms5607_convt_delay,
         ms5607_readt, ms5607_readt_tx};
 
 typedef struct {
@@ -139,10 +139,11 @@ typedef struct {
   uint8_t cs_pin;
   uint32_t D1;		// Raw Pressure
   uint32_t D2;		// Raw Temperature
-  uint16_t cal[8];	
+  uint16_t cal[8];
   float P; 	// Compensated Pressure
   float T; 	// Compensated Temperature
   uint32_t endtime;
+  uint32_t delay;
 //  uint16_t current;
 } ms5607_poll_def;
 
@@ -155,17 +156,17 @@ static ms5607_poll_def ms5607 = {
 
 /**
  * poll_ms5607() is only called when PSD_SPI_txfr_complete is non-zero
- *    and SPI bus is free 
+ *    and SPI bus is free
  * @return true if we are relinquishing the SPI bus
  */
 static bool poll_ms5607() {
-  uint32_t delay = 0x00000000;
+  // uint32_t delay = 0x00000000;
   float dT; 	// difference between actual and measured temperature
   float OFF; 	// offset at actual temperature
   float SENS; 	// sensitivity at actual temperature
   if (!PSD_SPI_MS5607_ENABLED) return true;
   switch (ms5607.state) {
-    case ms5607_init: 
+    case ms5607_init:
       start_spi_transfer(ms5607.cs_pin, &ms_reset_cmd, 1, SPI_MODE_0);
       ms5607.state = ms5607_init_tx;
       return false;
@@ -174,16 +175,16 @@ static bool poll_ms5607() {
       ms5607.endtime = rtc_current_count + ( 3 * RTC_COUNTS_PER_MSEC ); // >2.8mS
       ms5607.state = ms5607_init_delay;
       return false;
-      
+
     case ms5607_init_delay:
-//	  if ( rtc_current_count <= ms5607.endtime ) return false; 
-      for (int j=0; j < 5500; ++j);  // 5500 about 3ms delay
+      if ( rtc_current_count <= ms5607.endtime ) return false;
+      // for (int j=0; j < 5500; ++j);  // 5500 about 3ms delay
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readcal;
       return true;
 
-    case ms5607_readcal: 
-      // need to send 8 / receive 12 bytes to get 
+    case ms5607_readcal:
+      // need to send 8 / receive 12 bytes to get
       // 1 x 8b Manuf info (TBD)
       // 6 x 16b coefficients
       // 1 x 8b CRC (TBD)
@@ -195,7 +196,7 @@ static bool poll_ms5607() {
       // read coeff from spi_read_data
       // possible check here for 0xFE on every third byte
       ms5607.cal[coef_num] = ( // update ms5607 struct
-         (((uint16_t)spi_read_data[1])<<8) 
+         (((uint16_t)spi_read_data[1])<<8)
           | ((uint16_t)spi_read_data[2]));
       if (coef_num > 0) psd_spi_cache[coef_num + 3].cache = ms5607.cal[coef_num]; // update cache
       chip_deselect(ms5607.cs_pin);
@@ -215,39 +216,39 @@ static bool poll_ms5607() {
       //  ADC OSR=2056	4.54ms ~5ms
       //  ADC OSR=4096	9.04ms ~10ms
       switch (psd_spi_cache[0x0E].cache) {
-        case 0:	delay = 1 * RTC_COUNTS_PER_MSEC ; break; // 1mS
-        case 1:	delay = 2 * RTC_COUNTS_PER_MSEC ; break; // 2mS
-        case 2:	delay = 3 * RTC_COUNTS_PER_MSEC ; break; // 3mS
-        case 3:	delay = 5 * RTC_COUNTS_PER_MSEC ; break; // 5mS
-        default: delay = 10 * RTC_COUNTS_PER_MSEC ; break; // 10mS : case 4 or default
+        case 0:	ms5607.delay = 1 * RTC_COUNTS_PER_MSEC ; break; // 1mS
+        case 1:	ms5607.delay = 2 * RTC_COUNTS_PER_MSEC ; break; // 2mS
+        case 2:	ms5607.delay = 3 * RTC_COUNTS_PER_MSEC ; break; // 3mS
+        case 3:	ms5607.delay = 5 * RTC_COUNTS_PER_MSEC ; break; // 5mS
+        default: ms5607.delay = 10 * RTC_COUNTS_PER_MSEC ; break; // 10mS : case 4 or default
       }
       ms5607.state = ms5607_convp_tx;
       return false;
 
     case ms5607_convp_tx:
-      ms5607.endtime = rtc_current_count + delay ; 
+      ms5607.endtime = rtc_current_count + ms5607.delay ;
       ms5607.state = ms5607_convp_delay;
       return false;
-    
+
     case ms5607_convp_delay:
-//	  if ( rtc_current_count <= ms5607.endtime ) return false; 
-      for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
+  	  if ( rtc_current_count <= ms5607.endtime ) return false;
+      // for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readp;
-      return true; 
-    
+      return true;
+
     case ms5607_readp:
-      start_spi_transfer(ms5607.cs_pin, ms5607_adc_read, 4, SPI_MODE_0); 
+      start_spi_transfer(ms5607.cs_pin, ms5607_adc_read, 4, SPI_MODE_0);
       ms5607.state = ms5607_readp_tx;
       return false;
-    
-    case ms5607_readp_tx: 
+
+    case ms5607_readp_tx:
       psd_spi_cache[0x0A].cache = (  // read P LSW from spi_read_data and update cache
-         (((uint16_t)spi_read_data[2])<<8) 
+         (((uint16_t)spi_read_data[2])<<8)
         | ((uint16_t)spi_read_data[3]));
       psd_spi_cache[0x0B].cache = (  // read P MSB from spi_read_data and update cache
           ((uint16_t)spi_read_data[1]));
-      ms5607.D1 = (((uint32_t)psd_spi_cache[0x0B].cache)<<16) 
+      ms5607.D1 = (((uint32_t)psd_spi_cache[0x0B].cache)<<16)
         | ((uint32_t)psd_spi_cache[0x0A].cache);  // Update ms5607.D1 for P calculation
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_convt;
@@ -260,61 +261,61 @@ static bool poll_ms5607() {
       return false;
 
     case ms5607_convt_tx:
-      ms5607.endtime = rtc_current_count + delay ; 
+      ms5607.endtime = rtc_current_count + ms5607.delay ;
       ms5607.state = ms5607_convt_delay;
       return false;
-    
+
     case ms5607_convt_delay:
-//	  if ( rtc_current_count <= ms5607.endtime ) return false; 
-      for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
+  	  if ( rtc_current_count <= ms5607.endtime ) return false;
+      // for (int j=0; j < 16500; ++j); // 16500 about 10ms delay
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_readt;
-      return true; 
-    
+      return true;
+
     case ms5607_readt:
-      start_spi_transfer(ms5607.cs_pin, ms5607_adc_read, 4, SPI_MODE_0); 
+      start_spi_transfer(ms5607.cs_pin, ms5607_adc_read, 4, SPI_MODE_0);
       ms5607.state = ms5607_readt_tx;
       return false;
-    
-    case ms5607_readt_tx: 
+
+    case ms5607_readt_tx:
       psd_spi_cache[0x0C].cache = (
-         (((uint16_t)spi_read_data[2])<<8) 
+         (((uint16_t)spi_read_data[2])<<8)
         | ((uint16_t)spi_read_data[3])); // read T LSW from spi_read_data and update cache
       psd_spi_cache[0x0D].cache = (
           ((uint16_t)spi_read_data[1])); // read T MSB from spi_read_data and update cache
       ms5607.D2 = ((uint32_t)psd_spi_cache[0x0D].cache)<<16
-        | ((uint32_t)psd_spi_cache[0x0C].cache);	// Update ms5607.D2 for T calculation 
-        
+        | ((uint32_t)psd_spi_cache[0x0C].cache);	// Update ms5607.D2 for T calculation
+
       // Perform Compensation calculations here and update cache
       dT = ((float)ms5607.D2) - ((float)(ms5607.cal[5]) * pow2(8));
       OFF = ((float)(ms5607.cal[2]) * pow2(17)) + (dT * ((float)(ms5607.cal[4]))) / pow2(6);
       SENS = ((float)(ms5607.cal[1]) * pow2(16)) + (dT * ((float)(ms5607.cal[3]))) / pow2(7);
       ms5607.T = ( 2000 + ((dT * (float)(ms5607.cal[6])) / pow2(23))) / 100;  // degC
       ms5607.P = ((((float)(ms5607.D1) * SENS) / pow2(21)) - OFF) / pow2(15) / 100; // mBar
-      
+
       sb_cache_update32(psd_spi_cache, 0, &ms5607.P);	// Update cache P
       sb_cache_update32(psd_spi_cache, 2, &ms5607.T);	// Update cache T
-      
+
       chip_deselect(ms5607.cs_pin);
       ms5607.state = ms5607_convp;	// return to perform next P reading
       return true;
-    
+
     default:
       assert(false, __FILE__, __LINE__);
    }
-   return true; 
+   return true;
 }
 
-// For P and T 
+// For P and T
 // start_spi_transfer to start P conversion then -check
-//   MS_CONV_D1 + (2 * MS_OSR_OFFS) // OFFS can change for different OSR. would be on cache. 
-// 
+//   MS_CONV_D1 + (2 * MS_OSR_OFFS) // OFFS can change for different OSR. would be on cache.
+//
 // set endtime -check
 // delay until done then start_spi_transfer to read P addr 0x00 -check
 
 // store read P results AND start_spi_transfer to start T conversion
 // set new endtime
-// delay until done then start_spi_transfer to read T addr 0x00 
+// delay until done then start_spi_transfer to read T addr 0x00
 // store read T results go back to Read P : give up the BUS
 
 
@@ -327,7 +328,7 @@ static bool poll_sd(void) {
 //	sd card engine
   return true;
 }
-  
+
 enum spi_state_t {spi_ms5607, spi_sd};
 static enum spi_state_t spi_state = spi_ms5607;
 
@@ -351,7 +352,7 @@ void psd_spi_poll(void) {
   }
 }
 
-static void psd_spi_reset(void) {	
+static void psd_spi_reset(void) {
   if (!sb_spi.initialized) {
     PSD_SPI_init();
     spi_m_async_register_callback(&PSD_SPI, SPI_M_ASYNC_CB_XFER, (FUNC_PTR)complete_cb_PSD_SPI);	// PSD_SPI_... ???

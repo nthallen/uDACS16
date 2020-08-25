@@ -113,10 +113,10 @@ ms_base = hex2dec('10'); %% 0x10
 % Read Coefficients
 rm_obj = read_multi_prep([ms_base+4,1,ms_base+9]);  % [0x14 - 0x19]
 [vals,~] = read_multi(s,rm_obj);
-%%
-% if isempty(vals) || length(vals) ~= 6 
-%   error('vals length was %d, expected 6', length(vals));
-% end
+%
+if isempty(vals) || length(vals) ~= 6 
+  error('vals length was %d, expected 6', length(vals));
+end
 %
 fprintf(1, '\nMS5607 Coefficients:\n');
 for i=1:6
