@@ -66,25 +66,40 @@ end
 
 %%
 % Read from Timer section
-rm_obj = read_multi_prep([64,1,68]); % 0x40
+rm_obj = read_multi_prep([64,1,67]); % 0x40
 %
+TC_F = 1e5;
+% TC_F = 8e6; % for testing: ~9 Minutes to rollover
 T0 = -1;
-for ielp = 1:100
+iT0 = -1;
+N = 100;
+Tsec = 20;
+Psec = Tsec/N;
+for ielp = 0:N
   [vals,~] = read_multi(s,rm_obj);
   T1 = vals(1) + vals(2)*65536;
   if T0 >= 0
-    dT = T1-T0;
-    fprintf(1, 'Elapsed/Loop/Max/State: %.5f %.3f %.3f %.0f\n', dT*1e-5, vals(3)*1e-2, vals(4)*1e-2, vals(5));
+    dT = (T1-T0)/TC_F;
+    TT = (T1-iT0)/TC_F;
+    fprintf(1, 'Elapsed/Loop/Max/State: TT:%.3f s dT:%.5f s LT:%.3f ms LMT:%.3f ms\n', TT, dT, vals(3)/TC_F*1e3, vals(4)/TC_F*1e3);
+  else
+    iT0 = T1;
+    tic;
+    fprintf(1, 'Starting value %.6f sec\n', iT0/TC_F);
   end
   T0 = T1;
-  pause(.1);
+  if ielp < N; pause(Psec); end
 end
+telapsed = toc;
+iT1 = T1;
+ips = ((iT1-iT0)/TC_F)/telapsed;
+fprintf(1, 'Observed %.5f seconds/seconds\n', ips);
 %%
 N = 1000;
 curlooptime = zeros(N,1);
 for i=1:N
   val = read_subbus(s,66);
-  curlooptime(i) = val*1e-2;
+  curlooptime(i) = (val/TC_F)*1e3; % msec
   pause(.1);
 end
 %

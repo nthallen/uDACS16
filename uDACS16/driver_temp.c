@@ -28,8 +28,8 @@
 
 struct adc_async_descriptor         VMON_ADC;
 struct adc_async_channel_descriptor VMON_ADC_ch[VMON_ADC_CH_AMOUNT];
-// struct usart_async_descriptor       USART_CTRL;
-struct timer_descriptor             TIMER_0;
+// struct usart_async_descriptor       USART_CTRL; // moved to usart.c
+// struct timer_descriptor             TIMER_0; // moved to rtc_timer.c
 struct can_async_descriptor         CAN_CTRL;
 
 static uint8_t VMON_ADC_buffer[VMON_ADC_BUFFER_SIZE];
@@ -311,6 +311,8 @@ void USART_CTRL_init(void)
 }
 #endif
 
+#if 0
+/* Moved TIMER_0_init to rtc_timer.c, since modification was required */
 /**
  * \brief Timer initialization function
  *
@@ -319,10 +321,12 @@ void USART_CTRL_init(void)
 static void TIMER_0_init(void)
 {
 	hri_mclk_set_APBCMASK_TC0_bit(MCLK);
+	hri_mclk_set_APBCMASK_TC1_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_0, TC0, _tc_get_timer());
 }
+#endif
 
 #if 0
 void CAN_CTRL_PORT_init(void)
@@ -432,6 +436,6 @@ void system_init(void)
 	PSD_SPI_init();
 	// USART_CTRL_init();	// replaced in usart.c
 
-	TIMER_0_init();
+	// TIMER_0_init();
 	// CAN_CTRL_init();  //  No CAN yet
 }
