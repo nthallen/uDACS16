@@ -343,6 +343,20 @@ void system_init(void)
 {
 	init_mcu();
 
+	// GPIO on PA27
+
+	gpio_set_pin_level(FAIL_OFF,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(FAIL_OFF, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(FAIL_OFF, GPIO_PIN_FUNCTION_OFF);
+
 	// GPIO on PB02
 
 	gpio_set_pin_level(J35_EN,

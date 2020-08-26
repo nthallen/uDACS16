@@ -354,75 +354,35 @@ void system_init(void)
 {
   init_mcu();
 
+	// GPIO on PA27
+	gpio_set_pin_level(FAIL_OFF, false);
+	gpio_set_pin_direction(FAIL_OFF, GPIO_DIRECTION_OUT);
+	gpio_set_pin_function(FAIL_OFF, GPIO_PIN_FUNCTION_OFF);
+
   // GPIO on PB02
 
-  gpio_set_pin_level(J35_EN,
-      // <y> Initial level
-      // <id> pad_initial_level
-      // <false"> Low
-      // <true"> High
-  false);
-
-  // Set pin direction to output
+  gpio_set_pin_level(J35_EN, false);
   gpio_set_pin_direction(J35_EN, GPIO_DIRECTION_OUT);
-
   gpio_set_pin_function(J35_EN, GPIO_PIN_FUNCTION_OFF);
 
   // GPIO on PB03
-
-  gpio_set_pin_level(J34_EN,
-      // <y> Initial level
-      // <id> pad_initial_level
-      // <false"> Low
-      // <true"> High
-  false);
-
-  // Set pin direction to output
+  gpio_set_pin_level(J34_EN, false);
   gpio_set_pin_direction(J34_EN, GPIO_DIRECTION_OUT);
-
   gpio_set_pin_function(J34_EN, GPIO_PIN_FUNCTION_OFF);
 
-
   // GPIO on PB08
-
-  gpio_set_pin_level(SPR7,
-                     // <y> Initial level
-                     // <id> pad_initial_level
-                     // <false"> Low
-                     // <true"> High
-                     false);
-
-  // Set pin direction to output
+  gpio_set_pin_level(SPR7, false);
   gpio_set_pin_direction(SPR7, GPIO_DIRECTION_OUT);
-
   gpio_set_pin_function(SPR7, GPIO_PIN_FUNCTION_OFF);
 
   // GPIO on PB09
-
-  gpio_set_pin_level(SPR8,
-                     // <y> Initial level
-                     // <id> pad_initial_level
-                     // <false"> Low
-                     // <true"> High
-                     false);
-
-  // Set pin direction to output
+  gpio_set_pin_level(SPR8, false);
   gpio_set_pin_direction(SPR8, GPIO_DIRECTION_OUT);
-
   gpio_set_pin_function(SPR8, GPIO_PIN_FUNCTION_OFF);
 
   // GPIO on PB11
-
-  gpio_set_pin_level(P_CS,
-                     // <y> Initial level
-                     // <id> pad_initial_level
-                     // <false"> Low
-                     // <true"> High
-                     true);
-
-  // Set pin direction to output
+  gpio_set_pin_level(P_CS, true);
   gpio_set_pin_direction(P_CS, GPIO_DIRECTION_OUT);
-
   gpio_set_pin_function(P_CS, GPIO_PIN_FUNCTION_OFF);
 
   VMON_ADC_init();

@@ -867,7 +867,7 @@ drivers:
       timer_advanced_configuration: false
       timer_event_control: false
       timer_prescaler: No division
-      timer_tick: 1000
+      timer_tick: 0
     optional_signals: []
     variant: null
     clocks:
@@ -1076,6 +1076,12 @@ pads:
     definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PB23
     mode: Peripheral IO
     user_label: URXFTX
+    configuration: null
+  FAIL_OFF:
+    name: PA27
+    definition: Atmel:SAMC21_Drivers:0.0.1::SAMC21G18A-AN::pad::PA27
+    mode: Digital output
+    user_label: FAIL_OFF
     configuration: null
   J35_EN:
     name: PB02
