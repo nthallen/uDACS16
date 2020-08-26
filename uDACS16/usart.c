@@ -29,9 +29,9 @@ extern "C" {
  * Copied from driver_init.c: will need manual editing when that changes
  */
 void USART_CTRL_CLOCK_init() {
-	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM5_GCLK_ID_CORE, CONF_GCLK_SERCOM5_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM5_GCLK_ID_SLOW, CONF_GCLK_SERCOM5_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_mclk_set_APBCMASK_SERCOM5_bit(MCLK);
+  hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM5_GCLK_ID_CORE, CONF_GCLK_SERCOM5_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+  hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM5_GCLK_ID_SLOW, CONF_GCLK_SERCOM5_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+  hri_mclk_set_APBCMASK_SERCOM5_bit(MCLK);
 }
 
 /**
@@ -41,14 +41,14 @@ void USART_CTRL_CLOCK_init() {
  * Copied from driver_init.c: will need manual editing when that changes
  */
 void USART_CTRL_PORT_init() {
-	gpio_set_pin_function(UTXFRX, PINMUX_PB22D_SERCOM5_PAD2);
-	gpio_set_pin_function(URXFTX, PINMUX_PB23D_SERCOM5_PAD3);
+  gpio_set_pin_function(UTXFRX, PINMUX_PB22D_SERCOM5_PAD2);
+  gpio_set_pin_function(URXFTX, PINMUX_PB23D_SERCOM5_PAD3);
 }
 
 
 static void tx_cb_USART_CTRL(const struct usart_async_descriptor *const io_descr) {
-	/* Transfer completed */
-	USART_CTRL_tx_busy = 0;
+  /* Transfer completed */
+  USART_CTRL_tx_busy = 0;
 }
 
 /**
@@ -64,30 +64,30 @@ static void rx_cb_USART_CTRL(const struct usart_async_descriptor *const io_descr
  * Enables USART peripheral, clocks and initializes USART driver
  */
 void USART_CTRL_init(void) {
-	USART_CTRL_CLOCK_init();
-	usart_async_init(&USART_CTRL, SERCOM5, USART_CTRL_rx_buffer,
+  USART_CTRL_CLOCK_init();
+  usart_async_init(&USART_CTRL, SERCOM5, USART_CTRL_rx_buffer,
                    USART_CTRL_RX_BUFFER_SIZE, (void *)NULL);
-	USART_CTRL_PORT_init();
+  USART_CTRL_PORT_init();
 }
 
 static void USART_CTRL_write(const uint8_t *text, int count) {
-	while (USART_CTRL_tx_busy) {}
-	USART_CTRL_tx_busy = 1;
-	io_write(USART_CTRL_io, text, count);
+  while (USART_CTRL_tx_busy) {}
+  USART_CTRL_tx_busy = 1;
+  io_write(USART_CTRL_io, text, count);
 }
 
 void uart_init(void) {
-	USART_CTRL_init();
-	usart_async_register_callback(&USART_CTRL, USART_ASYNC_TXC_CB, tx_cb_USART_CTRL);
-	usart_async_register_callback(&USART_CTRL, USART_ASYNC_RXC_CB, rx_cb_USART_CTRL);
-	usart_async_register_callback(&USART_CTRL, USART_ASYNC_ERROR_CB, 0);
-	usart_async_get_io_descriptor(&USART_CTRL, &USART_CTRL_io);
-	usart_async_enable(&USART_CTRL);
+  USART_CTRL_init();
+  usart_async_register_callback(&USART_CTRL, USART_ASYNC_TXC_CB, tx_cb_USART_CTRL);
+  usart_async_register_callback(&USART_CTRL, USART_ASYNC_RXC_CB, rx_cb_USART_CTRL);
+  usart_async_register_callback(&USART_CTRL, USART_ASYNC_ERROR_CB, 0);
+  usart_async_get_io_descriptor(&USART_CTRL, &USART_CTRL_io);
+  usart_async_enable(&USART_CTRL);
   nc_tx = 0;
 }
 
 int uart_recv(uint8_t *buf, int nbytes) {
-	return io_read(USART_CTRL_io, (uint8_t *)buf, nbytes);
+  return io_read(USART_CTRL_io, (uint8_t *)buf, nbytes);
 }
 
 void uart_flush_input(void) {

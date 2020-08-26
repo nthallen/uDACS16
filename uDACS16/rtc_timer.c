@@ -25,11 +25,11 @@ struct timer_descriptor       TIMER_0;
  * Enables Timer peripheral, clocks and initializes Timer driver
  */
 static void TIMER_0_init(void) {
-	hri_mclk_set_APBCMASK_TC0_bit(MCLK);
-	hri_mclk_set_APBCMASK_TC1_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+  hri_mclk_set_APBCMASK_TC0_bit(MCLK);
+  hri_mclk_set_APBCMASK_TC1_bit(MCLK);
+  hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_0, TC0, _tc_get_timer());
+  timer_init(&TIMER_0, TC0, _tc_get_timer());
 }
 
 uint32_t rtc_current_count;
@@ -47,11 +47,11 @@ int32_t uDACS_timer_start(struct timer_descriptor *const descr) {
 #ifdef USING_RTC
   struct _timer_device *dev;
   uint16_t register_value;
-	ASSERT(descr);
+  ASSERT(descr);
   dev = &descr->device;
-	if (_timer_is_started(&descr->device)) {
-		return ERR_DENIED;
-	}
+  if (_timer_is_started(&descr->device)) {
+    return ERR_DENIED;
+  }
   // Fix settings that timer_init() applied
   // Clear CTRL.MATCHLR bit
   // Disable the CMP0 interrupt
@@ -62,20 +62,20 @@ int32_t uDACS_timer_start(struct timer_descriptor *const descr) {
   hri_rtcmode0_clear_INTEN_CMP0_bit(dev->hw);
 
 
-	// _timer_start(&descr->device); copied here and modified to leave IRQ disabled:
-	ASSERT(dev && dev->hw);
+  // _timer_start(&descr->device); copied here and modified to leave IRQ disabled:
+  ASSERT(dev && dev->hw);
 
-	// NVIC_EnableIRQ(RTC_IRQn);
-	hri_rtcmode0_write_COUNT_COUNT_bf(dev->hw, 0);
-	hri_rtcmode0_wait_for_sync(dev->hw);
-	hri_rtcmode0_set_CTRL_ENABLE_bit(dev->hw);
+  // NVIC_EnableIRQ(RTC_IRQn);
+  hri_rtcmode0_write_COUNT_COUNT_bf(dev->hw, 0);
+  hri_rtcmode0_wait_for_sync(dev->hw);
+  hri_rtcmode0_set_CTRL_ENABLE_bit(dev->hw);
 
-	return ERR_NONE;
+  return ERR_NONE;
 #else
   // Disable the interrupt defined in timer_init()
   hri_tc_clear_INTEN_OVF_bit(descr->device.hw);
   NVIC_DisableIRQ(TC0_IRQn);
-	hri_tc_write_WAVE_reg(descr->device.hw, TC_WAVE_WAVEGEN_NFRQ);
+  hri_tc_write_WAVE_reg(descr->device.hw, TC_WAVE_WAVEGEN_NFRQ);
   return timer_start(descr);
 #endif
 }
@@ -106,13 +106,13 @@ static void rtc_poll() {
 #ifdef USING_RTC
   uint32_t cur_time = hri_rtcmode0_read_COUNT_reg(RTC);
 #else
-	hri_tc_wait_for_sync(TIMER_0.device.hw, TC_SYNCBUSY_CTRLB);
-	hri_tc_set_CTRLB_CMD_bf(TIMER_0.device.hw, TC_CTRLBSET_CMD_READSYNC_Val);
+  hri_tc_wait_for_sync(TIMER_0.device.hw, TC_SYNCBUSY_CTRLB);
+  hri_tc_set_CTRLB_CMD_bf(TIMER_0.device.hw, TC_CTRLBSET_CMD_READSYNC_Val);
   #ifndef COMBINE_SYNCS
-  	hri_tc_wait_for_sync(TIMER_0.device.hw, TC_SYNCBUSY_CTRLB);
+    hri_tc_wait_for_sync(TIMER_0.device.hw, TC_SYNCBUSY_CTRLB);
     uint32_t cur_time = hri_tccount32_read_COUNT_COUNT_bf(TIMER_0.device.hw);
   #else
-  	hri_tc_wait_for_sync(TIMER_0.device.hw, TC_SYNCBUSY_CTRLB|TC_SYNCBUSY_COUNT);
+    hri_tc_wait_for_sync(TIMER_0.device.hw, TC_SYNCBUSY_CTRLB|TC_SYNCBUSY_COUNT);
     uint32_t cur_time = ((Tc *)TIMER_0.device.hw)->COUNT32.COUNT.reg;
   #endif
 #endif

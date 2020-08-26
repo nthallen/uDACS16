@@ -115,13 +115,13 @@ static bool ads1115_poll(void) {
       ads_state = ads_t1_init_tx;
       return false;
     case ads_t1_init_tx: // Release bus after starting write
-	  if (ads_slave_index <3 ) {
-		  ++ads_slave_index;
-		  ads_state = ads_t1_init;
-	  } else {
-		  ads_slave_index = 0;
-		  ads_state = ads_t1_read_cfg;
-	  }
+      if (ads_slave_index <3 ) {
+        ++ads_slave_index;
+        ads_state = ads_t1_init;
+      } else {
+        ads_slave_index = 0;
+        ads_state = ads_t1_read_cfg;
+      }
       return true;
     case ads_t1_read_cfg: // Start read from config register
       i2c_read(ads_slave_addr[ads_slave_index], ads_ibuf, 2);
@@ -144,16 +144,16 @@ static bool ads1115_poll(void) {
       ads_state = ads_t1_read_adc_tx;
       return false;
     case ads_t1_read_adc_tx: // Save converted value
-      sb_cache_update(i2c_cache, I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index >= 2 ? 1 : 0), 
-		(ads_ibuf[0] << 8) | ads_ibuf[1]);
+      sb_cache_update(i2c_cache, I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index >= 2 ? 1 : 0),
+    (ads_ibuf[0] << 8) | ads_ibuf[1]);
       sb_cache_update(i2c_cache, I2C_ADS_OFFSET+8, ads_n_reads);
-	  if (ads_slave_index <3 ) {
-		  ++ads_slave_index;
-		  ads_state = ads_t1_read_cfg;
-	  } else {
-		  ads_slave_index = 0;
-		  ads_state = ads_t2_init;
-	  }
+    if (ads_slave_index <3 ) {
+      ++ads_slave_index;
+      ads_state = ads_t1_read_cfg;
+    } else {
+      ads_slave_index = 0;
+      ads_state = ads_t2_init;
+    }
       return true;
     case ads_t2_init:
       ads_n_reads = 0;
@@ -161,13 +161,13 @@ static bool ads1115_poll(void) {
       ads_state = ads_t2_init_tx;
       return false;
     case ads_t2_init_tx:
-	  if (ads_slave_index <3 ) {
-		  ++ads_slave_index;
-		  ads_state = ads_t2_init;
-	  } else {
-		  ads_slave_index = 0;
-		  ads_state = ads_t2_read_cfg;
-	  }
+    if (ads_slave_index <3 ) {
+      ++ads_slave_index;
+      ads_state = ads_t2_init;
+    } else {
+      ads_slave_index = 0;
+      ads_state = ads_t2_read_cfg;
+    }
       return true;
     case ads_t2_read_cfg:
       i2c_read(ads_slave_addr[ads_slave_index], ads_ibuf, 2);
@@ -190,16 +190,16 @@ static bool ads1115_poll(void) {
       ads_state = ads_t2_read_adc_tx;
       return false;
     case ads_t2_read_adc_tx:
-      sb_cache_update(i2c_cache, I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index < 2 ? 1 : 0), 
-		(ads_ibuf[0] << 8) | ads_ibuf[1]);
+      sb_cache_update(i2c_cache, I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index < 2 ? 1 : 0),
+    (ads_ibuf[0] << 8) | ads_ibuf[1]);
       sb_cache_update(i2c_cache, I2C_ADS_OFFSET+8, ads_n_reads);
-	  if (ads_slave_index <3 ) {
-		  ++ads_slave_index;
-		  ads_state = ads_t2_read_cfg;
-	  } else {
-		  ads_slave_index = 0;
-		  ads_state = ads_t1_init;
-	  }
+    if (ads_slave_index <3 ) {
+      ++ads_slave_index;
+      ads_state = ads_t2_read_cfg;
+    } else {
+      ads_slave_index = 0;
+      ads_state = ads_t1_init;
+    }
       return true;
     default:
       assert(false, __FILE__, __LINE__);
@@ -207,19 +207,19 @@ static bool ads1115_poll(void) {
   return true;
 }
 
-/* 
+/*
  * DAC: poll AD5665 on i2c bus
  */
 typedef struct {
  bool enabled;
- uint16_t offs[4];	// Changed to (cache) offset 
+ uint16_t offs[4];	// Changed to (cache) offset
  uint16_t current;
 } dac_poll_def;	// removed SPI CS_pin and state
 
 static dac_poll_def AD5665 = {
-	I2C_AD5665_ENABLED,
-	{I2C_AD5665_OFFSET, I2C_AD5665_OFFSET +1, I2C_AD5665_OFFSET +2, I2C_AD5665_OFFSET +3},	// new offs[4]; offset within cache
-	0 };
+  I2C_AD5665_ENABLED,
+  {I2C_AD5665_OFFSET, I2C_AD5665_OFFSET +1, I2C_AD5665_OFFSET +2, I2C_AD5665_OFFSET +3},	// new offs[4]; offset within cache
+  0 };
 
 enum dac_state_t {dac_init, dac_tx, dac_idle};
 static enum dac_state_t dac_state = dac_init;
@@ -238,24 +238,24 @@ static bool ad5665_poll(void) {
   switch (dac_state) {
     case dac_init: // Initialize DAC: Enable internal Ref
       i2c_write(dac_slave_addr, dac_ref_en_cmd, 3);	// Should look for no Error here..
-      dac_vref_enabled = true;	// .. before declaring Ref is Enabled. 
+      dac_vref_enabled = true;	// .. before declaring Ref is Enabled.
       dac_state = dac_tx;
       return false;	// keep bus until done
-	  
+
     case dac_tx:	// delay ?
       dac_state = dac_vref_enabled ? dac_idle : dac_init;	// dac_tx not needed ?
       return true;
-	  
+
     case dac_idle:
       if (sb_cache_iswritten(i2c_cache, AD5665.offs[AD5665.current], &value)) {
         DACupdate[0] = 0x18+AD5665.current;	// 0x18 is correct for "write to and update DACn"
         DACupdate[1] = (value>>8) & 0xFF;
         DACupdate[2] = value & 0xFF;
-		
-		i2c_write(dac_slave_addr, DACupdate, 3);
+
+    i2c_write(dac_slave_addr, DACupdate, 3);
 
         sb_cache_update(i2c_cache, AD5665.offs[AD5665.current], value);
-		
+
         AD5665.current = (AD5665.current + 1) & 0x3;	// Increment to check next DAC
         dac_state = dac_tx;
         return false;

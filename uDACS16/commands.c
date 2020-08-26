@@ -4,13 +4,13 @@
 
 static void commands_init(void) {
 #if SUBBUS_BOARD_ID == 1
-	gpio_set_pin_level(J34_CNTL, false);
-	gpio_set_pin_direction(J34_CNTL, GPIO_DIRECTION_OUT);
-	gpio_set_pin_function(J34_CNTL, GPIO_PIN_FUNCTION_OFF);
+  gpio_set_pin_level(J34_CNTL, false);
+  gpio_set_pin_direction(J34_CNTL, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(J34_CNTL, GPIO_PIN_FUNCTION_OFF);
 
-    gpio_set_pin_level(PPWR_CNTL, false);
-    gpio_set_pin_direction(PPWR_CNTL, GPIO_DIRECTION_OUT);
-    gpio_set_pin_function(PPWR_CNTL, GPIO_PIN_FUNCTION_OFF);
+  gpio_set_pin_level(PPWR_CNTL, false);
+  gpio_set_pin_direction(PPWR_CNTL, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(PPWR_CNTL, GPIO_PIN_FUNCTION_OFF);
 #endif
   //#ifdef uDACS_B
     //gpio_set_pin_level(PPMP_CNTL, false);
