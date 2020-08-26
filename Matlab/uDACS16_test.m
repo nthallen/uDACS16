@@ -55,10 +55,13 @@ for iadc=1:10
   fprintf(1,'---------\n');
   fprintf(1,'%04X %d\n', vals(1),vals(end));
   adc = vals(2:end-1);
+  sadc = adc - (adc>2^15)*2^16;
   vref = 4.096;
-  vadc = vref * adc / (2^16);
+  vadc = vref * sadc / (2^15);
+  Rpu = 75e3;
+  Rth = Rpu * vadc ./ (vref-vadc);
   for i=1:length(adc)
-    fprintf(1,'%8X %8d %10f V\n', adc(i), adc(i), vadc(i));
+    fprintf(1,'%8X %8d %10f V %10g Ohm\n', adc(i), adc(i), vadc(i), Rth(i));
   end
   %%
   pause(1);
@@ -139,4 +142,15 @@ PTread = struct( ...
   pause(1);
 end
 
-
+%%
+% D/A Channel 0
+ack = write_subbus(s, 32+10, 0xFFFF);
+%%
+% D/A Channel 1
+ack = write_subbus(s, 32+11, 0xFFFF);
+%%
+% D/A Channel 2
+ack = write_subbus(s, 32+12, 0xFFFF);
+%%
+% D/A Channel 3
+ack = write_subbus(s, 32+13, 0xFFFF);

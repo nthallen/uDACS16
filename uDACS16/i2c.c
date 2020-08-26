@@ -144,8 +144,9 @@ static bool ads1115_poll(void) {
       ads_state = ads_t1_read_adc_tx;
       return false;
     case ads_t1_read_adc_tx: // Save converted value
-      sb_cache_update(i2c_cache, I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index >= 2 ? 1 : 0),
-    (ads_ibuf[0] << 8) | ads_ibuf[1]);
+      sb_cache_update(i2c_cache,
+        I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index >= 2 ? 1 : 0),
+        (ads_ibuf[0] << 8) | ads_ibuf[1]);
       sb_cache_update(i2c_cache, I2C_ADS_OFFSET+8, ads_n_reads);
     if (ads_slave_index <3 ) {
       ++ads_slave_index;
@@ -190,8 +191,9 @@ static bool ads1115_poll(void) {
       ads_state = ads_t2_read_adc_tx;
       return false;
     case ads_t2_read_adc_tx:
-      sb_cache_update(i2c_cache, I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index < 2 ? 1 : 0),
-    (ads_ibuf[0] << 8) | ads_ibuf[1]);
+      sb_cache_update(i2c_cache,
+        I2C_ADS_OFFSET + ads_slave_index * 2 + (ads_slave_index < 2 ? 1 : 0),
+        (ads_ibuf[0] << 8) | ads_ibuf[1]);
       sb_cache_update(i2c_cache, I2C_ADS_OFFSET+8, ads_n_reads);
     if (ads_slave_index <3 ) {
       ++ads_slave_index;
@@ -218,7 +220,11 @@ typedef struct {
 
 static dac_poll_def AD5665 = {
   I2C_AD5665_ENABLED,
-  {I2C_AD5665_OFFSET, I2C_AD5665_OFFSET +1, I2C_AD5665_OFFSET +2, I2C_AD5665_OFFSET +3},	// new offs[4]; offset within cache
+  // Cache offsets are premuted to accommodate routing
+  { I2C_AD5665_OFFSET + 3,
+    I2C_AD5665_OFFSET + 0,
+    I2C_AD5665_OFFSET + 2,
+    I2C_AD5665_OFFSET + 1},
   0 };
 
 enum dac_state_t {dac_init, dac_tx, dac_idle};
@@ -252,7 +258,7 @@ static bool ad5665_poll(void) {
         DACupdate[1] = (value>>8) & 0xFF;
         DACupdate[2] = value & 0xFF;
 
-    i2c_write(dac_slave_addr, DACupdate, 3);
+        i2c_write(dac_slave_addr, DACupdate, 3);
 
         sb_cache_update(i2c_cache, AD5665.offs[AD5665.current], value);
 
