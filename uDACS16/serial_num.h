@@ -60,7 +60,7 @@
 #if SUBBUS_BOARD_ID == 1 // uDACS "A"
   #define HAVE_RTC
   #define SB_FAIL_PIN FAIL_OFF
-  #define SB_FAIL_TIMEOUT_SECS 20
+  // #define SB_FAIL_TIMEOUT_SECS 20
   #define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
   #define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
 #endif

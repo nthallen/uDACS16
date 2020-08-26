@@ -134,8 +134,8 @@ static bool sb_fail_timed_out;
 static void sb_fail_sw_reset() {
   sb_fail_sw_cache[0].cache = 0;
   #ifdef HAVE_RTC
-  sb_fail_last_tick_set = false;
-  sb_fail_timed_out = false;
+    sb_fail_last_tick_set = false;
+    sb_fail_timed_out = false;
   #endif
   #ifdef SB_FAIL_PIN
     gpio_set_pin_level(SB_FAIL_PIN, false);
@@ -159,15 +159,26 @@ static void sb_fail_set() {
   #endif
 }
 
-void sb_fail_tick() {
+/** Like sb_fail_tick(), but presets the counter as if the specified number
+ *  of seconds has already elapsed, causing an earlier fail indication.
+ *  This is intended to all operations to use a script to shutdown the
+ *  flight computer and give a visual signal when enough time has elapsed
+ *  to shut off power.
+ */
+void sb_fail_tick_int(int secs) {
   #ifdef HAVE_RTC
-    sb_fail_last_tick = rtc_current_count;
+    sb_fail_last_tick = rtc_current_count - secs*RTC_COUNTS_PER_SECOND;
+    sb_fail_last_tick_set = true;
     if (sb_fail_timed_out) {
       sb_fail_timed_out = false;
       sb_cache_update(sb_fail_sw_cache,0, sb_fail_sw_cache[0].wvalue);
       sb_fail_set();
     }
   #endif
+}
+
+void sb_fail_tick() {
+  sb_fail_tick_int(0);
 }
 
 static void sb_fail_sw_poll() {
@@ -193,6 +204,9 @@ static void sb_fail_sw_poll() {
     #ifdef HAVE_RTC
       if (sb_fail_timed_out) {
         wfail |= 0x1;
+      }
+      if (wfail | 0xFF00) {
+        sb_fail_tick_int((wfail>>8)&0xFF);
       }
     #endif
     sb_cache_update(sb_fail_sw_cache,0,wfail);

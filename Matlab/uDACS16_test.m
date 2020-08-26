@@ -176,3 +176,51 @@ end
 
 %%
 % Subbus fail test
+tick_subbus(s);
+write_subbus(s, 6, 0); % Clear fail
+failval = read_subbus(s,6);
+if failval
+  fprintf(1,'Fail is non-zero after tick and explicit clear\n');
+end
+%%
+fprintf(1, 'Testing default timeout of 120 seconds:\n');
+write_subbus(s, 6, 0); % Clear fail
+tick_subbus(s, 1);
+tic;
+failval = read_subbus(s,6);
+faildur = toc;
+while failval == 0 && faildur < 125
+  pause(1);
+  failval = read_subbus(s,6);
+  faildur = toc;
+end
+if failval
+  if faildur < 119
+    fprintf(1,'ERROR: Fail occurred early: %f secs\n', faildur);
+  else
+    fprintf(1, 'Fail occurred after %f secs, within specs\n', faildur);
+  end
+else
+  fprintf(1, 'ERROR: Timed out after %f secs without fail\n', faildur);
+end
+%%
+fprintf(1, 'Testing reduced timeout of 20 seconds:\n');
+tick_subbus(s,1);
+write_subbus(s, 6, 100*256+0); % Clear fail
+tic;
+failval = bitand(read_subbus(s,6),255);
+faildur = toc;
+while failval == 0 && faildur < 25
+  pause(1);
+  failval = bitand(read_subbus(s,6),255);
+  faildur = toc;
+end
+if failval
+  if faildur < 19
+    fprintf(1,'ERROR: Fail occurred early: %f secs\n', faildur);
+  else
+    fprintf(1, 'Fail occurred after %f secs, within specs\n', faildur);
+  end
+else
+  fprintf(1, 'ERROR: Timed out after %f secs without fail\n', faildur);
+end
