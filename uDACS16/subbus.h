@@ -20,8 +20,6 @@
 #define SUBBUS_DESC_FIFO_ADDR       0x0009
 #define SUBBUS_INTERRUPTS           0
 
-#define SUBBUS_ADDR_CMDS 0x18
-
 #if SUBBUS_INTERRUPTS
 extern volatile uint8_t subbus_intr_req;
 void init_interrupts(void);

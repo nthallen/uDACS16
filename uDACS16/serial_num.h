@@ -46,10 +46,21 @@
 #error Must define SUBBUS_BOARD_ID
 #endif
 
+/**
+ * Configuration variables for uDACS16
+ * HAVE_RTC: If defined, enables time-based fail light control
+ * USING_RTC: If defined, indicates rtc_timer module is using an RTC rather
+ *    than a TC hardware component
+ * SB_FAIL_PIN: If defined, specifies pin for the !fail signal output
+ * SB_FAIL_PIN2: If defined, specifies a second pin for the !fail signal output
+ * SB_FAIL_TIMEOUT_SECS: If defined, overrides the 2-minute default duration for the fail timeout
+ *   Used for testing. Should not be defined for deployment.
+ */
+
 #if SUBBUS_BOARD_ID == 1 // uDACS "A"
-  // #define SB_FAIL_PIN SPR7
-  //  #define SB_FAIL_PIN2 SPR29
-  //  #define SB_FAIL_TIMEOUT_SECS 20
+  #define HAVE_RTC
+  #define SB_FAIL_PIN FAIL_OFF
+  #define SB_FAIL_TIMEOUT_SECS 20
   #define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
   #define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
 #endif

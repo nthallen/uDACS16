@@ -4,7 +4,7 @@ cd C:\Users\nort\Documents\Documents\Exp\Boards\uDACS16\uDACS16\Matlab
 %%
 serial_port_clear();
 %%
-[s,port] = serial_port_init();
+[s] = serial_port_init();
 set(s,'BaudRate',57600);
 % set(s,'BaudRate',115200);
 %%
@@ -144,13 +144,35 @@ end
 
 %%
 % D/A Channel 0
-ack = write_subbus(s, 32+10, 0xFFFF);
+write_subbus(s, 32+10, 0xFFFF);
 %%
 % D/A Channel 1
-ack = write_subbus(s, 32+11, 0xFFFF);
+write_subbus(s, 32+11, 0xFFFF);
 %%
 % D/A Channel 2
-ack = write_subbus(s, 32+12, 0xFFFF);
+write_subbus(s, 32+12, 0xFFFF);
 %%
 % D/A Channel 3
-ack = write_subbus(s, 32+13, 0xFFFF);
+write_subbus(s, 32+13, 0xFFFF);
+
+%%
+% Command Testing
+cmd_pins = { 'J7', 'J8', 'J34', 'J35' };
+for npin = 1:length(cmd_pins)
+  pin = cmd_pins{npin};
+  cmdnum = (npin-1)*2+1;
+  fprintf(1, 'Hit ENTER to command %s ON (cmd %d)\n', pin, cmdnum);
+  pause;
+  write_subbus(s, 48, cmdnum);
+  status = read_subbus(s, 48);
+  fprintf(1, '  Status is %02X\n', status);
+  cmdnum = (npin-1)*2;
+  fprintf(1, 'Hit ENTER to command %s OFF (cmd %d)\n', pin, cmdnum);
+  pause;
+  write_subbus(s, 48, cmdnum);
+  status = read_subbus(s, 48);
+  fprintf(1, '  Status is %02X\n', status);
+end
+
+%%
+% Subbus fail test

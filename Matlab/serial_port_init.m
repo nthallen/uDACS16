@@ -39,12 +39,12 @@ end
 if isempty(port)
   if isempty(hw.AvailableSerialPorts)
     % closereq;
-    h = errordlg('No serial port found','FCC Serial Port Error','modal');
+    h = errordlg('No serial port found','uDACS16 Serial Port Error','modal');
     uiwait(h);
     return;
   else
     sel = listdlg('ListString',hw.AvailableSerialPorts,...
-      'SelectionMode','single','Name','FCC_Port', ...
+      'SelectionMode','single','Name','uDACS16_Port', ...
       'PromptString','Select Serial Port:', ...
       'ListSize',[160 50]);
     if isempty(sel)
@@ -73,10 +73,13 @@ try
   while ~isempty(tline)
     tline = fgetl(s);
   end
+  if nargout < 2
+    fprintf(1, 'Successfully opened port %s\n', port);
+  end
 catch ME
   h = errordlg(sprintf('Error: %s\nMessage: %s\nport = %s\n', ...
     ME.identifier, ME.message, port), ...
-    'FCC Serial Port Error', 'modal');
+    'uDACS16 Serial Port Error', 'modal');
   uiwait(h);
   if isopen
     fclose(s);
