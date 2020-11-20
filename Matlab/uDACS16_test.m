@@ -3,7 +3,7 @@ cd C:\huarp\ElecCore\uDACS\code\uDACS16\uDACS16\Matlab
 %%
 serial_port_clear();
 %%
-[s,port] = serial_port_init('COM9');
+[s,port] = serial_port_init('COM4');
 set(s,'BaudRate',57600);
 % set(s,'BaudRate',115200);
 %%
