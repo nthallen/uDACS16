@@ -39,7 +39,7 @@
 #if SUBBUS_BOARD_SN == 1
   #define SUBBUS_BOARD_ID 1 // uDACS "A"
 #elif SUBBUS_BOARD_SN == 2
-  #define SUBBUS_BOARD_ID 2 // uDACS "B"
+  #define SUBBUS_BOARD_ID 1 // uDACS "A"
 #elif SUBBUS_BOARD_SN == 3
   #define SUBBUS_BOARD_ID 1 // uDACS "A"
 #endif
