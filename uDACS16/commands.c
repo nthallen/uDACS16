@@ -34,8 +34,10 @@ static subbus_cache_word_t cmd_cache[CMD_HIGH_ADDR-CMD_BASE_ADDR+1] = {
   { 0, 0, true,  false, true, false, false } // Offset 0: R: ADC Flow 0
 };
 
-#define N_CMD_PINS 4
-static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR8, J34_CNTL, PPWR_CNTL };
+#if SUBBUS_BOARD_ID == 1
+  #define N_CMD_PINS 4
+  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR8, J34_CNTL, PPWR_CNTL };
+#endif
 
 static void cmd_poll(void) {
   uint16_t cmd;
@@ -76,8 +78,10 @@ static void cmd_poll(void) {
   status = 0;
   update_status(&status, SPR7, 0x01);
   update_status(&status, SPR8, 0x02);
+#if SUBBUS_BOARD_ID == 1
   update_status(&status, J34_CNTL, 0x04);
   update_status(&status, PPWR_CNTL, 0x08);
+#endif
   sb_cache_update(cmd_cache, 0, status); // Make status bits true in high
 }
 
