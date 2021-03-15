@@ -25,7 +25,7 @@ if BoardID == 1
   BdCfg = 'uDACS A';
 elseif BoardID == 2
   BdCfg = 'uDACS B';
-elseif BoardID == 3
+elseif ( BoardID == 3 || BoardID == 4 )
   BdCfg = 'SCoPEx Engine Assembly';
 else
   BdCfg = 'Test';

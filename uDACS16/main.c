@@ -9,7 +9,10 @@
 #include "rtc_timer.h"
 #include "driver_temp.h"	// in place for driver_init
 #include "commands.h"
-// #include "can_control.h"
+
+#ifdef CAN_BOARD_ID
+#include "can_control.h"
+#endif
 
 int main(void)
 {

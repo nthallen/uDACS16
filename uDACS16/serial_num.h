@@ -59,18 +59,22 @@
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
   #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
+  #define SUBBUS_BOARD_LOCATION "Test"
+  #define CAN_BOARD_ID 1 // for Test board
 #elif SUBBUS_BOARD_SN == 6
   #define SUBBUS_BOARD_ID 3 // SCoPEx Port Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
   #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
-//  #define CAN_BOARD_ID 14
+  #define SUBBUS_BOARD_LOCATION "SCoPEx Port Engine Assy"
+  #define CAN_BOARD_ID 14
 #elif SUBBUS_BOARD_SN == 7
   #define SUBBUS_BOARD_ID 4 // SCoPEx Starboard Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
   #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
-//  #define CAN_BOARD_ID 15
+  #define SUBBUS_BOARD_LOCATION "SCoPEx Starboard Engine Assy"
+  #define CAN_BOARD_ID 15
 #endif
 
 #if ! defined(SUBBUS_BOARD_ID)
