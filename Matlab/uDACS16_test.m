@@ -23,8 +23,12 @@ Rev = 'A';
 
 if BoardID == 1
   BdCfg = 'uDACS A';
-else
+elseif BoardID == 2
   BdCfg = 'uDACS B';
+elseif BoardID == 3
+  BdCfg = 'SCoPEx Engine Assembly';
+else
+  BdCfg = 'Test';
 end
 
 fprintf(1, 'Attached to uDACS16 S/N %d Build # %d\n', SerialNo, Build);

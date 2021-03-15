@@ -9,6 +9,7 @@
 #include "rtc_timer.h"
 #include "driver_temp.h"	// in place for driver_init
 #include "commands.h"
+// #include "can_control.h"
 
 int main(void)
 {
@@ -24,7 +25,9 @@ int main(void)
     || subbus_add_driver(&sb_i2c)
     || subbus_add_driver(&sb_cmd)
     || subbus_add_driver(&sb_rtc)
-      // || subbus_add_driver(&sb_can)
+#ifdef CAN_BOARD_ID
+    || subbus_add_driver(&sb_can)
+#endif
     ) {
     while (true) ; // some driver is mis-configured.
   }

@@ -5,10 +5,17 @@
  *  SUBBUS_BUILD_NUM:
  *  SUBBUS_SUBFUNCTION: The board type code as defined in "SYSCON Memory Maps and Subbus Board IDs"
  *  SUBBUS_BOARD_ID: Board Identification number (*not* the CAN_BOARD_ID). Defines the type of board
+ *     1: DPOPS "A"
+ *     2: DPOPS "B"
+ *     3: SCoPEx Port (Left) Engine Assy
+ *     4: SCoPEx Starboard (Right) Engine Assy
  *     SUBBUS_SUBFUNCTION may be the same as SUBBUS_BOARD_ID if there is no significant
  *     configuration difference between boards. If different, the SUBBUS_BOARD_ID values
  *     should be documented along with the SUBBUS_BOARD_SN etc. in the board's Specifications document
+ *       15: default ?
  *  SUBBUS_BOARD_INSTRUMENT_ID: Number that maps to Instrument name. (not yet used as of 4/18/19)
+ *     1: SCoPEx
+ *     7: DPOPS
  *  SUBBUS_BOARD_REV: String encapsulating almost anything here
  */
 #ifndef SERIAL_NUM_H_INCLUDED
@@ -16,10 +23,9 @@
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.0"
-#define SUBBUS_BOARD_BUILD_NUM 1
-// #define SUBBUS_BOARD_SN 1
-//#define HAVE_RTC
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.1"
+#define SUBBUS_BOARD_BUILD_NUM 2
+#define HAVE_RTC
 
 /**
  * Build definitions
@@ -48,6 +54,23 @@
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
   #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
+#elif SUBBUS_BOARD_SN == 5
+  #define SUBBUS_BOARD_ID 0 // Test
+  #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 1
+  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
+#elif SUBBUS_BOARD_SN == 6
+  #define SUBBUS_BOARD_ID 3 // SCoPEx Port Engine Assy
+  #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 1
+  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
+//  #define CAN_BOARD_ID 14
+#elif SUBBUS_BOARD_SN == 7
+  #define SUBBUS_BOARD_ID 4 // SCoPEx Starboard Engine Assy
+  #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 1
+  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
+//  #define CAN_BOARD_ID 15
 #endif
 
 #if ! defined(SUBBUS_BOARD_ID)
@@ -66,7 +89,6 @@
  */
 
 #if SUBBUS_BOARD_ID == 1 // uDACS "A"
-  #define HAVE_RTC
   #define SB_FAIL_PIN FAIL_OFF
   // #define SB_FAIL_TIMEOUT_SECS 20
   #define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
