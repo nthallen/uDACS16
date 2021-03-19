@@ -194,7 +194,7 @@
 // <i> Indicates whether Output Enable is enabled or not
 // <id> gclk_arch_gen_2_oe
 #ifndef CONF_GCLK_GEN_2_OE
-#define CONF_GCLK_GEN_2_OE 1
+#define CONF_GCLK_GEN_2_OE 0
 #endif
 
 // <q> Output Off Value

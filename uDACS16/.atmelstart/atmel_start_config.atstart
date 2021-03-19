@@ -2,16 +2,16 @@ format_version: '2'
 name: uDACS16
 versions:
   api: '1.0'
-  backend: 1.7.391
-  commit: d4b7e9f65a05ebffcb0986e4060cb8c0a313e69a
+  backend: 1.8.491
+  commit: 605bd5a7663644fb84783aa2b00942b79b0d8955
   content: unknown
   content_pack_name: unknown
   format: '2'
-  frontend: 1.7.391
-  packs_version_avr8: 1.0.1421
+  frontend: 1.8.491
+  packs_version_avr8: 1.0.1446
   packs_version_qtouch: unknown
-  packs_version_sam: 1.0.1658
-  version_backend: 1.7.391
+  packs_version_sam: 1.0.1726
+  version_backend: 1.8.491
   version_frontend: ''
 board:
   identifier: CustomBoard
@@ -411,6 +411,18 @@ drivers:
     functionality: System
     api: HAL:HPL:GCLK
     configuration:
+      $input: 400000
+      $input_id: External Crystal Oscillator 0.4-32MHz (XOSC)
+      RESERVED_InputFreq: 400000
+      RESERVED_InputFreq_id: External Crystal Oscillator 0.4-32MHz (XOSC)
+      _$freq_output_Generic clock generator 0: 8000000
+      _$freq_output_Generic clock generator 1: 1600000
+      _$freq_output_Generic clock generator 2: 160000
+      _$freq_output_Generic clock generator 3: 400000
+      _$freq_output_Generic clock generator 4: 100000
+      _$freq_output_Generic clock generator 5: 400000
+      _$freq_output_Generic clock generator 6: 400000
+      _$freq_output_Generic clock generator 7: 400000
       enable_gclk_gen_0: true
       enable_gclk_gen_0__externalclock: 1000000
       enable_gclk_gen_1: true
@@ -501,6 +513,11 @@ drivers:
     functionality: System
     api: HAL:HPL:MCLK
     configuration:
+      $input: 8000000
+      $input_id: Generic clock generator 0
+      RESERVED_InputFreq: 8000000
+      RESERVED_InputFreq_id: Generic clock generator 0
+      _$freq_output_CPU: 8000000
       cpu_clock_source: Generic clock generator 0
       cpu_div: '1'
       enable_cpu_clock: true
@@ -521,6 +538,11 @@ drivers:
     functionality: System
     api: HAL:HPL:OSC32KCTRL
     configuration:
+      $input: 32768
+      $input_id: 32kHz Ultra Low Power Internal Oscillator (OSCULP32K)
+      RESERVED_InputFreq: 32768
+      RESERVED_InputFreq_id: 32kHz Ultra Low Power Internal Oscillator (OSCULP32K)
+      _$freq_output_RTC source: 32768
       enable_osc32k: true
       enable_osculp32k: true
       enable_rtc_source: false
@@ -557,6 +579,13 @@ drivers:
     functionality: System
     api: HAL:HPL:OSCCTRL
     configuration:
+      $input: 32768
+      $input_id: 32kHz External Crystal Oscillator (XOSC32K)
+      RESERVED_InputFreq: 32768
+      RESERVED_InputFreq_id: 32kHz External Crystal Oscillator (XOSC32K)
+      _$freq_output_48MHz Internal Oscillator (OSC48M): 8000000
+      _$freq_output_External Crystal Oscillator 0.4-32MHz (XOSC): 400000
+      _$freq_output_Fractional Digital Phase Locked Loop (FDPLL96M): 47998976
       enable_fdpll96m: false
       enable_osc48m: true
       enable_xosc: false
@@ -885,7 +914,7 @@ drivers:
     functionality: CAN
     api: HAL:Driver:CAN_Async
     configuration:
-      can_btp_brp: 4
+      can_btp_brp: 3
       can_btp_sjw: 4
       can_btp_tseg1: 11
       can_btp_tseg2: 8

@@ -328,12 +328,11 @@ static void TIMER_0_init(void)
 }
 #endif
 
-#if 0
+#ifdef CAN_BOARD_ID
 void CAN_CTRL_PORT_init(void)
 {
 
   gpio_set_pin_function(CANRX, PINMUX_PA25G_CAN0_RX);
-
   gpio_set_pin_function(CANTX, PINMUX_PA24G_CAN0_TX);
 }
 /**
@@ -394,8 +393,12 @@ void system_init(void)
   PMON_I2C_init();
 
   PSD_SPI_init();
+  
   // USART_CTRL_init();	// replaced in usart.c
 
   // TIMER_0_init();
-  // CAN_CTRL_init();  //  No CAN yet
+  
+#ifdef CAN_BOARD_ID
+  CAN_CTRL_init();  
+#endif
 }

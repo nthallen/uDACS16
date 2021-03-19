@@ -236,6 +236,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -255,7 +256,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
@@ -277,6 +277,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -296,12 +297,12 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -321,7 +322,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
 </ArmGcc>
@@ -343,6 +343,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -362,7 +363,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -385,6 +385,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -404,13 +405,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -430,7 +431,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -454,6 +454,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -473,7 +474,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -497,6 +497,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -516,13 +517,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -542,7 +543,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -567,6 +567,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -586,7 +587,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -610,6 +610,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -629,13 +630,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -655,7 +656,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -680,6 +680,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -699,7 +700,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -723,6 +723,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -742,13 +743,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -768,7 +769,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -793,6 +793,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -812,7 +813,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -836,6 +836,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -855,13 +856,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -881,7 +882,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -906,6 +906,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -925,7 +926,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -949,6 +949,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -968,13 +969,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -994,7 +995,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -1019,6 +1019,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1038,7 +1039,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -1062,6 +1062,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1081,13 +1082,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1107,7 +1108,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -1133,6 +1133,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1152,7 +1153,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -1175,6 +1175,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1194,7 +1195,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.preprocessingassembler.general.IncludePaths>
@@ -1242,6 +1242,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1261,7 +1262,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -1285,6 +1285,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1304,13 +1305,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1330,7 +1331,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -1355,6 +1355,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1374,7 +1375,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -1398,6 +1398,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1417,13 +1418,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1443,7 +1444,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -1468,6 +1468,7 @@
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1487,7 +1488,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -1511,6 +1511,7 @@
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1530,13 +1531,13 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\ARM\CMSIS\5.4.0\CMSIS\Core\Include\</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -1556,7 +1557,6 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\Atmel\SAMC21_DFP\1.2.176\samc21\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
