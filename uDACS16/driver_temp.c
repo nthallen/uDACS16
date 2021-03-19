@@ -8,6 +8,7 @@
 
 // #include "driver_init.h"
 #include "driver_temp.h"
+#include "serial_num.h"
 #include <peripheral_clk_config.h>
 #include <utils.h>
 #include <hal_init.h>
@@ -393,12 +394,12 @@ void system_init(void)
   PMON_I2C_init();
 
   PSD_SPI_init();
-  
+
   // USART_CTRL_init();	// replaced in usart.c
 
   // TIMER_0_init();
-  
+
 #ifdef CAN_BOARD_ID
-  CAN_CTRL_init();  
+  CAN_CTRL_init();
 #endif
 }
