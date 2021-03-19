@@ -914,7 +914,7 @@ drivers:
     functionality: CAN
     api: HAL:Driver:CAN_Async
     configuration:
-      can_btp_brp: 3
+      can_btp_brp: 8
       can_btp_sjw: 4
       can_btp_tseg1: 11
       can_btp_tseg2: 8
