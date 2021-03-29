@@ -26,28 +26,28 @@ while(1)
   try
     fprintf(1, 'Attempting CAN ID %d\n', CAN_ID);
     Board_ID = sbsl.SBCAN_read_addrs(CAN_ID,2); % Board_ID
-    if board_ID == 15
+    if Board_ID <= 4
 	  Build = sbsl.SBCAN_read_addrs(CAN_ID,3); % Build
 	  SerialNo = sbsl.SBCAN_read_addrs(CAN_ID,4); % board Serial Number
 	  InstID = sbsl.SBCAN_read_addrs(CAN_ID,5); % board InstID
 	  
-	  if BoardID == 1
+	  if Board_ID == 1
         BdCfg = 'uDACS A';
-      elseif BoardID == 2
+      elseif Board_ID == 2
         BdCfg = 'uDACS B';
-      elseif ( BoardID == 3 || BoardID == 4 )
+      elseif ( Board_ID == 3 || Board_ID == 4 )
         BdCfg = 'SCoPEx Engine Assembly';
       else
         BdCfg = 'Test';
       end
       
-      fprintf(1, 'Good Connection with CAN ID %d! uDACS16 Board ID = %d\n', CAN_ID, board_ID);
+      fprintf(1, 'Good Connection with CAN ID %d! uDACS16 Board ID = %d\n', CAN_ID, Board_ID);
       fprintf(1, 'Attached to uDACS16 S/N %d Build # %d\n', SerialNo, Build);
       fprintf(1, 'Board is Rev %s configured as "%s"\n', Rev, BdCfg);
 %      fprintf(1, 'The description is "%s"\n', desc);  % V read not implemented over CAN yet
   	  break
 	else
-      fprintf(1, 'CAN ID %d is not uDACS16. Returned Board ID = %d\n', CAN_ID, board_ID);
+      fprintf(1, 'CAN ID %d is not uDACS16. Returned Board ID = %d\n', CAN_ID, Board_ID);
     end
   catch MExc
     disp(MExc.message); % Uncomment to show 
@@ -127,7 +127,7 @@ fprintf(1, 'Observed %.5f seconds/seconds\n', ips);
 N = 100; % Set to 1000 for thorough test
 curlooptime = zeros(N,1);
 for i=1:N
-  val = sbsl.SBCAN_read_inc(CAN_ID, 4, TC_ADDR+2);  % Read 0x42
+  val = sbsl.SBCAN_read_inc(CAN_ID, 1, TC_ADDR+2);  % Read 0x42
   curlooptime(i) = (val/TC_F)*1e3; % msec
   pause(.1);
 end

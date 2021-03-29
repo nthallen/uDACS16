@@ -1,4 +1,9 @@
-%%
+%%********************************************************************
+% uDACS16 USB Test                                8:12 AM 8/26/2020
+% 
+% USB-based test of basic uDACS16 functions. 
+% 
+
 % cd C:\huarp\ElecCore\uDACS\code\uDACS16\uDACS16\Matlab
 cd C:\Users\nort\Documents\Documents\Exp\Boards\uDACS16\uDACS16\Matlab
 %%
@@ -227,4 +232,22 @@ if failval
   end
 else
   fprintf(1, 'ERROR: Timed out after %f secs without fail\n', faildur);
+end
+%%
+% Read Vibration Sensor on J4 I2C connector
+
+% mg/LSB Conversion factors by range
+ACCEL_MG_LSB_2G = (0.000061035);
+ACCEL_MG_LSB_4G = (0.000122070);
+ACCEL_MG_LSB_8G = (0.000244141);
+ACCEL_MG_LSB_16G = (0.000488281);
+
+rm_obj = read_multi_prep([97,1,99]); % [0x61,1,0x63]
+%
+  fprintf(1,'---- Accel X    Y   Z ----\n');
+for vib=1:100
+  [vals,~] = read_multi(s,rm_obj);
+  vals = vals * ACCEL_MG_LSB_2G; % Running at default +-2g range
+  fprintf(1,'	%8f	%8f	%8f\n', vals(1), vals(2), vals(3));
+  pause(.5);
 end

@@ -6,6 +6,7 @@
 #include "control.h"
 #include "spi_psd.h"
 #include "i2c.h"
+#include "i2c_icm20948.h"
 #include "rtc_timer.h"
 #include "driver_temp.h"	// in place for driver_init
 #include "commands.h"
@@ -28,6 +29,7 @@ int main(void)
     || subbus_add_driver(&sb_i2c)
     || subbus_add_driver(&sb_cmd)
     || subbus_add_driver(&sb_rtc)
+    || subbus_add_driver(&sb_i2c_icm)
 #ifdef CAN_BOARD_ID
     || subbus_add_driver(&sb_can)
 #endif
