@@ -376,8 +376,13 @@ void system_init(void)
   gpio_set_pin_function(SPR7, GPIO_PIN_FUNCTION_OFF);
 
   // GPIO on PB09
+  #ifdef J8_IS_MODE_SWITCH
+  gpio_set_pin_direction(SPR8, GPIO_DIRECTION_IN);
+	gpio_set_pin_pull_mode(SPR8,GPIO_PULL_UP);
+  #else
   gpio_set_pin_level(SPR8, false);
   gpio_set_pin_direction(SPR8, GPIO_DIRECTION_OUT);
+  #endif
   gpio_set_pin_function(SPR8, GPIO_PIN_FUNCTION_OFF);
 
   // GPIO on PB11

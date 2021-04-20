@@ -1,6 +1,7 @@
 #include "commands.h"
+#include "serial_num.h"
 #include "subbus.h"
-// #include "spi.h"
+#include "rtc_timer.h"
 
 static void commands_init(void) {
 #if SUBBUS_BOARD_ID == 1
@@ -36,34 +37,46 @@ static subbus_cache_word_t cmd_cache[CMD_HIGH_ADDR-CMD_BASE_ADDR+1] = {
 
 #if SUBBUS_BOARD_ID == 1
   #define N_CMD_PINS 4
-  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR8, J34_CNTL, PPWR_CNTL };
+  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR7, J34_CNTL, PPWR_CNTL };
+#endif
+
+#ifdef TIMED_COMMANDS
+
+typedef struct {
+  int when;
+  uint16_t cmd;
+} timed_cmd_t;
+
+static timed_cmd_t timed_cmds[] = TIMED_COMMANDS;
+#define N_TIMED_CMDS (sizeof(timed_cmds)/sizeof(timed_cmd_t))
+static int timed_cmds_executed = 0;
+
 #endif
 
 static void cmd_poll(void) {
   uint16_t cmd;
   uint16_t status;
+
+#ifdef N_TIMED_CMDS
+  bool have_cmd = false;
+  if (timed_cmds_executed < N_TIMED_CMDS && rtc_current_count >= timed_cmds[timed_cmds_executed].when) {
+    cmd = timed_cmds[timed_cmds_executed++].cmd;
+    have_cmd = true;
+  } else if (subbus_cache_iswritten(&sb_cmd, CMD_BASE_ADDR, &cmd)) {
+    have_cmd = true;
+  }
+  if (have_cmd) {
+#else
   if (subbus_cache_iswritten(&sb_cmd, CMD_BASE_ADDR, &cmd)) {
+#endif
     #if SUBBUS_BOARD_ID == 1
       if (cmd/2 < N_CMD_PINS) {
         uint8_t pin = cmd_pins[cmd/2];
         gpio_set_pin_level(pin, cmd & 1);
       } else {
         switch (cmd) {
-          case 0: // both Load Switches off
-          case 1: // both Load Switches on
-            gpio_set_pin_level(J34_CNTL, cmd);
-            gpio_set_pin_level(PPWR_CNTL, cmd);
-            break;
-          case 2: // J34 Load Switch
-          case 3:
-            gpio_set_pin_level(J34_CNTL, cmd & 1);
-            break;
-          case 4: // POPS Power
-          case 5:
-            gpio_set_pin_level(PPWR_CNTL, cmd & 1);
-            break;
           default:
-          break;
+            break;
         }
       }
     #endif

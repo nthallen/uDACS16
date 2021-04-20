@@ -23,8 +23,8 @@
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.1"
-#define SUBBUS_BOARD_BUILD_NUM 2
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.2"
+#define SUBBUS_BOARD_BUILD_NUM 3
 #define HAVE_RTC
 
 /**
@@ -50,17 +50,17 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 7
   #define SUBBUS_BOARD_INSTRUMENT "DPOPS"
 #elif SUBBUS_BOARD_SN == 3
-  #define SUBBUS_BOARD_ID 3 // not A or B
+  #define SUBBUS_BOARD_ID 1 // uDACS "A" (backup)
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
-  #define SUBBUS_BOARD_INSTRUMENT_ID 1
-  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 7
+  #define SUBBUS_BOARD_INSTRUMENT "DPOPS"
 #elif SUBBUS_BOARD_SN == 4
-  #define SUBBUS_BOARD_ID 3 // Test
+  #define SUBBUS_BOARD_ID 1 // Test
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
-  #define SUBBUS_BOARD_INSTRUMENT_ID 1
-  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 7
+  #define SUBBUS_BOARD_INSTRUMENT "DPOPS"
   #define SUBBUS_BOARD_LOCATION "Nort's Desk"
-  #define CAN_BOARD_ID 14 // for Test board
+  // #define CAN_BOARD_ID 14 // for Test board
 #elif SUBBUS_BOARD_SN == 5
   #define SUBBUS_BOARD_ID 0 // Test
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
@@ -100,10 +100,14 @@
  */
 
 #if SUBBUS_BOARD_ID == 1 // uDACS "A"
+  #include "rtc_timer.h"
   #define SB_FAIL_PIN FAIL_OFF
   // #define SB_FAIL_TIMEOUT_SECS 20
   #define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
   #define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
+  #define J8_IS_MODE_SWITCH
+  // Command 5 is J34 On for Raspberry Pi delay power on
+  #define TIMED_COMMANDS {{5*RTC_COUNTS_PER_SECOND,5}}
 #endif
 
 #ifndef SUBBUS_SUBFUNCTION_HEX

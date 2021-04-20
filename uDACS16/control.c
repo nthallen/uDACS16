@@ -19,6 +19,7 @@
 // #include <stdlib.h>
 #include "control.h"
 #include "subbus.h"
+#include "serial_num.h"
 #include "usart.h"
 
 

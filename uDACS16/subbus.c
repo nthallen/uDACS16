@@ -2,6 +2,7 @@
  */
 #include <string.h>
 #include "subbus.h"
+#include "serial_num.h"
 #ifdef HAVE_RTC
 #include "rtc_timer.h"
 #endif

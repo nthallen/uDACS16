@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "serial_num.h"
+//#include "serial_num.h"
 
 #define USE_SUBBUS 1
 

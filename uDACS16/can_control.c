@@ -1,6 +1,7 @@
 #include <string.h>
-#include "driver_temp.h" 
+#include "driver_temp.h"
 #include "can_control.h"
+#ifdef CAN_BOARD_ID
 
 bool can_tx_completed = true;
 bool can_rx_completed = false;
@@ -502,4 +503,6 @@ subbus_driver_t sb_can_desc = {
   can_desc_action,               // driver action method
   false                          // initialized state
 };
+#endif
+
 #endif
