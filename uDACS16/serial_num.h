@@ -17,14 +17,26 @@
  *     1: SCoPEx
  *     7: DPOPS
  *  SUBBUS_BOARD_REV: String encapsulating almost anything here
+ *
+ * This file MAY define:
+ *  SB_FAIL_PIN used in subbus.c
+ *  SB_FAIL_PIN2 used in subbus.c
+ *  TIMED_COMMANDS used in commands.c
+ *  J8_IS_MODE_SWITCH used in subbus.c
+ *  MODE_PIN_0 used in subbus.c
+ *  MODE_PIN_1 used in subbus.c
+ *  HAVE_RTC
+ *  J4_3_IS_FAIL_BAR
+ *  J4_IS_VIBE_SENSOR
+ *  HAVE_VIBE_SENSOR
  */
 #ifndef SERIAL_NUM_H_INCLUDED
 #define SERIAL_NUM_H_INCLUDED
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.2"
-#define SUBBUS_BOARD_BUILD_NUM 3
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.4"
+#define SUBBUS_BOARD_BUILD_NUM 5
 #define HAVE_RTC
 
 /**
@@ -74,6 +86,8 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
   #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
   #define SUBBUS_BOARD_LOCATION "SCoPEx Port Engine Assy"
+  #define J4_IS_VIBE_SENSOR
+  #define HAVE_VIBE_SENSOR
   #define CAN_BOARD_ID 14
 #elif SUBBUS_BOARD_SN == 7
   #define SUBBUS_BOARD_ID 4 // SCoPEx Starboard Engine Assy
@@ -81,6 +95,8 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
   #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
   #define SUBBUS_BOARD_LOCATION "SCoPEx Starboard Engine Assy"
+  #define J4_IS_VIBE_SENSOR
+  #define HAVE_VIBE_SENSOR
   #define CAN_BOARD_ID 15
 #endif
 
@@ -102,12 +118,19 @@
 #if SUBBUS_BOARD_ID == 1 // uDACS "A"
   #include "rtc_timer.h"
   #define SB_FAIL_PIN FAIL_OFF
+  #define SB_FAIL_PIN2 UC_SCL
+  #define J4_3_IS_FAIL_BAR
+  #define MODE_PIN_0 SPR8
   // #define SB_FAIL_TIMEOUT_SECS 20
   #define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
   #define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
   #define J8_IS_MODE_SWITCH
   // Command 5 is J34 On for Raspberry Pi delay power on
   #define TIMED_COMMANDS {{5*RTC_COUNTS_PER_SECOND,5}}
+#endif
+
+#if defined(J4_3_IS_FAIL_BAR) && defined(J4_IS_VIBE_SENSOR)
+#error J4 cannot support both I2C and Fail output
 #endif
 
 #ifndef SUBBUS_SUBFUNCTION_HEX

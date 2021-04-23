@@ -1,9 +1,8 @@
 /*
- * Code generated from Atmel Start.
+ * Code originally generated from Atmel Start.
  *
- * This file will be overwritten when reconfiguring your Atmel Start project.
- * Please copy examples or other code you want to keep to a separate file
- * to avoid losing it when reconfiguring.
+ * This file was copied from driver_init.c to allow editing without risk of
+ * automated overwrite when the Atmel Start project is updated.
  */
 
 // #include "driver_init.h"
@@ -179,9 +178,9 @@ void DADC_I2C_init(void)
   DADC_I2C_PORT_init();
 }
 
+#ifdef J4_IS_VIBE_SENSOR
 void PMON_I2C_PORT_init(void)
 {
-
   gpio_set_pin_pull_mode(UC_SDA,
                          // <y> Pull configuration
                          // <id> pad_pull_config
@@ -216,6 +215,7 @@ void PMON_I2C_init(void)
   i2c_m_async_init(&PMON_I2C, SERCOM3);
   PMON_I2C_PORT_init();
 }
+#endif
 
 void PSD_SPI_PORT_init(void)
 {
@@ -396,7 +396,9 @@ void system_init(void)
 
   DADC_I2C_init();
 
+#ifdef HAVE_VIBE_SENSOR
   PMON_I2C_init();
+#endif
 
   PSD_SPI_init();
 

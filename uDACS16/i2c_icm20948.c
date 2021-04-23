@@ -4,10 +4,12 @@
 #include <hal_init.h>
 #include <hal_i2c_m_async.h>
 #include <stdint.h>
-#include "uDACS_pins.h"
+#include "serial_num.h"
 #include "i2c_icm20948.h"
 #include "subbus.h"
 #include "rtc_timer.h"
+
+#ifdef HAVE_VIBE_SENSOR
 
 static bool i2c_icm_enabled = I2C_ICM_ENABLE_DEFAULT;
 static struct io_descriptor *I2C_ICM_io;
@@ -33,7 +35,7 @@ static void i2c_icm_read(int16_t i2c_addr, uint8_t *ibuf, int16_t nbytes);
  * 0x62 R : Offset 0x02: R: ACCEL_Y
  * 0x63 R : Offset 0x03: R: ACCEL_Z
  */
- 
+
 static subbus_cache_word_t i2c_icm_cache[I2C_ICM_HIGH_ADDR-I2C_ICM_BASE_ADDR+1] = {
   // Cache , Wvalue, readable, was_read, writable, written, dynamic
   // I2C Status I2C_ICM_STATUS_NREGS
@@ -42,19 +44,19 @@ static subbus_cache_word_t i2c_icm_cache[I2C_ICM_HIGH_ADDR-I2C_ICM_BASE_ADDR+1] 
   { 0, 0, true,  false, false, false, false },  // Offset 0x01: R: ACCEL_X
   { 0, 0, true,  false, false, false, false },  // Offset 0x02: R: ACCEL_Y
   { 0, 0, true,  false, false, false, false },  // Offset 0x03: R: ACCEL_Z
-//  { 0, 0, true,  false, false, false, false },  // 
+//  { 0, 0, true,  false, false, false, false },  //
 };
 
-enum icm_state_t {icm_init, icm_init_tx, 
-				  icm_reset, icm_reset_delay, 
+enum icm_state_t {icm_init, icm_init_tx,
+				  icm_reset, icm_reset_delay,
 				  icm_rdacc, icm_rdacc_tx};
 
 static enum icm_state_t icm_state = icm_init;
- 
+
 static uint8_t icm_bank0_cmd[2] = { REG_BANK_SEL, 0x00 }; // Select Reg Bank 0: [0x7F] 0x00:
-static uint8_t icm_reset_cmd[2] = { PWR_MGMT_1, 0x81 }; // ICM20948 Reset cmd: [0x06] 0x81:
+// static uint8_t icm_reset_cmd[2] = { PWR_MGMT_1, 0x81 }; // ICM20948 Reset cmd: [0x06] 0x81:
 static uint8_t icm_wake_cmd[2] = { PWR_MGMT_1, 0x01 }; // ICM20948 Reset cmd: [0x06] 0x81:
-static uint8_t icm_accx_cmd[1] = { ACCEL_XOUT_H }; // First Accel Data Reg Addr [0x2D] 
+static uint8_t icm_accx_cmd[1] = { ACCEL_XOUT_H }; // First Accel Data Reg Addr [0x2D]
 
 static uint8_t icm_accel_ibuf[6]; // Could/Should put in icm_poll_def struct?
 uint32_t endtime = 0x00000000; // Could/Should put in icm_poll_def struct?
@@ -69,31 +71,31 @@ static bool icm20948_poll(void) {
     case icm_init:   // Check for ICM20948
 	// Possibly check for multiple ICM20948
       i2c_icm_write( ICM20948_ADDR, icm_bank0_cmd, 2); // Sel Reg Bank 0
-//      endtime = rtc_current_count + ( 10 * RTC_COUNTS_PER_MSEC ); // delay 10ms 
+//      endtime = rtc_current_count + ( 10 * RTC_COUNTS_PER_MSEC ); // delay 10ms
       icm_state = icm_init_tx;
       return false;
-	
+
 	case icm_init_tx:  // Skip Check for ICM20948 for now
 //      if ( rtc_current_count <= endtime ) return false;
       i2c_icm_write( ICM20948_ADDR, icm_wake_cmd, 2); // Just wake up
-//      endtime = rtc_current_count + ( 10 * RTC_COUNTS_PER_MSEC ); // delay 10ms 
-      icm_state = icm_reset; 
+//      endtime = rtc_current_count + ( 10 * RTC_COUNTS_PER_MSEC ); // delay 10ms
+      icm_state = icm_reset;
 	  return true;
-	
+
 	case icm_reset:  // NO Reset to start yet
 //      if ( rtc_current_count <= endtime ) return false;
       i2c_icm_write( ICM20948_ADDR, icm_bank0_cmd, 2);
-//      endtime = rtc_current_count + ( 10 * RTC_COUNTS_PER_MSEC ); // delay 10ms 
+//      endtime = rtc_current_count + ( 10 * RTC_COUNTS_PER_MSEC ); // delay 10ms
       icm_state = icm_reset_delay;
       return true; // Release bus after starting write
-	  
+
     case icm_reset_delay: // When delay over, send accel register addr 0x2D
 //      if ( rtc_current_count <= endtime ) return false;
       i2c_icm_write( ICM20948_ADDR, icm_accx_cmd, 1);
-//      endtime = rtc_current_count + ( 1 * RTC_COUNTS_PER_MSEC ); // delay 1ms 
+//      endtime = rtc_current_count + ( 1 * RTC_COUNTS_PER_MSEC ); // delay 1ms
       icm_state = icm_rdacc;
       return false;
-	  
+
     case icm_rdacc: // Read accel values and cache
 //      if ( rtc_current_count <= endtime ) return false;
 	  i2c_icm_read( ICM20948_ADDR, icm_accel_ibuf, 6);
@@ -106,8 +108,8 @@ static bool icm20948_poll(void) {
       i2c_icm_cache[0x03].cache = (  // get 16b Accel z and update cache
          (((uint16_t)icm_accel_ibuf[4])<<8)
         | ((uint16_t)icm_accel_ibuf[5]));
-	  icm_state = icm_reset_delay; 
-      return true;	  
+	  icm_state = icm_reset_delay;
+      return true;
     default:
       assert(false, __FILE__, __LINE__);
   }
@@ -183,3 +185,5 @@ subbus_driver_t sb_i2c_icm = {
   0, // Dynamic function
   false // initialized
 };
+
+#endif

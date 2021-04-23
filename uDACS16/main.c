@@ -29,7 +29,9 @@ int main(void)
     || subbus_add_driver(&sb_i2c)
     || subbus_add_driver(&sb_cmd)
     || subbus_add_driver(&sb_rtc)
+#ifdef HAVE_VIBE_SENSOR
     || subbus_add_driver(&sb_i2c_icm)
+#endif
 #ifdef CAN_BOARD_ID
     || subbus_add_driver(&sb_can)
 #endif

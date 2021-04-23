@@ -182,6 +182,16 @@ void sb_fail_tick() {
   sb_fail_tick_int(0);
 }
 
+#ifdef MODE_PIN_0
+static void update_status(uint16_t *status, uint8_t pin, uint16_t bit) {
+  if (gpio_get_pin_level(pin)) {
+    *status |= bit;
+    } else {
+    *status &= ~bit;
+  }
+}
+#endif
+
 static void sb_fail_sw_poll() {
   uint16_t wfail;
   #ifdef HAVE_RTC
@@ -213,6 +223,16 @@ static void sb_fail_sw_poll() {
     sb_cache_update(sb_fail_sw_cache,0,wfail);
     sb_fail_set();
   }
+#ifdef MODE_PIN_0
+  {
+    uint16_t status = 0;
+    update_status(&status, MODE_PIN_0, 0x01);
+    #ifdef MODE_PIN1
+      update_status(&status, MODE_PIN_1, 0x02);
+    #endif
+    sb_cache_update(sb_fail_sw_cache, 1, status); // Make status bits true in high
+  }
+#endif
 }
 
 subbus_driver_t sb_fail_sw = { SUBBUS_FAIL_ADDR, SUBBUS_SWITCHES_ADDR,
