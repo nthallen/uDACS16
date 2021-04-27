@@ -36,7 +36,7 @@
 
 // These parameters are common to all boards built with this code
 #define SUBBUS_BOARD_FIRMWARE_REV "V1.4"
-#define SUBBUS_BOARD_BUILD_NUM 5
+#define SUBBUS_BOARD_BUILD_NUM 6
 #define HAVE_RTC
 
 /**
@@ -125,8 +125,9 @@
   #define J34_CNTL J34_EN  // J34 may be used for DPOPS box FAIL LED power
   #define PPWR_CNTL J35_EN	// J35 is POPS Instrument Power
   #define J8_IS_MODE_SWITCH
+  // Command 1 is J7 On for Operate LED
   // Command 5 is J34 On for Raspberry Pi delay power on
-  #define TIMED_COMMANDS {{5*RTC_COUNTS_PER_SECOND,5}}
+  #define TIMED_COMMANDS {{0,1},{5*RTC_COUNTS_PER_SECOND,5}}
 #endif
 
 #if defined(J4_3_IS_FAIL_BAR) && defined(J4_IS_VIBE_SENSOR)
