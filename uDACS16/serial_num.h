@@ -9,12 +9,14 @@
  *     2: DPOPS "B"
  *     3: SCoPEx Port (Left) Engine Assy
  *     4: SCoPEx Starboard (Right) Engine Assy
+ *	   5: Halogens TRU Interface Box
  *     SUBBUS_SUBFUNCTION may be the same as SUBBUS_BOARD_ID if there is no significant
  *     configuration difference between boards. If different, the SUBBUS_BOARD_ID values
  *     should be documented along with the SUBBUS_BOARD_SN etc. in the board's Specifications document
  *       15: default ?
  *  SUBBUS_BOARD_INSTRUMENT_ID: Number that maps to Instrument name. (not yet used as of 4/18/19)
  *     1: SCoPEx
+ *     5: Halogens
  *     7: DPOPS
  *  SUBBUS_BOARD_REV: String encapsulating almost anything here
  *
@@ -98,6 +100,18 @@
   #define J4_IS_VIBE_SENSOR
   #define HAVE_VIBE_SENSOR
   #define CAN_BOARD_ID 15
+#elif SUBBUS_BOARD_SN == 8
+  #define SUBBUS_BOARD_ID 5 // Halogens TRU Interface box (spare)	
+  #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 5 // Halogens
+  #define SUBBUS_BOARD_INSTRUMENT "Halogens"
+  #define SUBBUS_BOARD_LOCATION "Halogens TRU Interface Box"
+#elif SUBBUS_BOARD_SN == 9
+  #define SUBBUS_BOARD_ID 5 // Halogens TRU Interface box
+  #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 5 // Halogens
+  #define SUBBUS_BOARD_INSTRUMENT "Halogens"
+  #define SUBBUS_BOARD_LOCATION "Halogens TRU Interface Box"
 #endif
 
 #if ! defined(SUBBUS_BOARD_ID)
@@ -128,6 +142,11 @@
   // Command 1 is J7 On for Operate LED
   // Command 5 is J34 On for Raspberry Pi delay power on
   #define TIMED_COMMANDS {{0,1},{5*RTC_COUNTS_PER_SECOND,5}}
+  // Mini Moudi Hanbay Valve Actuator
+  #define MM_IN1 PMOD2
+  #define MM_IN2 PMOD4
+  #define MM_OUT1 PMOD6
+  #define MM_OUT2 PMOD8
 #endif
 
 #if defined(J4_3_IS_FAIL_BAR) && defined(J4_IS_VIBE_SENSOR)
