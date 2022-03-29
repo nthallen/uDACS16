@@ -13,21 +13,19 @@ static void commands_init(void) {
   gpio_set_pin_direction(PPWR_CNTL, GPIO_DIRECTION_OUT);
   gpio_set_pin_function(PPWR_CNTL, GPIO_PIN_FUNCTION_OFF);
 
-//  gpio_set_pin_level(MM_IN1, false);
-  gpio_set_pin_direction(MM_IN1, GPIO_DIRECTION_IN);
-  gpio_set_pin_function(MM_IN1, GPIO_PULL_OFF);  // ???
+  gpio_set_pin_direction(MM_ST1, GPIO_DIRECTION_IN);
+  gpio_set_pin_function(MM_ST1, GPIO_PULL_OFF);  // ???
 
-//  gpio_set_pin_level(MM_IN2, false);
-  gpio_set_pin_direction(MM_IN2, GPIO_DIRECTION_IN);
-  gpio_set_pin_function(MM_IN2, GPIO_PULL_OFF);	// ???
+  gpio_set_pin_direction(MM_ST2, GPIO_DIRECTION_IN);
+  gpio_set_pin_function(MM_ST2, GPIO_PULL_OFF);	// ???
 
-  gpio_set_pin_level(MM_OUT1, true);
-  gpio_set_pin_direction(MM_OUT1, GPIO_DIRECTION_OUT);
-  gpio_set_pin_function(MM_OUT1, GPIO_PIN_FUNCTION_OFF);
+  gpio_set_pin_level(MM_CMD1, true);
+  gpio_set_pin_direction(MM_CMD1, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(MM_CMD1, GPIO_PIN_FUNCTION_OFF);
 
-  gpio_set_pin_level(MM_OUT2, true);
-  gpio_set_pin_direction(MM_OUT2, GPIO_DIRECTION_OUT);
-  gpio_set_pin_function(MM_OUT2, GPIO_PIN_FUNCTION_OFF);
+  gpio_set_pin_level(MM_CMD2, true);
+  gpio_set_pin_direction(MM_CMD2, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(MM_CMD2, GPIO_PIN_FUNCTION_OFF);
 #endif
 }
 
@@ -52,8 +50,8 @@ static subbus_cache_word_t cmd_cache[CMD_HIGH_ADDR-CMD_BASE_ADDR+1] = {
 };
 
 #if SUBBUS_BOARD_ID == 1
-  #define N_CMD_PINS 6
-  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR7, J34_CNTL, PPWR_CNTL, MM_OUT1, MM_OUT2 };
+  #define N_CMD_PINS 4
+  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR7, J34_CNTL, PPWR_CNTL };
 #endif
 
 #ifdef TIMED_COMMANDS
@@ -91,10 +89,9 @@ static void cmd_poll(void) {
         gpio_set_pin_level(pin, cmd & 1);
       } else {
         switch (cmd) {
-		  case 8: gpio_set_pin_level(MM_OUT1, true); // Mini Moudi Valve Close
-		  case 9: gpio_set_pin_level(MM_OUT1, false); // Mini Moudi Valve Open
-          default:
-            break;
+		  case 8: gpio_set_pin_level(MM_CMD1, true); break; // Mini Moudi Valve Close
+		  case 9: gpio_set_pin_level(MM_CMD1, false); break; // Mini Moudi Valve Open
+          default: break;
         }
       }
     #endif
@@ -112,10 +109,10 @@ static void cmd_poll(void) {
 #if SUBBUS_BOARD_ID == 1
   update_status(&status, J34_CNTL, 0x04);
   update_status(&status, PPWR_CNTL, 0x08);
-  update_status(&status, MM_IN1, 0x10);
-  update_status(&status, MM_IN2, 0x20);
-  update_status(&status, MM_OUT1, 0x40);
-  update_status(&status, MM_OUT2, 0x80);
+  update_status(&status, MM_CMD1, 0x10);
+  update_status(&status, MM_CMD2, 0x20);
+  update_status(&status, MM_ST1, 0x40);
+  update_status(&status, MM_ST2, 0x80);
 
 #endif
   sb_cache_update(cmd_cache, 0, status); // Make status bits true in high

@@ -37,8 +37,8 @@
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.4"
-#define SUBBUS_BOARD_BUILD_NUM 6
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.5"
+#define SUBBUS_BOARD_BUILD_NUM 7
 #define HAVE_RTC
 
 /**
@@ -143,10 +143,10 @@
   // Command 5 is J34 On for Raspberry Pi delay power on
   #define TIMED_COMMANDS {{0,1},{5*RTC_COUNTS_PER_SECOND,5}}
   // Mini Moudi Hanbay Valve Actuator
-  #define MM_IN1 PMOD2
-  #define MM_IN2 PMOD4
-  #define MM_OUT1 PMOD6
-  #define MM_OUT2 PMOD8
+  #define MM_CMD1 PMOD2
+  #define MM_CMD2 PMOD4
+  #define MM_ST1 PMOD6
+  #define MM_ST2 PMOD8
 #endif
 
 #if defined(J4_3_IS_FAIL_BAR) && defined(J4_IS_VIBE_SENSOR)

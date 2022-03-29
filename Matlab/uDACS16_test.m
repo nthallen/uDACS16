@@ -8,7 +8,7 @@
 cd C:\Users\nort\Documents\Documents\Exp\Boards\uDACS16\uDACS16\Matlab
 %%
 serial_port_clear();
-%%
+
 [s] = serial_port_init();
 set(s,'BaudRate',57600);
 % set(s,'BaudRate',115200);
@@ -182,6 +182,34 @@ for npin = 1:length(cmd_pins)
   status = read_subbus(s, 48);
   fprintf(1, '  Status is %02X\n', status);
 end
+
+%%
+% DPOPS Valve test: Commands 8 and 9 
+
+fprintf(1, 'Hit ENTER to command DPOPS Mini Moudi Valve OPEN (CMD 9)\n');
+pause;
+status = read_subbus(s, 48);
+fprintf(1, '  Status is %02X\n', status);
+write_subbus(s, 48, 9);
+for numst = 1:3
+  status = read_subbus(s, 48);
+  fprintf(1, '  Status is %02X\n', status);
+  pause(0.5);
+  numst = numst + 1;
+end
+
+fprintf(1, 'Hit ENTER to command DPOPS Mini Moudi Valve CLOSED (CMD 8)\n');
+pause;
+status = read_subbus(s, 48);
+fprintf(1, '  Status is %02X\n', status);
+write_subbus(s, 48, 8);
+for numst = 1:3
+  status = read_subbus(s, 48);
+  fprintf(1, '  Status is %02X\n', status);
+  pause(0.5);
+  numst = numst + 1;
+end
+
 
 %%
 % Subbus fail test
