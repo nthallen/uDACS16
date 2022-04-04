@@ -8,7 +8,7 @@
 cd C:\Users\nort\Documents\Documents\Exp\Boards\uDACS16\uDACS16\Matlab
 %%
 serial_port_clear();
-
+%%
 [s] = serial_port_init();
 set(s,'BaudRate',57600);
 % set(s,'BaudRate',115200);
@@ -59,8 +59,9 @@ rm_obj = read_multi_prep([32,1,41]); % [0x20,1,0x29]
 %
 % while true
 for iadc=1:10
-  %%
+  
   [vals,~] = read_multi(s,rm_obj);
+  
   fprintf(1,'---------\n');
   fprintf(1,'%04X %d\n', vals(1),vals(end));
   adc = vals(2:end-1);
@@ -72,8 +73,8 @@ for iadc=1:10
   for i=1:length(adc)
     fprintf(1,'%8X %8d %10f V %10g Ohm\n', adc(i), adc(i), vadc(i), Rth(i));
   end
-  %%
-  pause(1);
+  %
+  pause;
 end
 
 %%
@@ -195,7 +196,6 @@ for numst = 1:3
   status = read_subbus(s, 48);
   fprintf(1, '  Status is %02X\n', status);
   pause(0.5);
-  numst = numst + 1;
 end
 
 fprintf(1, 'Hit ENTER to command DPOPS Mini Moudi Valve CLOSED (CMD 8)\n');
@@ -207,7 +207,6 @@ for numst = 1:3
   status = read_subbus(s, 48);
   fprintf(1, '  Status is %02X\n', status);
   pause(0.5);
-  numst = numst + 1;
 end
 
 

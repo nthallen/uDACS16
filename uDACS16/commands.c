@@ -51,8 +51,13 @@ static subbus_cache_word_t cmd_cache[CMD_HIGH_ADDR-CMD_BASE_ADDR+1] = {
 
 #if SUBBUS_BOARD_ID == 1
   #define N_CMD_PINS 4
-  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR7, J34_CNTL, PPWR_CNTL };
+  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR7, J34_CNTL, PPWR_CNTL }; // SPR7 twice ???
 #endif
+#if SUBBUS_BOARD_ID == 5
+  #define N_CMD_PINS 4
+  static uint8_t cmd_pins[N_CMD_PINS] = { SPR7, SPR8, J34_EN, J35_EN };
+#endif
+
 
 #ifdef TIMED_COMMANDS
 
@@ -101,6 +106,17 @@ static void cmd_poll(void) {
           break;
       }
     #endif
+    #if SUBBUS_BOARD_ID == 5
+      if (cmd/2 < N_CMD_PINS) {
+        uint8_t pin = cmd_pins[cmd/2];
+        gpio_set_pin_level(pin, cmd & 1);
+    } else 
+        switch (cmd) {
+	      default:
+	        break;
+        }
+      #endif
+
   }
 
   status = 0;
