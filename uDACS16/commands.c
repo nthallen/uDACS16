@@ -88,35 +88,34 @@ static void cmd_poll(void) {
 #else
   if (subbus_cache_iswritten(&sb_cmd, CMD_BASE_ADDR, &cmd)) {
 #endif
-    #if SUBBUS_BOARD_ID == 1
+#if SUBBUS_BOARD_ID == 1
       if (cmd/2 < N_CMD_PINS) {
         uint8_t pin = cmd_pins[cmd/2];
         gpio_set_pin_level(pin, cmd & 1);
       } else {
         switch (cmd) {
-		  case 8: gpio_set_pin_level(MM_CMD1, true); break; // Mini Moudi Valve Close
-		  case 9: gpio_set_pin_level(MM_CMD1, false); break; // Mini Moudi Valve Open
+		      case 8: gpio_set_pin_level(MM_CMD1, true); break; // Mini Moudi Valve Close
+		      case 9: gpio_set_pin_level(MM_CMD1, false); break; // Mini Moudi Valve Open
           default: break;
         }
       }
-    #endif
-    #if SUBBUS_BOARD_ID == 2
+#endif
+#if SUBBUS_BOARD_ID == 2
       switch (cmd) {
         default:
           break;
       }
-    #endif
-    #if SUBBUS_BOARD_ID == 5
+#endif
+#if SUBBUS_BOARD_ID == 5
       if (cmd/2 < N_CMD_PINS) {
         uint8_t pin = cmd_pins[cmd/2];
         gpio_set_pin_level(pin, cmd & 1);
-    } else 
-        switch (cmd) {
-	      default:
-	        break;
-        }
-      #endif
-
+    } else
+      switch (cmd) {
+	    default:
+	      break;
+      }
+#endif
   }
 
   status = 0;
@@ -129,7 +128,10 @@ static void cmd_poll(void) {
   update_status(&status, MM_CMD2, 0x20);
   update_status(&status, MM_ST1, 0x40);
   update_status(&status, MM_ST2, 0x80);
-
+#endif
+#if SUBBUS_BOARD_ID == 5
+  update_status(&status, J34_EN, 0x04);
+  update_status(&status, J35_EN, 0x08);
 #endif
   sb_cache_update(cmd_cache, 0, status); // Make status bits true in high
 }
