@@ -74,7 +74,7 @@ for iadc=1:10
     fprintf(1,'%8X %8d %10f V %10g Ohm\n', adc(i), adc(i), vadc(i), Rth(i));
   end
   %
-  pause;
+  pause(1);
 end
 
 %%
