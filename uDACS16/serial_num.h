@@ -5,6 +5,7 @@
  *  SUBBUS_BUILD_NUM:
  *  SUBBUS_SUBFUNCTION: The board type code as defined in "SYSCON Memory Maps and Subbus Board IDs"
  *  SUBBUS_BOARD_ID: Board Identification number (*not* the CAN_BOARD_ID). Defines the type of board
+ *     0: Test
  *     1: DPOPS "A"
  *     2: DPOPS "B"
  *     3: SCoPEx Port (Left) Engine Assy
@@ -13,11 +14,13 @@
  *     SUBBUS_SUBFUNCTION may be the same as SUBBUS_BOARD_ID if there is no significant
  *     configuration difference between boards. If different, the SUBBUS_BOARD_ID values
  *     should be documented along with the SUBBUS_BOARD_SN etc. in the board's Specifications document
- *       15: default ?
+ *       SUBBUS_SUBFUNCTION 15: default ?
  *  SUBBUS_BOARD_INSTRUMENT_ID: Number that maps to Instrument name. (not yet used as of 4/18/19)
  *     1: SCoPEx
+ *     4: Test
  *     5: Halogens
  *     7: DPOPS
+ *     8: SMoudi (SABRE Mini Moudi)
  *  SUBBUS_BOARD_REV: String encapsulating almost anything here
  *
  * This file MAY define:
@@ -37,7 +40,7 @@
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.5"
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.6"
 #define SUBBUS_BOARD_BUILD_NUM 7
 #define HAVE_RTC
 
@@ -49,15 +52,16 @@
 #error Must define SUBBUS_BOARD_SN in Build Properties
 #endif
 
-#define SUBBUS_SUBFUNCTION 15
+#define SUBBUS_SUBFUNCTION 15	// uDACS16 
 #define SUBBUS_SUBFUNCTION_HEX F
 #define SUBBUS_BOARD_BOARD_REV "Rev A"
 
 #if SUBBUS_BOARD_SN == 1
-  #define SUBBUS_BOARD_ID 1 // uDACS "A"
+  #define SUBBUS_BOARD_ID 1 // Test: configured as DPOPS uDACS "A" (Lab test Only)
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
-  #define SUBBUS_BOARD_INSTRUMENT_ID 7
-  #define SUBBUS_BOARD_INSTRUMENT "DPOPS"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 8
+  #define SUBBUS_BOARD_INSTRUMENT "SMoudi"
+  #define SUBBUS_BOARD_LOCATION "SMoudi Test"
 #elif SUBBUS_BOARD_SN == 2
   #define SUBBUS_BOARD_ID 1 // uDACS "A"
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
@@ -69,18 +73,18 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 7
   #define SUBBUS_BOARD_INSTRUMENT "DPOPS"
 #elif SUBBUS_BOARD_SN == 4
-  #define SUBBUS_BOARD_ID 1 // Test
+  #define SUBBUS_BOARD_ID 1 // SMoudi (SABRE Mini Moudi) Configured as DPOPS uDACS "A" 
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
-  #define SUBBUS_BOARD_INSTRUMENT_ID 7
-  #define SUBBUS_BOARD_INSTRUMENT "DPOPS"
-  #define SUBBUS_BOARD_LOCATION "Nort's Desk"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 8
+  #define SUBBUS_BOARD_INSTRUMENT "SMoudi"
+  #define SUBBUS_BOARD_LOCATION "SMoudi Backup"
   // #define CAN_BOARD_ID 14 // for Test board
 #elif SUBBUS_BOARD_SN == 5
-  #define SUBBUS_BOARD_ID 0 // Test
+  #define SUBBUS_BOARD_ID 1 // SMoudi (SABRE Mini Moudi) Configured as DPOPS uDACS "A" 
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
-  #define SUBBUS_BOARD_INSTRUMENT_ID 1
-  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
-  #define SUBBUS_BOARD_LOCATION "Test"
+  #define SUBBUS_BOARD_INSTRUMENT_ID 8
+  #define SUBBUS_BOARD_INSTRUMENT "SMoudi"
+  #define SUBBUS_BOARD_LOCATION "SMoudi Flight"
   #define CAN_BOARD_ID 1 // for Test board
 #elif SUBBUS_BOARD_SN == 6
   #define SUBBUS_BOARD_ID 3 // SCoPEx Port Engine Assy
