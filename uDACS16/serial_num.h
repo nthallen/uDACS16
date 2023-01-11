@@ -85,7 +85,7 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 8
   #define SUBBUS_BOARD_INSTRUMENT "SMoudi"
   #define SUBBUS_BOARD_LOCATION "SMoudi Flight"
-  #define CAN_BOARD_ID 1 // for Test board
+  // #define CAN_BOARD_ID 1 // for Test board
 #elif SUBBUS_BOARD_SN == 6
   #define SUBBUS_BOARD_ID 3 // SCoPEx Port Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
