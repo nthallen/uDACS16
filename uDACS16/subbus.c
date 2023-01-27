@@ -314,9 +314,10 @@ bool sb_cache_was_read(subbus_cache_word_t *cache, uint16_t offset) {
 /***************************************************/
 /* Board Description Driver                        */
 /***************************************************/
-static subbus_cache_word_t board_desc_cache[2] = {
+static subbus_cache_word_t board_desc_cache[3] = {
   { 0, 0, true, false, false, false, false },
-  { 0, 0, true, false, false, false, true }
+  { 0, 0, true, false, false, false, true },
+  { SUBBUS_SUBFUNCTION, 0, true, false, false, false, false }
 };
 
 static struct board_desc_t {
@@ -326,7 +327,7 @@ static struct board_desc_t {
 } board_desc;
 
 static void board_desc_init(void) {
-  board_desc.desc = SUBBUS_BOARD_REV;
+  board_desc.desc = SUBBUS_BOARD_DESC;
   board_desc.cp = 0;
   board_desc.nc = strlen(board_desc.desc)+1; // Include the trailing NUL
   subbus_cache_update(&sb_board_desc, SUBBUS_DESC_FIFO_SIZE_ADDR, (board_desc.nc+1)/2);
@@ -348,6 +349,6 @@ static void board_desc_action(uint16_t addr) {
 }
 
 subbus_driver_t sb_board_desc = {
-  SUBBUS_DESC_FIFO_SIZE_ADDR, SUBBUS_DESC_FIFO_ADDR,
+  SUBBUS_DESC_FIFO_SIZE_ADDR, SUBBUS_SUBFUNCTION_ADDR,
   board_desc_cache, board_desc_init, 0, board_desc_action,
-false };
+  false };

@@ -462,47 +462,4 @@ subbus_driver_t sb_can = {
   false
 };
 
-#if USE_CAN_DESC
-extern subbus_driver_t sb_can_desc;
-
-static subbus_cache_word_t can_desc_cache[2] = {
-  { 0, 0, true, false, false, false, false },
-  { 0, 0, true, false, false, false, true }
-};
-
-static struct can_desc_t {
-  const char *desc;
-  int cp;
-  int nc;
-} can_desc;
-
-static void can_desc_init(void) {
-  can_desc.desc = SUBBUS_BOARD_REV;
-  can_desc.cp = 0;
-  can_desc.nc = strlen(can_desc.desc)+1; // Include the trailing NUL
-  subbus_cache_update(&sb_can_desc, SUBBUS_DESC_FIFO_SIZE_ADDR, (can_desc.nc+1)/2);
-  subbus_cache_update(&sb_can_desc, SUBBUS_DESC_FIFO_ADDR, (can_desc.desc[0] & 0xFF) + (can_desc.desc[1]<<8));
-}
-
-static void can_desc_action(uint16_t piss) {
-  if (can_desc_cache[1].was_read) {
-    can_desc.cp += 2;
-    if (can_desc.cp >= can_desc.nc) {
-      can_desc.cp = 0;
-    }
-  }
-  subbus_cache_update(&sb_can_desc, SUBBUS_DESC_FIFO_SIZE_ADDR, ((can_desc.nc-can_desc.cp)+1)/2);
-  subbus_cache_update(&sb_can_desc, SUBBUS_DESC_FIFO_ADDR, (can_desc.desc[can_desc.cp] & 0xFF) + (can_desc.desc[can_desc.cp+1]<<8));
-}
-
-subbus_driver_t sb_can_desc = {
-  SUBBUS_DESC_FIFO_SIZE_ADDR, SUBBUS_DESC_FIFO_ADDR, // address range for Description
-  can_desc_cache,                // Host accessible cache structure
-  can_desc_init,                 // driver reset  method
-  0,                             // driver poll   method (none)
-  can_desc_action,               // driver action method
-  false                          // initialized state
-};
-#endif
-
 #endif

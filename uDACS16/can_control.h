@@ -7,8 +7,8 @@
 #include "subbus.h"
 #include "serial_num.h"
 
-#define CAN_BASE_ADDR 0x54
-#define CAN_HIGH_ADDR 0x56
+#define CAN_BASE_ADDR 0x48
+#define CAN_HIGH_ADDR 0x4A
 
 #define CAN_ID_BOARD_MASK 0x780
 #define CAN_ID_BOARD(x) (((x)<<7)&CAN_ID_BOARD_MASK)
@@ -49,8 +49,5 @@ extern bool can_tx_completed;
 int32_t can_control_read(struct can_message *msg);
 int32_t can_control_write(uint16_t ID, uint8_t *data, int nb);
 extern subbus_driver_t sb_can;
-#ifdef USE_CAN_DESC
-extern subbus_driver_t sb_can_desc;
-#endif
 
 #endif

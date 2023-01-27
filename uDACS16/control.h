@@ -9,7 +9,7 @@ void SendCodeVal(int8_t, uint16_t);
 void SendErrorMsg(const char *msg);
 void poll_control(void);
 extern subbus_driver_t sb_control;
-#define CONTROL_BASE_ADDR 0x0A
-#define CONTROL_HIGH_ADDR 0x09
+#define CONTROL_BASE_ADDR 0x0B
+#define CONTROL_HIGH_ADDR 0x0A
 
 #endif
