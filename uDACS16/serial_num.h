@@ -42,8 +42,8 @@
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.6"
-#define SUBBUS_BOARD_BUILD_NUM 7
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.6.1"
+#define SUBBUS_BOARD_BUILD_NUM 8
 #define HAVE_RTC
 
 /**

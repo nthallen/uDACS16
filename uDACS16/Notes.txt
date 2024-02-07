@@ -1,0 +1,107 @@
+icm state machine
+
+Modes:
+  0: No Read
+  1: Slow Read (current implementation)
+  2: Fast FIFO Read
+
+/** State to shutdown the current operating mode */
+static enum icm_state_t icm_crnt_mode_exit_state;
+
+
+Mode 0: No Read
+  Mode 0 Init:
+    update cache with mode 0
+    write icm_bank0_cmd 2
+    write icm_disable_gyro 2
+    write icm_sleep_cmd 2
+  Mode 0 Operate:
+    Check for mode change
+    Repeat
+  Mode 0 Shutdown:
+    Nothing to do
+
+Mode 1: Slow Read
+  Mode 1 Init:
+    update cache with mode 1
+    write icm_bank0_cmd 2
+    write icm_disable_gyro 2
+    write icm_wake_cmd 2
+  Mode 1 Operate: Assumes Bank 0 is active
+    Check for mode change
+    write icm_accx_cmd 1
+    read 6 into icm_accel_ibuf
+    Repeat
+  Mode 1 Shutdown:
+    Nothing to do
+
+Mode 2: Fast Read
+  Mode 2 Init:
+    update cache with mode 2
+    write icm_bank0_cmd 2
+    write icm_disable_gyro 2 # PWR_MGMT_2
+    write icm_wake_cmd   2   # PWR_MGMT_1
+    set_accel_cfg(ICM_MODE2_ACCEL_CFG);
+    cfg_icm_accel(icm_mode2_init_#X);
+      write icm_bank2_cmd  2
+      write icm_accel_cfg2 2   # ACCEL_CFG 0x39
+      write icm_bank0_cmd  2
+    write icm_int_en_2   2   # INT_ENABLE_2
+    write icm_fifo_mode  2   # FIFO_MODE 105 0x69 = 1 (stop writing when fifo is full)
+    write icm_accx2fifo  3   # FIFO_EN_2 103 0x67 = 0x10 + FIFO_RST
+    write icm_fifo_nrst  2   # FIFO_RST 0x68 Finish the fifo reset
+  Mode 2 Operate:
+    read INT_STATUS_2 and shutdown on overflow
+    read FIFO_COUNTH x 2 and cache results in local FIFO
+  Mode 2 Shutdown
+    set_accel_cfg(ICM_MODE1_ACCEL_CFG);
+    cfg_icm_accel(icm_mode2_shutdown_2)
+      write icm_bank2_cmd  2
+      write icm_accel_cfg1 2   # ACCEL_CFG 0x01 (default)
+      write icm_bank0_cmd  2
+    write icm_int_dis    2   # INT_ENABLE_2
+    write icm_fifo_dis   3   # FIFO_EN_2 & FIFO_RST
+    write icm_fifo_nrst  2   # FIFO_RST
+
+Sequences:
+  icm_bank0_cmd 2: REG_BANK_SEL(0x7F), 0
+  icm_wake_cmd 2: PWR_MGMT_1(0x06), 1
+  icm_accx_cmd, 1: ACCEL_XOUT_H(0x2D) # starting Bank 0 address for 6 bytes of accel data
+
+
+If we are not using the gyro, we can get away with the low power 20 MHz clock.
+The frequency variation over temperature is an order of magnitude worse
+(+/- 10%). After an FFT, that would show up as a change in frequency, but we
+really only care about the magnitude. If we were trying to extrapolate motion
+along with the gyroscope, we would definitely want to use the better time base,
+but we are not trying to that at the moment.
+
+
+Baud Rate Calculations from hpl_sercom_config.h:
+
+CONF_SERCOM_3_I2CM_BAUD is defined in START in Hz
+CONF_SERCOM_3_I2CM_BAUDLOW is calculated from _I2CM_BAUD
+CONF_SERCOM_3_I2CM_BAUD_RATE is the value written to the BAUD register
+
+#define CONF_SERCOM_3_I2CM_BAUDLOW
+	(((Fcore - (Fbaud * 10U) - (Trise * (Fbaud / 100U) * (Fcore / 10000U) / 1000U)) * 10U + 5U) / (Fbaud * 10U))
+Fcore = 8MHz
+Fbaud = 100KHz
+Trise = 215ns
+BAUDLOW =
+  (((8MHz - (100KHz * 10U) - (215ns * (100KHz / 100U) * (8MHz / 10000U) / 1000U)) * 10U + 5U) / (100KHz * 10U))
+  (((8MHz - 1M - (215 * 800)) * 10 + 5) / (1M))
+  (((7M - 172000) * 10 + 5) / (1M))
+  ((6828000 * 10 + 5) / (1M))
+  (68280005/1M)
+  68(.280005)
+
+#define CONF_SERCOM_3_I2CM_BAUD_RATE                                                                                   \
+	((CONF_SERCOM_3_I2CM_BAUD_BAUDLOW & 0x1)                                                                           \
+	     ? (CONF_SERCOM_3_I2CM_BAUD_BAUDLOW / 2) + ((CONF_SERCOM_3_I2CM_BAUD_BAUDLOW / 2 + 1) << 8)                    \
+	     : (CONF_SERCOM_3_I2CM_BAUD_BAUDLOW / 2))
+	((68 & 0x1)                                                                           \
+	     ? (68 / 2) + ((68 / 2 + 1) << 8)                    \
+	     : (68 / 2))
+  34
+

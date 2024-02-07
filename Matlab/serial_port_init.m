@@ -63,7 +63,7 @@ end
 isobj = 0;
 isopen = 0;
 try
-  s = serial(port,'BaudRate',115200,'InputBufferSize',3000);
+  s = serial(port,'BaudRate',57600,'InputBufferSize',3000);
   isobj = 1;
   fopen(s);
   isopen = 1;

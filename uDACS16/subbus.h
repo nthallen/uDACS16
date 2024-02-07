@@ -8,18 +8,21 @@
 #define USE_SUBBUS 1
 
 #if USE_SUBBUS
-#define SUBBUS_FAIL_RESERVED        0xF000
-#define SUBBUS_INTA_ADDR            0x0001
-#define SUBBUS_BDID_ADDR            0x0002
-#define SUBBUS_BLDNO_ADDR           0x0003
-#define SUBBUS_BDSN_ADDR            0x0004
-#define SUBBUS_INSTID_ADDR          0x0005
-#define SUBBUS_FAIL_ADDR            0x0006
-#define SUBBUS_SWITCHES_ADDR        0x0007
-#define SUBBUS_DESC_FIFO_SIZE_ADDR  0x0008
-#define SUBBUS_DESC_FIFO_ADDR       0x0009
-#define SUBBUS_SUBFUNCTION_ADDR     0x000A
-#define SUBBUS_INTERRUPTS           0
+#define SUBBUS_FAIL_RESERVED          0xF000
+#define SUBBUS_INTA_ADDR              0x0001
+#define SUBBUS_BDID_ADDR              0x0002
+#define SUBBUS_BLDNO_ADDR             0x0003
+#define SUBBUS_BDSN_ADDR              0x0004
+#define SUBBUS_INSTID_ADDR            0x0005
+#define SUBBUS_FAIL_ADDR              0x0006
+#define SUBBUS_SWITCHES_ADDR          0x0007
+#define SUBBUS_DESC_FIFO_SIZE_ADDR    0x0008
+#define SUBBUS_DESC_FIFO_SIZE_OFFSET  0
+#define SUBBUS_DESC_FIFO_ADDR         0x0009
+#define SUBBUS_DESC_FIFO_OFFSET       (SUBBUS_DESC_FIFO_ADDR-SUBBUS_DESC_FIFO_SIZE_ADDR)
+#define SUBBUS_SUBFUNCTION_ADDR       0x000A
+#define SUBBUS_SUBFUNCTION_OFFSET     (SUBBUS_SUBFUNCTION_ADDR-SUBBUS_DESC_FIFO_SIZE_ADDR)
+#define SUBBUS_INTERRUPTS             0
 
 #if SUBBUS_INTERRUPTS
 extern volatile uint8_t subbus_intr_req;

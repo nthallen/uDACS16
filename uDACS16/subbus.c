@@ -284,6 +284,16 @@ bool subbus_cache_update(subbus_driver_t *drv, uint16_t addr, uint16_t data) {
   return false;
 }
 
+/**
+ * This function is a lower-level version of subbus_cache_update.
+ * Instead of taking the driver struct and the register address,
+ * it takes the cache array and the offset into the cache.
+ * This makes calls independent of global address changes.
+ * @param cache The cache array
+ * @param offset The offset within the cache array
+ * @param data The value to be written
+ * @return true on success
+ */
 bool sb_cache_update(subbus_cache_word_t *cache, uint16_t offset, uint16_t data) {
   subbus_cache_word_t *word = &cache[offset];
   if (word->readable) {
@@ -332,20 +342,20 @@ static void board_desc_init(void) {
   board_desc.nc = strlen(board_desc.desc)+1; // Include the trailing NUL
   subbus_cache_update(&sb_board_desc, SUBBUS_DESC_FIFO_SIZE_ADDR, (board_desc.nc+1)/2);
   subbus_cache_update(&sb_board_desc, SUBBUS_DESC_FIFO_ADDR,
-  (board_desc.desc[0] & 0xFF) + (board_desc.desc[1]<<8));
+    (board_desc.desc[0] & 0xFF) + (board_desc.desc[1]<<8));
 }
 
-static void board_desc_action(uint16_t addr) {
+static void board_desc_action(uint16_t offset) {
   if (board_desc_cache[1].was_read) {
     board_desc.cp += 2;
     if (board_desc.cp >= board_desc.nc) {
       board_desc.cp = 0;
     }
+    sb_cache_update(board_desc_cache, SUBBUS_DESC_FIFO_SIZE_OFFSET,
+      ((board_desc.nc-board_desc.cp)+1)/2);
+    sb_cache_update(board_desc_cache, SUBBUS_DESC_FIFO_OFFSET,
+      (board_desc.desc[board_desc.cp] & 0xFF) + (board_desc.desc[board_desc.cp+1]<<8));
   }
-  subbus_cache_update(&sb_board_desc, SUBBUS_DESC_FIFO_SIZE_ADDR,
-  ((board_desc.nc-board_desc.cp)+1)/2);
-  subbus_cache_update(&sb_board_desc, SUBBUS_DESC_FIFO_ADDR,
-  (board_desc.desc[board_desc.cp] & 0xFF) + (board_desc.desc[board_desc.cp+1]<<8));
 }
 
 subbus_driver_t sb_board_desc = {
