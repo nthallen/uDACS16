@@ -52,12 +52,14 @@
 #define FIFO_EN_1 0x66
 #define FIFO_EN_2 0x67
 #define FIFO_RST  0x68
+#define FIFO_MODE 0x69
+#define FIFO_COUNTH 0x70
 #define FIFO_R_W  0x72
 #define REG_BANK_SEL 0x7F
 // USER BANK 2 REGISTER MAP ADDRESSES
 #define ACCEL_CONFIG 0x14
-#define ACCEL_DLPFCFG_FCHOICE ((7<<3)|1)
-#define ACCEL_CFG(x) (((x)<<1)|ACCEL_DLPCFG_FCHOICE)
+// #define ACCEL_DLPFCFG_FCHOICE ((7<<3)|1)
+// #define ACCEL_CFG(x) (((x)<<1)|ACCEL_DLPCFG_FCHOICE)
 
 // Added _icm
 extern subbus_driver_t sb_i2c_icm;

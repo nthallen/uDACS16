@@ -2,6 +2,9 @@
 #include "serial_num.h"
 #include "subbus.h"
 #include "rtc_timer.h"
+#ifdef HAVE_VIBE_SENSOR
+#include "i2c_icm20948.h"
+#endif
 
 static void commands_init(void) {
 #if SUBBUS_BOARD_ID == 1
@@ -17,7 +20,7 @@ static void commands_init(void) {
   gpio_set_pin_function(MM_ST1, GPIO_PULL_OFF);  // ???
 
   gpio_set_pin_direction(MM_ST2, GPIO_DIRECTION_IN);
-  gpio_set_pin_function(MM_ST2, GPIO_PULL_OFF);	// ???
+  gpio_set_pin_function(MM_ST2, GPIO_PULL_OFF); // ???
 
   gpio_set_pin_level(MM_CMD1, true);
   gpio_set_pin_direction(MM_CMD1, GPIO_DIRECTION_OUT);
@@ -94,8 +97,8 @@ static void cmd_poll(void) {
         gpio_set_pin_level(pin, cmd & 1);
       } else {
         switch (cmd) {
-		      case 8: gpio_set_pin_level(MM_CMD1, true); break; // Mini Moudi Valve Close
-		      case 9: gpio_set_pin_level(MM_CMD1, false); break; // Mini Moudi Valve Open
+          case 8: gpio_set_pin_level(MM_CMD1, true); break; // Mini Moudi Valve Close
+          case 9: gpio_set_pin_level(MM_CMD1, false); break; // Mini Moudi Valve Open
           default: break;
         }
       }
@@ -112,9 +115,21 @@ static void cmd_poll(void) {
         gpio_set_pin_level(pin, cmd & 1);
     } else
       switch (cmd) {
-	    default:
-	      break;
+        default:
+          break;
       }
+#endif
+#ifdef HAVE_VIBE_SENSOR
+    switch (cmd) {
+      case 40: i2c_icm_set_mode(ICM_MODE_NO); break;
+      case 41: i2c_icm_set_mode(ICM_MODE_SLOW); break;
+      case 42: i2c_icm_set_mode(ICM_MODE_FAST); break;
+      case 50: i2c_icm_set_fs(ICM_FS_2G); break;
+      case 51: i2c_icm_set_fs(ICM_FS_4G); break;
+      case 52: i2c_icm_set_fs(ICM_FS_8G); break;
+      case 53: i2c_icm_set_fs(ICM_FS_16G); break;
+      default: break;
+    }
 #endif
   }
 

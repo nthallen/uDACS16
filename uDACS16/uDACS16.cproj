@@ -204,7 +204,7 @@
       </AcmeProjectConfig>
     </AcmeProjectConfig>
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
-    <avrtoolserialnumber>J41800051433</avrtoolserialnumber>
+    <avrtoolserialnumber>J41800082565</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x11010505</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
@@ -215,7 +215,7 @@
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800051433</ToolNumber>
+      <ToolNumber>J41800082565</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
@@ -1014,6 +1014,7 @@
     <ListValues>
       <Value>DEBUG</Value>
       <Value>SUBBUS_BOARD_SN=6</Value>
+      <Value>CONF_SERCOM_5_USART_BAUD=115200</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
@@ -1128,6 +1129,7 @@
     <ListValues>
       <Value>DEBUG</Value>
       <Value>SUBBUS_BOARD_SN=7</Value>
+      <Value>CONF_SERCOM_5_USART_BAUD=115200</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>

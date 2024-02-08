@@ -42,8 +42,9 @@
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.6.1"
-#define SUBBUS_BOARD_BUILD_NUM 8
+// 2/7/24 Build #9 V1.7.0 Testing Vibration Sensor streaming
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.7.0"
+#define SUBBUS_BOARD_BUILD_NUM 9
 #define HAVE_RTC
 
 /**
