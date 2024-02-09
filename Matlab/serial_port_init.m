@@ -1,4 +1,4 @@
-function [s, port_out] = serial_port_init(port)
+function [s, port_out] = serial_port_init(port,baudrate)
 % s = serial_port_init(port);
 % [s, port] = serial_port_init;
 % Returns an open serial object with timeout set to 0.1
@@ -13,6 +13,7 @@ s = [];
 if nargout > 1
   port_out = '';
 end
+cfg_loaded = 0;
 if (nargin < 1 || isempty(port))
   port = '';
   if exist('./uDACS16SerialPort.mat','file')
@@ -20,30 +21,38 @@ if (nargin < 1 || isempty(port))
     if isfield(rport,'port')
       port = rport.port;
     end
+    if isfield(rport,'baudrate')
+      baudrate = rport.baudrate;
+    end
     clear rport
+    cfg_loaded = 1;
+  elseif nargin < 2
+    baudrate = 57600;
   end
+elseif nargin < 2
+  baudrate = 57600;
 end
 
-hw = instrhwinfo('serial');
-if isempty(hw.AvailableSerialPorts)
+ports = serialportlist("all");
+if isempty(ports)
   port = '';
-elseif length(hw.AvailableSerialPorts) == 1
-  port = hw.AvailableSerialPorts{1};
+elseif length(ports) == 1
+  port = ports{1};
 else
   if ~isempty(port) && ...
-      ~any(strcmpi(port, hw.AvailableSerialPorts))
+      ~any(strcmpi(port, ports))
     % This is not a good choice
     port = '';
   end
 end
 if isempty(port)
-  if isempty(hw.AvailableSerialPorts)
+  if isempty(ports)
     % closereq;
     h = errordlg('No serial port found','uDACS16 Serial Port Error','modal');
     uiwait(h);
     return;
   else
-    sel = listdlg('ListString',hw.AvailableSerialPorts,...
+    sel = listdlg('ListString',ports,...
       'SelectionMode','single','Name','uDACS16_Port', ...
       'PromptString','Select Serial Port:', ...
       'ListSize',[160 50]);
@@ -51,10 +60,13 @@ if isempty(port)
       % closereq;
       return;
     else
-      port = hw.AvailableSerialPorts{sel};
-      save uDACS16SerialPort.mat port
+      port = ports{sel};
     end
   end
+end
+
+if ~cfg_loaded
+  save uDACS16SerialPort.mat port baudrate
 end
 
 if nargout > 1
@@ -63,15 +75,12 @@ end
 isobj = 0;
 isopen = 0;
 try
-  s = serial(port,'BaudRate',57600,'InputBufferSize',3000);
-  isobj = 1;
-  fopen(s);
-  isopen = 1;
-  set(s,'Timeout',0.1,'Terminator',10);
-  warning('off','MATLAB:serial:fgetl:unsuccessfulRead');
+  s = serialport(port,baudrate,'Timeout',0.1); % 'InputBufferSize',3000
+  configureTerminator(s,"LF");
+  warning('off','serialport:serialport:ReadlineWarning');
   tline = 'a';
   while ~isempty(tline)
-    tline = fgetl(s);
+    tline = readline(s);
   end
   if nargout < 2
     fprintf(1, 'Successfully opened port %s\n', port);
@@ -79,13 +88,8 @@ try
 catch ME
   h = errordlg(sprintf('Error: %s\nMessage: %s\nport = %s\n', ...
     ME.identifier, ME.message, port), ...
-    'uDACS16 Serial Port Error', 'modal');
+    'uDACS16 serialport Error', 'modal');
   uiwait(h);
-  if isopen
-    fclose(s);
-  end
-  if isobj
-    delete(s);
-  end
+  delete(s);
   s = [];
 end

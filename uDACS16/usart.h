@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 /*! The rx buffer size for USART */
-#define USART_CTRL_RX_BUFFER_SIZE 64
+#define USART_CTRL_RX_BUFFER_SIZE 256
 #define USART_CTRL_TX_BUFFER_SIZE 512
 
 extern volatile int USART_CTRL_tx_busy;

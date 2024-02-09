@@ -55,7 +55,8 @@ static subbus_cache_word_t i2c_icm_cache[I2C_ICM_HIGH_ADDR-I2C_ICM_BASE_ADDR+1] 
   // ICM FIFO registers: I2C_ICM_FIFO_NREGS
   { 0, 0, true, false,  true, false, false },  // Offset 0x04: R/W: ICM_MODE
   { 0, 0, true, false, false, false, false },  // Offset 0x05: R: ICM_FIFO_COUNT
-  { 0, 0, true, false, false, false,  true }   // Offset 0x06: R: ICM_FIFO
+  { 0, 0, true, false, false, false,  true },  // Offset 0x06: R: ICM_FIFO
+  { 0, 0, true, false, false, false, false },  // Offset 0x06: R: ICM_FIFO_DIAG
 };
 
 /**
@@ -69,15 +70,17 @@ static subbus_cache_word_t i2c_icm_cache[I2C_ICM_HIGH_ADDR-I2C_ICM_BASE_ADDR+1] 
  */
 static struct {
   int head, tail, nw, alloc;
-  uint16_t fifo[I2C_ICM_FIFO_SIZE];
   uint8_t status;
+  uint16_t fifo[I2C_ICM_FIFO_SIZE];
 } icm_fifo;
 #define I2C_ICM_FIFO_FULL 1
 #define I2C_ICM_FIFO_WRAPPED 2
 
 static void fifo_init(void) {
   icm_fifo.head = icm_fifo.tail = icm_fifo.nw =
-    icm_fifo.alloc = 0;
+    icm_fifo.alloc = icm_fifo.status = 0;
+  sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_COUNT_OFFSET,
+    0x3FFF & (uint16_t)icm_fifo.nw);
 }
 
 /**
@@ -89,13 +92,14 @@ static void fifo_init(void) {
 static uint16_t fifo_allocate(uint16_t n_words) {
   int available;
   if (icm_fifo.nw == 0) {
+    assert(icm_fifo.head == icm_fifo.tail,__FILE__,__LINE__);
     icm_fifo.head = icm_fifo.tail = 0;
     icm_fifo.status = 0;
     available = I2C_ICM_FIFO_SIZE;
   } if (icm_fifo.status & I2C_ICM_FIFO_WRAPPED) {
+    available = icm_fifo.head - icm_fifo.tail;
+  } else {    
     available = I2C_ICM_FIFO_SIZE - icm_fifo.tail;
-  } else if (icm_fifo.status & I2C_ICM_FIFO_FULL) {
-    available = 0;
   }
   if (available > n_words) {
     available = n_words;
@@ -113,6 +117,7 @@ static uint16_t fifo_allocate(uint16_t n_words) {
  */
 static void i2c_icm_fifo_commit(uint16_t n_words) {
   assert(n_words <= icm_fifo.alloc,__FILE__,__LINE__);
+  if (n_words == 0) return;
   icm_fifo.alloc = 0;
   icm_fifo.nw += n_words;
   for (;n_words > 0; --n_words) {
@@ -122,6 +127,9 @@ static void i2c_icm_fifo_commit(uint16_t n_words) {
   if (icm_fifo.tail >= I2C_ICM_FIFO_SIZE) {
     icm_fifo.tail = 0;
     icm_fifo.status |= I2C_ICM_FIFO_WRAPPED;
+  }
+  if (icm_fifo.head == icm_fifo.tail) {
+    icm_fifo.status |= I2C_ICM_FIFO_FULL;
   }
   sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_COUNT_OFFSET,
     0x3FFF & (uint16_t)icm_fifo.nw);
@@ -135,15 +143,21 @@ static uint16_t i2c_icm_fifo_pop(void) {
   } else {
     --icm_fifo.nw;
     val = icm_fifo.fifo[icm_fifo.head++];
-    if (icm_fifo.head >= I2C_ICM_FIFO_SIZE)
+    if (icm_fifo.head >= I2C_ICM_FIFO_SIZE) {
       icm_fifo.head = 0;
+      icm_fifo.status &= ~(I2C_ICM_FIFO_FULL|I2C_ICM_FIFO_WRAPPED);
+    } else {
+      icm_fifo.status &= ~I2C_ICM_FIFO_FULL;
+    }
   }
   return val;
 }
 
 enum icm_state_t {
-    icm_mode0_init, icm_mode0_init_1, icm_mode0_init_2,
-    icm_mode0_operate,
+    icm_mode0_init, icm_mode0_init_1, icm_mode0_init_1a, icm_mode0_init_2,
+      icm_mode0_init_3,
+    icm_mode0_operate, icm_mode0_operate_1, icm_mode0_operate_2,
+      icm_mode0_operate_3, icm_mode0_operate_4,
     icm_mode1_init, icm_mode1_init_1, icm_mode1_init_2,
     icm_mode1_operate, icm_mode1_operate_1, icm_mode1_operate_2,
     icm_mode2_init, icm_mode2_init_1, icm_mode2_init_2, icm_mode2_init_3,
@@ -152,8 +166,10 @@ enum icm_state_t {
        icm_mode2_operate_3, icm_mode2_operate_4, icm_mode2_operate_5,
        icm_mode2_operate_6,
     icm_mode2_shutdown, icm_mode2_shutdown_1, icm_mode2_shutdown_2,
-       icm_mode2_shutdown_3,
+       icm_mode2_shutdown_3, icm_mode2_shutdown_4, icm_mode2_shutdown_5,
+       icm_mode2_shutdown_6,
     icm_set_accel_cfg, icm_set_accel_cfg_1, icm_set_accel_cfg_2,
+    icm_set_accel_cfg_1a, icm_set_accel_cfg_1b, icm_set_accel_cfg_1c,
     icm_no_state};
 
 static enum icm_state_t icm_state = icm_mode0_init;
@@ -174,7 +190,7 @@ static uint8_t icm_accx2fifo[3] = { FIFO_EN_2, 0x10, 1 }; // [0x67] + FIFO_RST
 static uint8_t icm_fifo_dis[3] = { FIFO_EN_2, 0, 1 }; // [0x67] + FIFO_RST
 static uint8_t icm_fifo_nrst[2] = { FIFO_RST, 0 }; // [0x68] FIFO_RST
 static uint8_t icm_fifo_mode[2] = {FIFO_MODE, 1};
-static uint8_t icm_int_dis[2] = { INT_ENABLE_2, 0 };
+//static uint8_t icm_int_dis[2] = { INT_ENABLE_2, 0 };
 static uint8_t icm_int_status[1] = {INT_STATUS_2};
 static uint8_t icm_fifo_count_reg[1] = {FIFO_COUNTH};
 static uint8_t icm_fifo_reg[1] = {FIFO_R_W};
@@ -185,9 +201,10 @@ static uint8_t icm_accel_ibuf[6]; // Could/Should put in icm_poll_def struct?
 /* Variables for Mode 2 operation */
 static uint8_t icm_int_status_buf;
 static uint16_t icm_fifo_count;
+static uint8_t icm_accel_cfg_rb; // readback
 
-uint32_t endtime = 0x00000000; // Could/Should put in icm_poll_def struct?
-uint8_t whoami = 0x00;  // ICM20948 whoami response
+static uint32_t endtime = 0x00000000; // Could/Should put in icm_poll_def struct?
+// static uint8_t whoami = 0x00;  // ICM20948 whoami response
 
 
 /* Variables and functions related to changing mode and full scale
@@ -296,17 +313,48 @@ static bool icm20948_poll(void) {
       i2c_icm_write(ICM20948_ADDR, icm_bank0_cmd, 2);
       icm_state = icm_mode0_init_1;
       return false;
-    case icm_mode0_init_1:
+    case icm_mode0_init_1:  // Skip Check for ICM20948 for now
+      i2c_icm_write( ICM20948_ADDR, icm_wake_cmd, 2); // Just wake up
+      icm_state = icm_mode0_init_1a;
+      return false;
+    case icm_mode0_init_1a:
       i2c_icm_write(ICM20948_ADDR, icm_disable_gyro, 2);
       icm_state = icm_mode0_init_2;
       return false;
     case icm_mode0_init_2:
+      set_accel_cfg(ICM_MODE0_ACCEL_CFG);
+      cfg_icm_accel(icm_mode0_init_3);
+      return false;
+    case icm_mode0_init_3:
       i2c_icm_write(ICM20948_ADDR, icm_sleep_cmd, 2);
       icm_state = icm_mode0_operate;
       return true;
 
     case icm_mode0_operate:
-      check_icm_mode();
+      if (check_icm_mode())
+        return true;
+      i2c_icm_write(ICM20948_ADDR, icm_int_status, 1);
+      icm_state = icm_mode0_operate_1;
+      return false;
+    case icm_mode0_operate_1:
+      i2c_icm_read(ICM20948_ADDR, &icm_int_status_buf, 1);
+      icm_state = icm_mode0_operate_2;
+      return false;
+    case icm_mode0_operate_2:
+      i2c_icm_write(ICM20948_ADDR, icm_fifo_count_reg, 1);
+      icm_state = icm_mode0_operate_3;
+      return false;
+    case icm_mode0_operate_3:
+      i2c_icm_read(ICM20948_ADDR, (uint8_t*)&icm_fifo_count, 2);
+      icm_state = icm_mode0_operate_4;
+      return false;
+    case icm_mode0_operate_4:
+      icm_swap16(icm_fifo_count);
+      icm_fifo_count &= 0x1FFF;
+      if (icm_int_status_buf&0xF)
+        icm_fifo_count |= 0x8000;
+      sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET, icm_fifo_count);
+      icm_state = icm_mode0_operate;
       return true;
 
     case icm_mode1_init:   // Check for ICM20948
@@ -321,8 +369,8 @@ static bool icm20948_poll(void) {
       icm_state = icm_mode1_init_2;
       return false;
     case icm_mode1_init_2:
-      i2c_icm_write( ICM20948_ADDR, icm_bank0_cmd, 2);
-      icm_state = icm_mode1_operate;
+      set_accel_cfg(ICM_MODE1_ACCEL_CFG);
+      cfg_icm_accel(icm_mode1_operate);
       return false;
 
     case icm_mode1_operate:
@@ -332,7 +380,6 @@ static bool icm20948_poll(void) {
       icm_state = icm_mode1_operate_1;
       return false;
     case icm_mode1_operate_1: // Read accel values and cache
-      // if ( rtc_current_count <= endtime ) return false;
       i2c_icm_read(ICM20948_ADDR, icm_accel_ibuf, 6);
       icm_state = icm_mode1_operate_2;
       return false;
@@ -409,6 +456,7 @@ static bool icm20948_poll(void) {
     case icm_mode2_operate_4:
       icm_swap16(icm_fifo_count);
       icm_fifo_count &= 0x1FFF;
+      sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET, icm_fifo_count);
       icm_fifo_count /= 2; // Now in words
       icm_fifo_count = fifo_allocate(icm_fifo_count);
       icm_fifo_count /= I2C_ICM_FIFO_WORDS_PER_SAMPLE; // Now complete in records
@@ -436,17 +484,39 @@ static bool icm20948_poll(void) {
       cfg_icm_accel(icm_mode2_shutdown_1);
       return false;
     case icm_mode2_shutdown_1:
-      i2c_icm_write(ICM20948_ADDR, icm_int_dis, 2);
+      // i2c_icm_write(ICM20948_ADDR, icm_int_dis, 2);
       icm_state = icm_mode2_shutdown_2;
       return false;
     case icm_mode2_shutdown_2:
       i2c_icm_write(ICM20948_ADDR, icm_fifo_dis, 3);
+      endtime = rtc_current_count + 3000*RTC_COUNTS_PER_MSEC;
       icm_state = icm_mode2_shutdown_3;
-      return false;
+      return true;
     case icm_mode2_shutdown_3:
+      if ((icm_int_status_buf & 0xF) && rtc_current_count < endtime) {
+        i2c_icm_read(ICM20948_ADDR, &icm_int_status_buf, 1);
+        return false;
+      }
+      icm_state = icm_mode2_shutdown_4; //fallthrough
+    case icm_mode2_shutdown_4: // check for full reset
+      i2c_icm_read(ICM20948_ADDR, (uint8_t*)&icm_fifo_count, 2);
+      icm_state = icm_mode2_shutdown_5;
+      return false;
+    case icm_mode2_shutdown_5:
+      icm_swap16(icm_fifo_count);
+      icm_fifo_count &= 0x1FFF;
+      sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET, icm_fifo_count);
+      if ((icm_fifo_count == 0) || (rtc_current_count >= endtime)) {
+        icm_state = icm_mode2_shutdown_6;
+      } else {
+        icm_state = icm_mode2_shutdown_4;
+      }
+      return false;
+    case icm_mode2_shutdown_6:
       i2c_icm_write(ICM20948_ADDR, icm_fifo_nrst, 2);
-      icm_state = new_mode_init;
       fifo_init();
+      sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET, 0);
+      icm_state = new_mode_init;
       return true;
  
     // icm_set_accel_cfg is a subroutine invoke via
@@ -457,8 +527,19 @@ static bool icm20948_poll(void) {
       return false;
     case icm_set_accel_cfg_1:
       i2c_icm_write( ICM20948_ADDR, icm_accel_cfg, 2);
-      icm_state = icm_set_accel_cfg_2;
+      icm_state = icm_set_accel_cfg_1a;
       return false;
+    case icm_set_accel_cfg_1a:
+      i2c_icm_write( ICM20948_ADDR, icm_accel_cfg, 1); // just the address
+      icm_state = icm_set_accel_cfg_1b;
+      return false;
+    case icm_set_accel_cfg_1b:
+      i2c_icm_read(ICM20948_ADDR, &icm_accel_cfg_rb, 1);
+      icm_state = icm_set_accel_cfg_1c;
+      return false;
+    case icm_set_accel_cfg_1c:
+      // sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET, icm_accel_cfg_rb);
+      // fall through
     case icm_set_accel_cfg_2:
       i2c_icm_write( ICM20948_ADDR, icm_bank0_cmd, 2);
       icm_state = icm_accelcfg_rtn;

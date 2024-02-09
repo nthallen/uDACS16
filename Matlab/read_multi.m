@@ -1,11 +1,13 @@
 function [values,ack] = read_multi(s, rm_obj)
   % [values, ack] = read_multi(s, rm_obj);
+  % s is a serialport object
   % rm_obj is the output of read_multi_prep();
   % values is an array of all the returned values
   % ack is 1 if all responses are acknowledged, 0 if any are NACK,
   % -1 on timeout and -2 on any other errors.
-  fprintf(s, '%s\n', rm_obj.cmd);
-  tline = fgetl(s);
+  writeline(s, sprintf('%s', rm_obj.cmd));
+  tline = readline(s);
+  tline = char(tline);
   if isempty(tline)
     ack = -1;
     values = [];

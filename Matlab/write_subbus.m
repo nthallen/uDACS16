@@ -1,12 +1,12 @@
 function ack_out = write_subbus(s, addr, value)
   % ack = write_subbus(s, addr, value);
-  % s: serial port object
+  % s: serialport object
   % addr: subbus address
   % value: data
   % ack: 1 on successful acknowledge, 0 on nack, -1 on timeout,
   %      -2 on other errors
-  fprintf(s, '%s\n', sprintf('W%X:%X', addr, value));
-  tline = fgetl(s);
+  writeline(s, sprintf('W%X:%X', addr, value));
+  tline = char(readline(s));
   if isempty(tline)
     ack = -1;
   elseif tline(1) == 'W'

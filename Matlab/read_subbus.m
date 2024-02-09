@@ -1,12 +1,12 @@
 function [ value, ack_out ] = read_subbus(s, addr)
   % [value, ack] = read_subbus(s, addr);
-  % s: serial port object
+  % s: serialport object
   % addr: subbus address
   % value: data
   % ack: 1 on successful acknowledge, 0 on nack, -1 on timeout,
   %      -2 on other errors
-  fprintf(s, 'R%X\n', addr);
-  tline = fgetl(s);
+  writeline(s, sprintf('R%X', addr));
+  tline = char(readline(s));
   if isempty(tline)
     ack = -1;
   elseif tline(1) == 'R'
@@ -23,4 +23,6 @@ function [ value, ack_out ] = read_subbus(s, addr)
   end
   if nargout > 1
     ack_out = ack;
+  elseif ack ~= 1
+    error(sprintf('ack=%d on read_subbus(0x%X)', ack, addr));
   end
