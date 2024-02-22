@@ -1,5 +1,6 @@
 %%
-[s,port] = serial_port_init('',115200);
+[s,port] = serial_port_init('',115200,1);
+addr.cmd = 48;
 %%
 identify_uDACS16(s);
 [icm_mode,icm_fs] = report_icm_mode(s);
@@ -19,35 +20,62 @@ clear s
 % Fast mode diagnostics:
 test_fast_mode(s,0);
 %%
-res = test_fast_mode2(s, 0, 10000);
+clear res;
+mr_stat =  read_multi_prep(100, 103);
+for i=10:-1:1
+  [diag,ack] = read_subbus(s,103); % try to clear diag before test
+  thisres = test_fast_mode2(s, 0, 10000);
+  res(i) = thisres;
+  res(i).Nread = sum(res(i).stats(1:end-1,2));
+  while true
+    [values,ack] = read_multi(s,mr_stat);
+    if values(1) == 0 && values(2) == 0; break; end
+    fprintf(1,'+');
+  end
+end
+fprintf(1,'\nMean Nread is %.1f +/- %.1f\n', mean([res.Nread]), std([res.Nread]));
 %%
 function res = test_fast_mode2(s, fs, N)
-  fprintf(1, '\ntest_fast_mode(%d)\n', fs);
+  % res = test_fast_mode2(s, fs. N);
+  % res.stats cols are:
+  %   mode (0x64)
+  %   internal diagnostic (0x67)
+  %   FIFO count (0x65)
+  fprintf(1, '.');
   res.a = zeros(N,3);
-  res.stats = zeros(N,3);
+  res.stats = zeros(N,4);
   Nread = 0;
-  Nstats = 0;
+  res.Nstats = 0;
   % ICM FIFO N Bytes, uDACS FIFO N Words, FIFO Contents
-  rm_obj = read_multi_prep(103, [101 495 102 0]);
-  write_subbus(s, 48, 50+fs);
-  write_subbus(s, 48, 40+2);
+  % rm_obj = read_multi_prep(100, 103, [101 495 102 0]);
+  rm_obj = read_multi_prep(100, 103, 101);
+  write_subbus_v(s, 48, 50+fs);
+  write_subbus_v(s, 48, 40+2);
+  tic;
 
   leftover = [];
   n_leftover = 0;
-  while Nread < N
+  while Nread < N && res.Nstats < 10000 && toc < 10
     [values,ack] = read_multi(s, rm_obj);
     if ack ~= 1; break; end
-    nwords = length(values) - 2 + n_leftover;
+    nwords = length(values) - 3 + n_leftover;
     remainder = mod(nwords,3);
     nrows = (nwords-remainder)/3;
-    try
-      res.a(Nread+(1:nrows),:) = ...
-        reshape([leftover; values(3:end-remainder)],3,[])';
-    catch
-      fprintf(1,'nwords:%d remainder:%d nrows:%d\n', nwords, remainder, nrows);
-      return;
+    stats = [values(1:3)' nrows];
+    if any(stats ~= [2 0 0 0])
+      res.Nstats = res.Nstats+1;
+      res.stats(res.Nstats,:) = stats;
     end
+    if values(1) ~= 2; break; end
+    % try
+    %   res.a(Nread+(1:nrows),:) = ...
+    %     reshape([leftover; values(4:end-remainder)],3,[])';
+    % catch
+    %   fprintf(1,'Error on reshape: nwords:%d remainder:%d nrows:%d\n', nwords, remainder, nrows);
+    %   return;
+    % end
     Nread = Nread + nrows;
+    res.Nread = Nread;
     if remainder
       try
         leftover = values(end-remainder+(1:remainder));
@@ -58,11 +86,18 @@ function res = test_fast_mode2(s, fs, N)
       leftover = [];
     end
     n_leftover = remainder;
-    Nstats = Nstats+1;
-    res.stats(Nstats,:) = [values(1:2)' nrows];
   end
+  res.stats = res.stats(1:res.Nstats,:);
+  res.dur = toc;
+  res.fin_ack = ack;
+  res.fin_fin_ack = write_subbus_v(s, 48, 40);
+end
 
-  write_subbus(s, 48, 40);
+function ack = write_subbus_v(s, addr, value)
+  [ack,line] = write_subbus(s, addr, value);
+  if ack == -2
+    fprintf(1,'ack -2 on write_subbus: "%s"', line);
+  end
 end
 
 function test_fast_mode(s, fs)

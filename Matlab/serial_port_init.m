@@ -1,4 +1,4 @@
-function [s, port_out] = serial_port_init(port,baudrate)
+function [s, port_out] = serial_port_init(port,baudrate,timeout)
 % s = serial_port_init(port);
 % [s, port] = serial_port_init;
 % Returns an open serial object with timeout set to 0.1
@@ -29,8 +29,12 @@ if (nargin < 1 || isempty(port))
   elseif nargin < 2
     baudrate = 57600;
   end
-elseif nargin < 2
+end
+if nargin < 2
   baudrate = 57600;
+end
+if nargin < 3
+  timeout = 0.1;
 end
 
 ports = serialportlist("all");
@@ -75,7 +79,7 @@ end
 isobj = 0;
 isopen = 0;
 try
-  s = serialport(port,baudrate,'Timeout',0.1); % 'InputBufferSize',3000
+  s = serialport(port,baudrate,'Timeout',timeout); % 'InputBufferSize',3000
   configureTerminator(s,"LF");
   warning('off','serialport:serialport:ReadlineWarning');
   tline = 'a';

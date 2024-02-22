@@ -1015,6 +1015,7 @@
       <Value>DEBUG</Value>
       <Value>SUBBUS_BOARD_SN=6</Value>
       <Value>CONF_SERCOM_5_USART_BAUD=115200</Value>
+      <Value>CONF_SERCOM_3_I2CM_BAUD=500000</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>

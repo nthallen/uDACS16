@@ -1,4 +1,4 @@
-function ack_out = write_subbus(s, addr, value)
+function [ack_out,line_out] = write_subbus(s, addr, value)
   % ack = write_subbus(s, addr, value);
   % s: serialport object
   % addr: subbus address
@@ -18,6 +18,9 @@ function ack_out = write_subbus(s, addr, value)
   end
   if nargout > 0
     ack_out = ack;
+    if nargout > 1
+      line_out = tline;
+    end
   elseif ack ~= 1
     error(sprintf('ack=%d on write_subbus(0x%X)', ack, addr));
   end

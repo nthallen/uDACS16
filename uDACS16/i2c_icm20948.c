@@ -15,6 +15,12 @@
 #error Baud rate for USB/Serial connection not configure to 115200
 #endif
 
+/* In the current configuration, we are using the PMON_I2C to talk to the ICM20948 IMU.
+ * In the most recent Atmel START config, this uses SERCOM3, and the clock rate is 100 KHz.
+ * This can be changed by defining the symbol CONF_SERCOM_3_I2CM_BAUD, which is currently
+ * defined to be 100000.
+ */
+
 static bool i2c_icm_enabled = I2C_ICM_ENABLE_DEFAULT;
 static struct io_descriptor *I2C_ICM_io;
 static volatile bool I2C_ICM_txfr_complete = true;
@@ -56,7 +62,7 @@ static subbus_cache_word_t i2c_icm_cache[I2C_ICM_HIGH_ADDR-I2C_ICM_BASE_ADDR+1] 
   { 0, 0, true, false,  true, false, false },  // Offset 0x04: R/W: ICM_MODE
   { 0, 0, true, false, false, false, false },  // Offset 0x05: R: ICM_FIFO_COUNT
   { 0, 0, true, false, false, false,  true },  // Offset 0x06: R: ICM_FIFO
-  { 0, 0, true, false, false, false, false },  // Offset 0x06: R: ICM_FIFO_DIAG
+  { 0, 0, true, false, false, false,  true },  // Offset 0x06: R: ICM_FIFO_DIAG
 };
 
 /**
@@ -121,7 +127,7 @@ static void i2c_icm_fifo_commit(uint16_t n_words) {
   icm_fifo.alloc = 0;
   icm_fifo.nw += n_words;
   for (;n_words > 0; --n_words) {
-    icm_swap16(icm_fifo.fifo[icm_fifo.tail]);
+    // icm_swap16(icm_fifo.fifo[icm_fifo.tail]);
     ++icm_fifo.tail;
   }
   if (icm_fifo.tail >= I2C_ICM_FIFO_SIZE) {
@@ -456,7 +462,6 @@ static bool icm20948_poll(void) {
     case icm_mode2_operate_4:
       icm_swap16(icm_fifo_count);
       icm_fifo_count &= 0x1FFF;
-      sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET, icm_fifo_count);
       icm_fifo_count /= 2; // Now in words
       icm_fifo_count = fifo_allocate(icm_fifo_count);
       icm_fifo_count /= I2C_ICM_FIFO_WORDS_PER_SAMPLE; // Now complete in records
@@ -475,7 +480,9 @@ static bool icm20948_poll(void) {
       icm_state = icm_mode2_operate_6;
       return false;
     case icm_mode2_operate_6:
-      i2c_icm_fifo_commit(icm_fifo_count*3);
+      sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET,
+         icm_fifo_count+i2c_icm_cache[I2C_ICM_FIFO_DIAG_OFFSET].cache);
+      // i2c_icm_fifo_commit(icm_fifo_count*3);
       icm_state = icm_mode2_operate;
       return true;
 
@@ -617,6 +624,10 @@ static void i2c_icm_action(uint16_t offset) {
       0x3FFF & (uint16_t)icm_fifo.nw);
     sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_REG_OFFSET, next_val);
   }
+  /* FOR DEBUG PURPOSES ONLY: */
+  if (sb_cache_was_read(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET)) {
+    sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET, 0);
+  }    
 }
 
 void i2c_icm_poll(void) {
