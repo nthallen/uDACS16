@@ -143,7 +143,7 @@
 // <i> Indicates OSC48M division value
 // <id> osc48m_div
 #ifndef CONF_OSC48M_DIV
-#define CONF_OSC48M_DIV 5
+#define CONF_OSC48M_DIV 2
 #endif
 
 // <o> Start-Up Time

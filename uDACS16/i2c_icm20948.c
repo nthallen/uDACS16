@@ -172,6 +172,7 @@ enum icm_state_t {
        icm_mode2_operate_3, icm_mode2_operate_4, icm_mode2_operate_5,
        icm_mode2_operate_6,
     icm_mode2_shutdown, icm_mode2_shutdown_1, icm_mode2_shutdown_2,
+       icm_mode2_shutdown_2a,
        icm_mode2_shutdown_3, icm_mode2_shutdown_4, icm_mode2_shutdown_5,
        icm_mode2_shutdown_6,
     icm_set_accel_cfg, icm_set_accel_cfg_1, icm_set_accel_cfg_2,
@@ -188,7 +189,7 @@ static uint8_t icm_bank2_cmd[2] = { REG_BANK_SEL, 2<<4 }; // Select Reg Bank 2: 
 // static uint8_t icm_reset_cmd[2] = { PWR_MGMT_1, 0x81 }; // ICM20948 Reset cmd: [0x06] 0x81:
 static uint8_t icm_disable_gyro[2] = { PWR_MGMT_2, 0x07 }; // Disable Gyro = 7, Disable Accel = 7<<3
 static uint8_t icm_wake_cmd[2] = { PWR_MGMT_1, 0x09 }; // Sleep = 0x40, Best clock = 0x01, TEMP_DIS = 0x08
-static uint8_t icm_sleep_cmd[2] = { PWR_MGMT_1, 0x49 }; // Sleep = 0x40, Best clock = 0x01, TEMP_DIS = 0x08
+// static uint8_t icm_sleep_cmd[2] = { PWR_MGMT_1, 0x49 }; // Sleep = 0x40, Best clock = 0x01, TEMP_DIS = 0x08
 static uint8_t icm_accx_cmd[1] = { ACCEL_XOUT_H }; // First Accel Data Reg Addr [0x2D]
 static uint8_t icm_accel_cfg[2] = { ACCEL_CONFIG, ICM_MODE1_ACCEL_CFG }; // Default, for mode 1.
 static uint8_t icm_int_en_2[2] = { INT_ENABLE_2, 1 };
@@ -244,9 +245,10 @@ static void update_cache_mode(void) {
     (icm_cur_mode&7) | (icm_fs_cfg<<3));
 }
 
-static void cfg_icm_accel(enum icm_state_t rtn) {
+static int cfg_icm_accel(enum icm_state_t rtn) {
   icm_accelcfg_rtn = rtn;
   icm_state = icm_set_accel_cfg;
+  return false;
 }
 
 /**
@@ -304,6 +306,14 @@ static bool check_icm_mode(void) {
   return false;
 }
 
+static uint8_t icm_write_23_buf[3];
+static int icm_write_2(uint8_t reg_addr, uint8_t val, enum icm_state_t next) {
+  icm_write_23_buf[0] = reg_addr;
+  icm_write_23_buf[1] = val;
+  i2c_icm_write(ICM20948_ADDR, icm_write_23_buf, 2);
+  icm_state = next;
+  return 0;
+}
 
 /**
  * @return true if the bus is free and available for another
@@ -316,24 +326,19 @@ static bool icm20948_poll(void) {
       set_cur_mode(ICM_MODE_NO);
       update_cache_mode();
       icm_shutdown_mode = icm_no_state;
-      i2c_icm_write(ICM20948_ADDR, icm_bank0_cmd, 2);
-      icm_state = icm_mode0_init_1;
-      return false;
+      return icm_write_2(REG_BANK_SEL, 0, icm_mode0_init_1);
+      // i2c_icm_write(ICM20948_ADDR, icm_bank0_cmd, 2);
+      // icm_state = icm_mode0_init_1;
+      // return false;
     case icm_mode0_init_1:  // Skip Check for ICM20948 for now
-      i2c_icm_write( ICM20948_ADDR, icm_wake_cmd, 2); // Just wake up
-      icm_state = icm_mode0_init_1a;
-      return false;
+      return icm_write_2(PWR_MGMT_1, 0x09, icm_mode0_init_1a);
     case icm_mode0_init_1a:
-      i2c_icm_write(ICM20948_ADDR, icm_disable_gyro, 2);
-      icm_state = icm_mode0_init_2;
-      return false;
+      return icm_write_2(PWR_MGMT_2, 0x07, icm_mode0_init_2);
     case icm_mode0_init_2:
       set_accel_cfg(ICM_MODE0_ACCEL_CFG);
-      cfg_icm_accel(icm_mode0_init_3);
-      return false;
+      return cfg_icm_accel(icm_mode0_init_3);
     case icm_mode0_init_3:
-      i2c_icm_write(ICM20948_ADDR, icm_sleep_cmd, 2);
-      icm_state = icm_mode0_operate;
+      icm_write_2(PWR_MGMT_1, 0x49, icm_mode0_operate);
       return true;
 
     case icm_mode0_operate:
@@ -487,7 +492,7 @@ static bool icm20948_poll(void) {
       return true;
 
     case icm_mode2_shutdown:
-      set_accel_cfg(ICM_MODE1_ACCEL_CFG);
+      set_accel_cfg(ICM_MODE0_ACCEL_CFG);
       cfg_icm_accel(icm_mode2_shutdown_1);
       return false;
     case icm_mode2_shutdown_1:
@@ -497,14 +502,20 @@ static bool icm20948_poll(void) {
     case icm_mode2_shutdown_2:
       i2c_icm_write(ICM20948_ADDR, icm_fifo_dis, 3);
       endtime = rtc_current_count + 3000*RTC_COUNTS_PER_MSEC;
-      icm_state = icm_mode2_shutdown_3;
+      icm_state = icm_mode2_shutdown_2a;
       return true;
+    case icm_mode2_shutdown_2a:
+      i2c_icm_write(ICM20948_ADDR, icm_int_status, 1);
+      icm_state = icm_mode2_shutdown_3;
+      return false;
     case icm_mode2_shutdown_3:
       if ((icm_int_status_buf & 0xF) && rtc_current_count < endtime) {
         i2c_icm_read(ICM20948_ADDR, &icm_int_status_buf, 1);
         return false;
       }
-      icm_state = icm_mode2_shutdown_4; //fallthrough
+      i2c_icm_write(ICM20948_ADDR, icm_fifo_count_reg, 1);
+      icm_state = icm_mode2_shutdown_4;
+      return false;
     case icm_mode2_shutdown_4: // check for full reset
       i2c_icm_read(ICM20948_ADDR, (uint8_t*)&icm_fifo_count, 2);
       icm_state = icm_mode2_shutdown_5;

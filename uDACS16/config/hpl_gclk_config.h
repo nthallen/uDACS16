@@ -298,7 +298,7 @@
 //<o> Generic clock generator 3 division <0x0000-0xFFFF>
 // <id> gclk_gen_3_div
 #ifndef CONF_GCLK_GEN_3_DIV
-#define CONF_GCLK_GEN_3_DIV 4
+#define CONF_GCLK_GEN_3_DIV 8
 #endif
 // </h>
 // </e>
@@ -373,7 +373,7 @@
 //<o> Generic clock generator 4 division <0x0000-0xFFFF>
 // <id> gclk_gen_4_div
 #ifndef CONF_GCLK_GEN_4_DIV
-#define CONF_GCLK_GEN_4_DIV 16
+#define CONF_GCLK_GEN_4_DIV 32
 #endif
 // </h>
 // </e>
