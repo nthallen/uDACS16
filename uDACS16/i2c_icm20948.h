@@ -46,6 +46,8 @@
 
 // SELECT USER BANK 0 REGISTER MAP ADDRESSES
 #define WHO_AM_I 0x00
+#define USER_CTRL 0x03
+#define LP_CONFIG 0x05
 #define PWR_MGMT_1 0x06
 #define PWR_MGMT_2 0x07
 #define INT_ENABLE_2 0x12

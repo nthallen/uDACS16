@@ -22,7 +22,7 @@ test_fast_mode(s,0);
 %%
 clear res;
 mr_stat =  read_multi_prep(100, 103);
-for i=1:-1:1
+for i=10:-1:1
   [diag,ack] = read_subbus(s,103); % try to clear diag before test
   thisres = test_fast_mode2(s, 0, 10000);
   res(i) = thisres;
@@ -63,6 +63,7 @@ function res = test_fast_mode2(s, fs, N)
     nrows = (nwords-remainder)/3;
     stats = [values(1:3)' nrows];
     if any(stats ~= [2 0 0 0])
+      stats(4) = toc;
       res.Nstats = res.Nstats+1;
       res.stats(res.Nstats,:) = stats;
     end
