@@ -59,7 +59,7 @@ static subbus_cache_word_t i2c_icm_cache[I2C_ICM_HIGH_ADDR-I2C_ICM_BASE_ADDR+1] 
   { 0, 0, true, false, false, false, false },  // Offset 0x02: R: ACCEL_Y
   { 0, 0, true, false, false, false, false },  // Offset 0x03: R: ACCEL_Z
   // ICM FIFO registers: I2C_ICM_FIFO_NREGS
-  { 0, 0, true, false,  true, false, false },  // Offset 0x04: R/W: ICM_MODE
+  { 0, 0, true, false, false, false, false },  // Offset 0x04: R/W: ICM_MODE
   { 0, 0, true, false, false, false, false },  // Offset 0x05: R: ICM_FIFO_COUNT
   { 0, 0, true, false, false, false,  true },  // Offset 0x06: R: ICM_FIFO
   { 0, 0, true, false, false, false,  true },  // Offset 0x06: R: ICM_FIFO_DIAG
@@ -127,7 +127,7 @@ static void i2c_icm_fifo_commit(uint16_t n_words) {
   icm_fifo.alloc = 0;
   icm_fifo.nw += n_words;
   for (;n_words > 0; --n_words) {
-    // icm_swap16(icm_fifo.fifo[icm_fifo.tail]);
+    icm_swap16(icm_fifo.fifo[icm_fifo.tail]);
     ++icm_fifo.tail;
   }
   if (icm_fifo.tail >= I2C_ICM_FIFO_SIZE) {
@@ -172,10 +172,10 @@ enum icm_state_t {
        s_mode2_operate_3, s_mode2_operate_4, s_mode2_operate_5,
        s_mode2_operate_6,
     s_mode2_shutdown, s_mode2_shutdown_1, s_mode2_shutdown_2,
-       s_mode2_shutdown_2a,
+       s_mode2_shutdown_2a, s_mode2_shutdown_2b, s_mode2_shutdown_2c,
        s_mode2_shutdown_3, s_mode2_shutdown_4, s_mode2_shutdown_5,
        s_mode2_shutdown_6,
-    s_set_accel_cfg, s_set_accel_cfg_1, s_set_accel_cfg_2,
+    s_set_accel_cfg, s_set_accel_cfg_0, s_set_accel_cfg_1, s_set_accel_cfg_2,
     s_set_accel_cfg_1a, s_set_accel_cfg_1b, s_set_accel_cfg_1c,
     s_icm_read,
     s_no_state};
@@ -360,7 +360,11 @@ static bool icm20948_poll(void) {
       update_cache_mode();
       icm_shutdown_mode = s_no_state;
       return icm_write_2(REG_BANK_SEL, 0, s_mode0_init_1);
-    case s_mode0_init_1:  // Skip Check for ICM20948 for now
+    case s_mode0_init_1:  // Reset
+      endtime = rtc_current_count + 250*RTC_COUNTS_PER_MSEC;
+      return icm_write_2(PWR_MGMT_1, 0x89, s_mode0_init_1a);
+    case s_mode0_init_1a:  // Skip Check for ICM20948 for now
+      if (rtc_current_count < endtime) return true;
       return icm_write_2(PWR_MGMT_1, 0x09, s_mode0_init_2);
     case s_mode0_init_2:
       return icm_write_2(PWR_MGMT_2, 0x07, s_mode0_init_3);
@@ -392,7 +396,7 @@ static bool icm20948_poll(void) {
       set_cur_mode(ICM_MODE_SLOW);
       update_cache_mode();
       icm_shutdown_mode = s_no_state;
-      return icm_write_2(REG_BANK_SEL, 0, s_mode0_init_1);
+      return icm_write_2(REG_BANK_SEL, 0, s_mode1_init_1);
     case s_mode1_init_1:  // Skip Check for ICM20948 for now
       return icm_write_2(PWR_MGMT_1, 0x09, s_mode1_init_2); // Just wake up
     case s_mode1_init_2:
@@ -466,7 +470,7 @@ static bool icm20948_poll(void) {
     case s_mode2_operate_6:
       sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET,
          icm_fifo_count+i2c_icm_cache[I2C_ICM_FIFO_DIAG_OFFSET].cache);
-      // i2c_icm_fifo_commit(icm_fifo_count*3);
+      i2c_icm_fifo_commit(icm_fifo_count*3);
       icm_state = s_mode2_operate;
       return true;
 
@@ -474,18 +478,20 @@ static bool icm20948_poll(void) {
       set_accel_cfg(ICM_MODE0_ACCEL_CFG);
       return cfg_icm_accel(s_mode2_shutdown_1);
     case s_mode2_shutdown_1:
-      // i2c_icm_write(ICM20948_ADDR, icm_int_dis, 2);
-      icm_state = s_mode2_shutdown_2;
-      return false;
+      return icm_write_2(USER_CTRL, 0x00, s_mode2_shutdown_2);
     case s_mode2_shutdown_2:
-      endtime = rtc_current_count + 3000*RTC_COUNTS_PER_MSEC;
-      icm_write_3(FIFO_EN_2, 0, 1, s_mode2_shutdown_2a);
-      return true;
+      return icm_write_2(INT_ENABLE_2, 0, s_mode2_shutdown_2a);
     case s_mode2_shutdown_2a:
+      return icm_write_2(FIFO_MODE, 0, s_mode2_shutdown_2b);
+    case s_mode2_shutdown_2b:
+      endtime = rtc_current_count + 3000*RTC_COUNTS_PER_MSEC;
+      icm_write_3(FIFO_EN_2, 0, 1, s_mode2_shutdown_2c);
+      return true;
+    case s_mode2_shutdown_2c:
       return icm_read(INT_STATUS_2, &icm_int_status_buf, 1, s_mode2_shutdown_3);
     case s_mode2_shutdown_3:
       if ((icm_int_status_buf & 0xF) && rtc_current_count < endtime) {
-        icm_state = s_mode2_shutdown_2a;
+        icm_state = s_mode2_shutdown_2c;
         return false;
       }
       return icm_read(FIFO_COUNTH, (uint8_t*)&icm_fifo_count, 2, s_mode2_shutdown_5);
@@ -508,6 +514,8 @@ static bool icm20948_poll(void) {
     // s_set_accel_cfg is a subroutine invoke via
     // cmf_icm_accel(cfg, rtn);
     case s_set_accel_cfg:
+      return icm_write_2(PWR_MGMT_1, 0x09, s_set_accel_cfg_0); // wake up?
+    case s_set_accel_cfg_0:
       return icm_write_2(REG_BANK_SEL, 2<<4, s_set_accel_cfg_1);
     case s_set_accel_cfg_1:
       return icm_write_2(ACCEL_CONFIG, icm_accel_cfg, s_set_accel_cfg_1a);

@@ -12,6 +12,8 @@ test_mode_switches(s);
 for fs = 0:3
   test_slow_mode(s,fs);
 end
+%%
+test_slow_mode(s,1)
 
 %%
 % serial_port_clear;
@@ -22,11 +24,11 @@ test_fast_mode(s,0);
 %%
 clear res;
 mr_stat =  read_multi_prep(100, 103);
-for i=10:-1:1
+for i=1:-1:1
   [diag,ack] = read_subbus(s,103); % try to clear diag before test
   thisres = test_fast_mode2(s, 0, 10000);
   res(i) = thisres;
-  res(i).Nread = sum(res(i).stats(1:end-1,2));
+  % res(i).Nread = sum(res(i).stats(1:end-1,2));
   while true
     [values,ack] = read_multi(s,mr_stat);
     if values(1) == 0 && values(2) == 0; break; end
@@ -38,17 +40,19 @@ fprintf(1,'\nMean Nread is %.1f +/- %.1f\n', mean([res.Nread]), std([res.Nread])
 function res = test_fast_mode2(s, fs, N)
   % res = test_fast_mode2(s, fs. N);
   % res.stats cols are:
+  %   toc values
   %   mode (0x64)
   %   internal diagnostic (0x67)
   %   FIFO count (0x65)
+  %   nrows (FIFO count/3)
   fprintf(1, '.');
   res.a = zeros(N,3);
-  res.stats = zeros(N,4);
+  res.stats = zeros(N,5);
   Nread = 0;
   res.Nstats = 0;
   % ICM FIFO N Bytes, uDACS FIFO N Words, FIFO Contents
-  % rm_obj = read_multi_prep(100, 103, [101 495 102 0]);
-  rm_obj = read_multi_prep(100, 103, 101);
+  rm_obj = read_multi_prep(100, 103, [101 495 102 0]);
+  % rm_obj = read_multi_prep(100, 103, 101);
   write_subbus_v(s, 48, 50+fs);
   write_subbus_v(s, 48, 40+2);
   tic;
@@ -62,19 +66,18 @@ function res = test_fast_mode2(s, fs, N)
     remainder = mod(nwords,3);
     nrows = (nwords-remainder)/3;
     stats = [values(1:3)' nrows];
-    if any(stats ~= [2 0 0 0])
-      stats(4) = toc;
+    if any(stats ~= [2+(fs*8) 0 0 0])
       res.Nstats = res.Nstats+1;
-      res.stats(res.Nstats,:) = stats;
+      res.stats(res.Nstats,:) = [toc stats];
     end
     if values(1) ~= 2; break; end
-    % try
-    %   res.a(Nread+(1:nrows),:) = ...
-    %     reshape([leftover; values(4:end-remainder)],3,[])';
-    % catch
-    %   fprintf(1,'Error on reshape: nwords:%d remainder:%d nrows:%d\n', nwords, remainder, nrows);
-    %   return;
-    % end
+    try
+      res.a(Nread+(1:nrows),:) = ...
+        reshape([leftover; values(4:end-remainder)],3,[])';
+    catch
+      fprintf(1,'Error on reshape: nwords:%d remainder:%d nrows:%d\n', nwords, remainder, nrows);
+      return;
+    end
     Nread = Nread + nrows;
     res.Nread = Nread;
     if remainder
@@ -88,6 +91,7 @@ function res = test_fast_mode2(s, fs, N)
     end
     n_leftover = remainder;
   end
+  res.a = res.a * 2^(fs+1) / 32768;
   res.stats = res.stats(1:res.Nstats,:);
   res.dur = toc;
   res.fin_ack = ack;
@@ -129,28 +133,33 @@ function test_fast_mode(s, fs)
   fprintf(1, '  n_FIFO: %d/%d  dT = %f\n', n_FIFO0, n_FIFO, dur);
 end
 
-function [icm_mode,icm_fs] = report_icm_mode(s)
-[icm_mode_fs,ack] = read_subbus(s, 100); % 0x64
-if ~ack
-  fprintf(1,'No ACK for ICM Mode: Vibration Sensor apparently not supported\n');
-  icm_mode = 0;
-  icm_fs = 0;
-else
-  icm_mode = bitand(icm_mode_fs,7);
-  icm_fs = bitand(icm_mode_fs,24)/8; % (icm_mode_fs%0x18)>>3
-  switch icm_mode
-    case 0, mode_text = 'Idle';
-    case 1, mode_text = 'Slow';
-    case 2, mode_text = 'Fast';
-      OTHERWISE, mode_text = 'Unknown';
+function [icm_mode,icm_fs] = report_icm_mode(s, quiet)
+  if nargin < 2
+    quiet = 0;
   end
-  fprintf(1,'  ICM Mode %d: %s\n', icm_mode, mode_text);
-  full_scale = 2*2^icm_fs;
-  fprintf(1,'  ICM Full Scale is %d g\n', full_scale);
-  % pause(0.5);
-  % [accel_cfg_rb,ack] = read_subbus(s, 103); % 0x67
-  % fprintf(1,'  ACCEL_CONFIG: %02X\n', accel_cfg_rb);
-end
+  [icm_mode_fs,ack] = read_subbus(s, 100); % 0x64
+  if ~ack
+    fprintf(1,'No ACK for ICM Mode: Vibration Sensor apparently not supported\n');
+    icm_mode = 0;
+    icm_fs = 0;
+  else
+    icm_mode = bitand(icm_mode_fs,7);
+    icm_fs = bitand(icm_mode_fs,24)/8; % (icm_mode_fs%0x18)>>3
+    switch icm_mode
+      case 0, mode_text = 'Idle';
+      case 1, mode_text = 'Slow';
+      case 2, mode_text = 'Fast';
+        OTHERWISE, mode_text = 'Unknown';
+    end
+    if ~quiet
+      fprintf(1,'  ICM Mode %d: %s\n', icm_mode, mode_text);
+      full_scale = 2*2^icm_fs;
+      fprintf(1,'  ICM Full Scale is %d g\n', full_scale);
+    end
+    % pause(0.5);
+    % [accel_cfg_rb,ack] = read_subbus(s, 103); % 0x67
+    % fprintf(1,'  ACCEL_CONFIG: %02X\n', accel_cfg_rb);
+  end
 end
 
 function test_slow_mode(s, fs)
@@ -161,25 +170,33 @@ function test_slow_mode(s, fs)
   [icm_mode,icm_fs] = report_icm_mode(s);
   fprintf(1,'  Selecting Slow Mode\n');
   ack = write_subbus(s, 48, 41);
-  [icm_mode,icm_fs] = report_icm_mode(s);
-  if icm_mode == 1
+  while icm_mode ~= 1
+    [icm_mode,icm_fs] = report_icm_mode(s);
+  end
+  if icm_mode == 1 && icm_fs == fs
     fprintf(1,'  Acquiring data slowly:\n');
     rm_obj = read_multi_prep([hex2dec('61') 1 hex2dec('63')]);
     N = 100;
     tbl = zeros(N,3);
     for i=1:N
       [values,ack] = read_multi(s,rm_obj);
-      V = values>32767;
-      if any(V)
-        values(V) = values(V) - 65536;
-      end
-      if ack == 1
-        tbl(i,:) = values;
+      if ack == 1 && length(values) == 3
+        V = values>32767;
+        if any(V)
+          values(V) = values(V) - 65536;
+        end
+        if ack == 1
+          tbl(i,:) = values;
+        end
+      else
+        fprintf(1,'ack=%d length(values)=%d\n', ack, length(values));
       end
     end
     tbl = full_scale*tbl/32768;
     ax = nsubplots(tbl);
     title(ax(1), sprintf('Full Scale = %d g', full_scale));
+  else
+    fprintf(1,'Mode:fs values are %d:%d expected %d:%d\n', icm_mode, icm_fs, 1, fs);
   end
   fprintf(1,'\nReturning to No Mode:\n');
   ack = write_subbus(s, 48, 50);
