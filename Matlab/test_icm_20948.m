@@ -1,7 +1,7 @@
 %%
 [s,port] = serial_port_init('',115200,1);
 addr.cmd = 48;
-%%
+%
 identify_uDACS16(s);
 [icm_mode,icm_fs] = report_icm_mode(s);
 %%
@@ -22,11 +22,14 @@ clear s
 % Fast mode diagnostics:
 test_fast_mode(s,0);
 %%
+[icm_mode,icm_fs] = report_icm_mode(s);
+%% fast2
 clear res;
 mr_stat =  read_multi_prep(100, 103);
 for i=1:-1:1
-  [diag,ack] = read_subbus(s,103); % try to clear diag before test
-  thisres = test_fast_mode2(s, 0, 10000);
+  [diag,ack] = read_subbus( ...
+    s,103); % try to clear diag before test
+  thisres = test_fast_mode2(s, 0, 512);
   res(i) = thisres;
   % res(i).Nread = sum(res(i).stats(1:end-1,2));
   while true
@@ -36,6 +39,33 @@ for i=1:-1:1
   end
 end
 fprintf(1,'\nMean Nread is %.1f +/- %.1f\n', mean([res.Nread]), std([res.Nread]));
+%%
+Y = abs(fft(res.a));
+L = size(Y,1);
+Fs = L/res.dur;
+N = floor(L/2);
+x = 2:N;
+f = x*Fs/L;
+figure;
+plot(f,Y(x,:))
+%%
+A = vecnorm(res.a,2,2);
+figure; plot(A);
+YA = abs(fft(A-mean(A)));
+figure;
+plot(f,YA(x,:));
+%%
+YA = fft(res.a);
+VA = vecnorm(YA,2,2);
+figure;
+plot(f,VA(x,:))
+%%
+A = res.a - ones(length(res.a),1)*mean(res.a);
+A = A(2:end,:);
+YA = fft(A);
+VA = vecnorm(YA,2,2);
+figure;
+plot(f,VA(x,:));
 %%
 function res = test_fast_mode2(s, fs, N)
   % res = test_fast_mode2(s, fs. N);
@@ -50,6 +80,7 @@ function res = test_fast_mode2(s, fs, N)
   res.stats = zeros(N,5);
   Nread = 0;
   res.Nstats = 0;
+  res.Nread = 0;
   % ICM FIFO N Bytes, uDACS FIFO N Words, FIFO Contents
   rm_obj = read_multi_prep(100, 103, [101 495 102 0]);
   % rm_obj = read_multi_prep(100, 103, 101);
@@ -59,7 +90,7 @@ function res = test_fast_mode2(s, fs, N)
 
   leftover = [];
   n_leftover = 0;
-  while Nread < N && res.Nstats < 10000 && toc < 10
+  while Nread < N && res.Nstats < N
     [values,ack] = read_multi(s, rm_obj);
     if ack ~= 1; break; end
     nwords = length(values) - 3 + n_leftover;
@@ -70,10 +101,17 @@ function res = test_fast_mode2(s, fs, N)
       res.Nstats = res.Nstats+1;
       res.stats(res.Nstats,:) = [toc stats];
     end
-    if values(1) ~= 2; break; end
+    if values(1) ~= 2;
+      break;
+    end
     try
+      vals = values(4:end-remainder);
+      Vneg = vals >= 32768;
+      if any(Vneg)
+        vals(Vneg) = vals(Vneg)-65536;
+      end
       res.a(Nread+(1:nrows),:) = ...
-        reshape([leftover; values(4:end-remainder)],3,[])';
+        reshape([leftover; vals],3,[])';
     catch
       fprintf(1,'Error on reshape: nwords:%d remainder:%d nrows:%d\n', nwords, remainder, nrows);
       return;
@@ -82,7 +120,7 @@ function res = test_fast_mode2(s, fs, N)
     res.Nread = Nread;
     if remainder
       try
-        leftover = values(end-remainder+(1:remainder));
+        leftover = vals(end-remainder+(1:remainder));
       catch
         fprintf(1,'leftover\n');
       end
