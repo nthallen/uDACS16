@@ -40,33 +40,113 @@ for i=1:-1:1
 end
 fprintf(1,'\nMean Nread is %.1f +/- %.1f\n', mean([res.Nread]), std([res.Nread]));
 %%
-Y = abs(fft(res.a));
-L = size(Y,1);
-Fs = L/res.dur;
-N = floor(L/2);
-x = 2:N;
-f = x*Fs/L;
-figure;
-plot(f,Y(x,:))
+test_fast_mode3(s, 0, 250);
 %%
-A = vecnorm(res.a,2,2);
-figure; plot(A);
-YA = abs(fft(A-mean(A)));
-figure;
-plot(f,YA(x,:));
-%%
-YA = fft(res.a);
-VA = vecnorm(YA,2,2);
-figure;
-plot(f,VA(x,:))
-%%
-A = res.a - ones(length(res.a),1)*mean(res.a);
-A = A(2:end,:);
-YA = fft(A);
-VA = vecnorm(YA,2,2);
-figure;
-plot(f,VA(x,:));
-%%
+function test_fast_mode3(s, fs, N)
+  % test_fast_mode2(s, fs. N);
+  % s werial object
+  % fs full scale code 0-3
+  % N number of samples per plot
+  % res.stats cols are:
+  %   toc values
+  %   mode (0x64)
+  %   internal diagnostic (0x67)
+  %   FIFO count (0x65)
+  %   nrows (FIFO count/3)
+  fig = figure;
+  opts.start = 1;
+  opts.fs = 0;
+  fig.UserData = opts;
+  uimenu(fig,'Text','Stop', ...
+          'Callback', @(s,e)set_opt(fig,0,0), ...
+          'Interruptible', 'off');
+  ax = axes(fig);
+  res.a = zeros(N,3);
+  res.stats = zeros(N,5);
+  Nread = 0;
+  res.Nstats = 0;
+  res.Nread = 0;
+  % ICM FIFO N Bytes, uDACS FIFO N Words, FIFO Contents
+  rm_obj = read_multi_prep(100, 103, [101 495 102 0]);
+  % rm_obj = read_multi_prep(100, 103, 101);
+  write_subbus_v(s, 48, 50+fs);
+  write_subbus_v(s, 48, 40+2);
+  Fs = 515; % Should calibrate this...
+  N2 = floor(N/2);
+  x = 1:N2;
+  f = x*Fs/N;
+  leftover = [];
+  n_leftover = 0;
+  max_amp = 0;
+  Nmem = 20;
+  mem = zeros(N2,Nmem);
+  imem = 1;
+  
+  tic;
+  cur_time = toc;
+  while fig.UserData.start
+    [values,ack] = read_multi(s, rm_obj);
+    if ack ~= 1; break; end
+    nwords = length(values) - 3 + n_leftover;
+    remainder = mod(nwords,3);
+    nrows = (nwords-remainder)/3;
+    stats = [values(1:3)' nrows];
+    if any(stats ~= [2+(fs*8) 0 0 0])
+      res.Nstats = res.Nstats+1;
+      res.stats(res.Nstats,:) = [toc stats];
+    end
+    if values(1) ~= 2
+      break;
+    end
+    vals = values(4:end);
+    Vneg = vals >= 32768;
+    if any(Vneg)
+      vals(Vneg) = vals(Vneg)-65536;
+    end
+    if Nread + nrows > N
+      remainder = remainder + (Nread+nrows-N)*3;
+      nrows = N-Nread;
+    end
+    res.a(Nread+(1:nrows),:) = ...
+      reshape([leftover; vals(1:end-remainder)],3,[])';
+    Nread = Nread + nrows;
+    res.Nread = Nread;
+    if Nread == N
+      res.a = res.a * 2^(fs+1) / 32768;
+      A = res.a - ones(length(res.a),1)*mean(res.a);
+      YA = fft(A)/N;
+      VA = vecnorm(YA,2,2);
+      maxVA = max(VA);
+      if maxVA > max_amp
+        max_amp = maxVA;
+      end
+      mem(:,imem) = VA(x);
+      max_mem = max(mem,[],2);
+      imem = mod(imem,Nmem)+1;
+      plot(ax,f,VA(x,:),f,max_mem,'.');
+      set(ax,'ylim',[0 max_amp],'xgrid','on','ygrid','on');
+      % plot(ax,res.a);
+      title(ax, sprintf('T = %.1f',cur_time));
+      drawnow;
+      Nread = 0;
+    end
+    if remainder
+      leftover = vals(end-remainder+(1:remainder));
+    else
+      leftover = [];
+    end
+    n_leftover = remainder;
+    cur_time = toc;
+  end
+  res.fin_fin_ack = write_subbus_v(s, 48, 40);
+  delete(fig);
+end
+
+function set_opt(fig, start, fs)
+  fig.UserData.start = start;
+  fig.UserData.fs = fs;
+end
+
 function res = test_fast_mode2(s, fs, N)
   % res = test_fast_mode2(s, fs. N);
   % res.stats cols are:
