@@ -15,6 +15,10 @@ function [ sps, T] = icm_20948(NreportLim)
   fs = 0;
   new_fs = fs;
   fig = figure;
+  cmap = zeros(256,3);
+  cmap(:,1) = linspace(1,0.3,256);
+  cmap(:,3) = linspace(1,0.3,256);
+  colormap(fig,cmap);
   ax = [subplot(2,1,1) subplot(2,1,2)];
 % ax = axes(fig);
   opts.start = 1;
@@ -50,11 +54,18 @@ function [ sps, T] = icm_20948(NreportLim)
   gITerr = -4; % guess
   gP = -60;
   corrs = zeros(NreportMax,1);
+  discard = false;
     
-  % ICM FIFO N Bytes, uDACS FIFO N Words, FIFO Contents
+  % 100: ICM FIFO Mode
+  % 103: ICM Diagnostic (ICM FIFO count)
+  % 101: uDACS FIFO N Words
+  % 102: FIFO Contents
+  % 0: placeholder to indicate a FIFO read
   rm_obj = read_multi_prep(100, 103, [101 495 102 0]);
   rm_hdr_len = 3; % 100, 103, 101
-  % rm_obj = read_multi_prep(100, 103, 101);
+  % For fullscale update progress monitoring
+  % Mode, N uDACS FIFO, N ICM FIFO
+  rm_fsupdate = read_multi_prep(100, 101, 103);
   write_subbus_v(s, 48, 50+fs);
   write_subbus_v(s, 48, 40+2);
   N2 = floor(L/2);
@@ -63,9 +74,24 @@ function [ sps, T] = icm_20948(NreportLim)
   leftover = [];
   % n_leftover = 0;
   max_amp = 0;
+  Npeaks = 3;
   Nmem = 20;
-  mem = zeros(N2,Nmem);
+  memF = zeros(Npeaks,Nmem);
+  memA = zeros(Npeaks,Nmem);
+  memage = zeros(Npeaks,Nmem);
   imem = 1;
+
+  scatter(ax(1),memF(:),memA(:),18,memage(:));
+  set(ax(1),'xlim',[f(1) f(end)],'xgrid','on','ygrid','on');
+  axes(ax(1));
+  c = colorbar('Direction','reverse');
+  c.Label.String = 'Age secs';
+  ax1_sc = ax(1).Children;
+  
+  % Nspectra = 10;
+  % spectra = zeros(N2,Nspectra);
+  % ispectra = 0;
+
   report_icm_mode(s);
   
   tic;
@@ -124,18 +150,41 @@ function [ sps, T] = icm_20948(NreportLim)
     Nread = Nread + nrows;
     if Nread == LS
       Data = Data * 2^(fs+1) / 32768;
-      A = Data((1:L)+Skip_Samples,:);
-      A = A - ones(L,1)*mean(A);
-      % A = Data - ones(length(Data),1)*mean(Data);
-      YA = fft(A)/L;
-      VA = vecnorm(YA,2,2);
-      maxVA = max(VA);
-      if maxVA > max_amp
-        max_amp = maxVA;
+
+      if discard
+        discard = false;
+      else
+        % can calculate the max acceleration over the last second:
+        % Amax = max(vecnorm(Data(1:LS,:),2,2));
+        % fprintf(1,'Amax = %.2f\n', Amax);
+  
+        % Now calculate the FFT
+        A = Data((1:L)+Skip_Samples,:);
+        A = A - ones(L,1)*mean(A);
+        % A = Data - ones(length(Data),1)*mean(Data);
+        YA = fft(A)/L;
+        VA = vecnorm(YA,2,2);
+        % driver will need to identify peaks here
+        % this code is ultimately a ground function:
+        maxVA = max(VA);
+        if maxVA > max_amp
+          max_amp = maxVA;
+        end
+        peaks = find_peaks(VA(x),Npeaks);
+        memF(:,imem) = f(peaks(:,1));
+        memA(:,imem) = peaks(:,2);
+        memage = memage+1;
+        memage(:,imem) = 0;
+        % mem(:,imem) = VA(x);
+        max_mem = max(max(memA));
+        imem = mod(imem,Nmem)+1;
+
+        % if ispectra < Nspectra
+        %   ispectra = ispectra+1;
+        %   spectra(:,ispectra) = VA(x);
+        % end
       end
-      mem(:,imem) = VA(x);
-      max_mem = max(mem,[],2);
-      imem = mod(imem,Nmem)+1;
+      %
       Nread = 0;
       Nreport = Nreport+1;
       ReportT(Nreport) = Tsample;
@@ -144,10 +193,23 @@ function [ sps, T] = icm_20948(NreportLim)
       corr = round(gP*Terr+gITerr*ITerr);
       corrs(Nreport) = corr;
       Skip_Samples = Skip_Samples0 + corr;
+      if Skip_Samples < 0
+        fprintf(1,'Skip_Samples underflow: %d\n', Skip_Samples);
+        Skip_Samples = 0;
+      end
       LS = L+Skip_Samples;
       % plot(ax(1),f,VA(x,:),f,max_mem,'.');
-      % set(ax(1),'ylim',[0 max_amp],'xgrid','on','ygrid','on');
-      % title(ax(1), sprintf('T = %.1f err=%.2f corr=%d',Tsample,Terr,corr));
+      % plot(ax(1),f,VA(x,:),f(peaks(:,1)),peaks(:,2),'*');
+      % plot(ax(1),f,VA(x,:),memF(:),memA(:),'*');
+      %scatter(ax(1),memF(:),memA(:),12,memage(:));
+      ax1_sc.XData = memF(:);
+      ax1_sc.YData = memA(:);
+      ax1_sc.CData = memage(:);
+      set(ax(1),'ylim',[0 max_mem]);
+      % axes(ax(1));
+      % c = colorbar('Direction','reverse');
+      % c.Label.String = 'Age secs';
+      title(ax(1), sprintf('T = %.1f err=%.2f corr=%d LS=%d',Tsample,Terr,corr,LS));
       plot(ax(2),1:Nreport,corrs(1:Nreport));
       drawnow;
     end
@@ -159,9 +221,42 @@ function [ sps, T] = icm_20948(NreportLim)
     % n_leftover = remainder;
     % cur_time = toc;
     if new_fs ~= fs
+      T1 = toc;
+      write_subbus_v(s, 48, 40); % Mode 0
+      no_mode = 0+8*fs;
+      while fig.UserData.start
+        % For fullscale update progress monitoring
+        % Mode, N uDACS FIFO, N ICM FIFO
+        [values,~] = read_multi(s, rm_fsupdate);
+        if all(values == [no_mode, 0, 0]')
+          break;
+        end
+        T2 = toc;
+        if T2-T1 > 1
+          fprintf(1,'T2 no_mode expected [%d,0,0], read [%f,%f,%f]\n', no_mode, values);
+          break;
+        end
+      end
+      T2 = toc;
       write_subbus_v(s, 48, 50+new_fs);
-      fprintf(1,'Set fs to %d\n', new_fs);
+      write_subbus_v(s, 48, 42);
+      leftover = [];
       fs = new_fs;
+      new_mode = 2+8*fs;
+      while fig.UserData.start
+        mode = read_subbus(s, 100);
+        if mode == new_mode
+          break;
+        end
+        T3 = toc;
+        if T3-T2 > 1
+          fprintf(1,'T3 new_mode expected %d, read %d\n', new_mode, mode);
+          break;
+        end
+      end
+      T3 = toc;
+      fprintf(1,'%.2f %.2f %.2f %.2f: Set fs to %d\n', Tsample, T1, T2, T3, fs);
+      discard = true;
     end
   end
   report_icm_mode(s);
@@ -213,3 +308,14 @@ function ack = write_subbus_v(s, addr, value)
     fprintf(1,'ack -2 on write_subbus: "%s"', line);
   end
 end
+
+function pks = find_peaks(F, N)
+  % pks = find_peaks(F,N)
+  % F is the FFT of the vibration data
+  % N is the number of peaks to locate
+  % pks(:,1) is the index of the peak locations in 
+  pki = find(diff(sign(diff(F))) < 0)+1;
+  [A,I] = sort(F(pki),'descend');
+  pks = [pki(I(1:N)) A(1:N)];
+end
+
