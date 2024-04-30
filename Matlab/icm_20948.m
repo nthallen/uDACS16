@@ -6,7 +6,7 @@ function [ sps, T] = icm_20948(NreportLim)
   [s,~] = serial_port_init('',115200,1);
   identify_uDACS16(s);
 
-  Fs = 540; % Based on MATLAB cal 3/12/24
+  Fs = 566; % Based on MATLAB cal 3/12/24
   Samples_per_report = 512;
   L = Samples_per_report; % length for FFT
   Skip_Samples0 = Fs-Samples_per_report;
@@ -15,10 +15,6 @@ function [ sps, T] = icm_20948(NreportLim)
   fs = 0;
   new_fs = fs;
   fig = figure;
-  cmap = zeros(256,3);
-  cmap(:,1) = linspace(1,0.3,256);
-  cmap(:,3) = linspace(1,0.3,256);
-  colormap(fig,cmap);
   ax = [subplot(2,1,1) subplot(2,1,2)];
 % ax = axes(fig);
   opts.start = 1;
@@ -52,7 +48,7 @@ function [ sps, T] = icm_20948(NreportLim)
   Nreport = 0;
   ITerr = 0;
   gITerr = -4; % guess
-  gP = -60;
+  gP = -60; % -60 was good for fast settling.[
   corrs = zeros(NreportMax,1);
   discard = false;
     
@@ -81,6 +77,10 @@ function [ sps, T] = icm_20948(NreportLim)
   memage = zeros(Npeaks,Nmem);
   imem = 1;
 
+  cmap = zeros(256,3);
+  cmap(:,1) = linspace(1,0.3,256);
+  cmap(:,3) = linspace(1,0.3,256);
+  colormap(fig,cmap);
   scatter(ax(1),memF(:),memA(:),18,memage(:));
   set(ax(1),'xlim',[f(1) f(end)],'xgrid','on','ygrid','on');
   axes(ax(1));
@@ -163,7 +163,7 @@ function [ sps, T] = icm_20948(NreportLim)
         A = A - ones(L,1)*mean(A);
         % A = Data - ones(length(Data),1)*mean(Data);
         YA = fft(A)/L;
-        VA = vecnorm(YA,2,2);
+        VA = vecnorm(YA,2,2); % 2-norm along 2nd dimension
         % driver will need to identify peaks here
         % this code is ultimately a ground function:
         maxVA = max(VA);
@@ -187,8 +187,8 @@ function [ sps, T] = icm_20948(NreportLim)
       %
       Nread = 0;
       Nreport = Nreport+1;
-      ReportT(Nreport) = Tsample;
-      Terr = Tsample - Nreport;
+      ReportT(Nreport) = Tsample - remainder/(6*LS);
+      Terr = Tsample - Nreport - remainder/(6*LS);
       ITerr = ITerr + Terr;
       corr = round(gP*Terr+gITerr*ITerr);
       corrs(Nreport) = corr;
@@ -209,7 +209,7 @@ function [ sps, T] = icm_20948(NreportLim)
       % axes(ax(1));
       % c = colorbar('Direction','reverse');
       % c.Label.String = 'Age secs';
-      title(ax(1), sprintf('T = %.1f err=%.2f corr=%d LS=%d',Tsample,Terr,corr,LS));
+      title(ax(1), sprintf('T = %.2f err=%.2f corr=%d LS=%d',Tsample,Terr,corr,LS));
       plot(ax(2),1:Nreport,corrs(1:Nreport));
       drawnow;
     end

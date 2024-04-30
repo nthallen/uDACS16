@@ -11,8 +11,8 @@
 
 #ifdef HAVE_VIBE_SENSOR
 
-#if CONF_SERCOM_5_USART_BAUD != 115200
-#error Baud rate for USB/Serial connection not configure to 115200
+#if CONF_SERCOM_5_USART_BAUD != 380400
+#error Baud rate for USB/Serial connection not configure to 380400
 #endif
 
 /* In the current configuration, we are using the PMON_I2C to talk to the ICM20948 IMU.

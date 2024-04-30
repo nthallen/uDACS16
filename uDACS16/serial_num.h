@@ -90,6 +90,15 @@
   #define SUBBUS_BOARD_LOCATION "SMoudi Flight"
   // #define CAN_BOARD_ID 1 // for Test board
 #elif SUBBUS_BOARD_SN == 6
+  #if CONF_SERCOM_5_USART_BAUD != 380400
+    #error SERCOM5 Baud rate must be 380400 for vibration sensor data
+  #endif
+  #if CONF_SERCOM_3_I2CM_BAUD != 400000
+    #error SERCOM3 I2C bit rate must be 400000 for vibration sensor data
+  #endif
+  #if CONF_CAN0_BTP_BRP != 2
+    #error CAN0 Baud rate prescaler must be 2 for vibration sensor data
+  #endif
   #define SUBBUS_BOARD_ID 3 // SCoPEx Port Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
@@ -97,8 +106,17 @@
   #define SUBBUS_BOARD_LOCATION "SCoPEx Port Engine Assy"
   #define J4_IS_VIBE_SENSOR
   #define HAVE_VIBE_SENSOR
-  #define CAN_BOARD_ID 14
+  #define CAN_BOARD_ID 1
 #elif SUBBUS_BOARD_SN == 7
+  #if CONF_SERCOM_5_USART_BAUD != 380400
+    #error SERCOM5 Baud rate must be 380400 for vibration sensor data
+  #endif
+  #if CONF_SERCOM_3_I2CM_BAUD != 400000
+    #error SERCOM3 (CAN) Baud rate must be 400000 for vibration sensor data
+  #endif
+  #if CONF_CAN0_BTP_BRP != 2
+    #error CAN0 Baud rate prescaler must be 2 for vibration sensor data
+  #endif
   #define SUBBUS_BOARD_ID 4 // SCoPEx Starboard Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
@@ -106,7 +124,7 @@
   #define SUBBUS_BOARD_LOCATION "SCoPEx Starboard Engine Assy"
   #define J4_IS_VIBE_SENSOR
   #define HAVE_VIBE_SENSOR
-  #define CAN_BOARD_ID 15
+  #define CAN_BOARD_ID 2
 #elif SUBBUS_BOARD_SN == 8
   #define SUBBUS_BOARD_ID 5 // Halogens TRU Interface box (spare)
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"

@@ -1014,8 +1014,9 @@
     <ListValues>
       <Value>DEBUG</Value>
       <Value>SUBBUS_BOARD_SN=6</Value>
-      <Value>CONF_SERCOM_5_USART_BAUD=115200</Value>
+      <Value>CONF_SERCOM_5_USART_BAUD=380400</Value>
       <Value>CONF_SERCOM_3_I2CM_BAUD=400000</Value>
+      <Value>CONF_CAN0_BTP_BRP=2</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
@@ -1130,7 +1131,9 @@
     <ListValues>
       <Value>DEBUG</Value>
       <Value>SUBBUS_BOARD_SN=7</Value>
-      <Value>CONF_SERCOM_5_USART_BAUD=115200</Value>
+      <Value>CONF_SERCOM_5_USART_BAUD=380400</Value>
+      <Value>CONF_SERCOM_3_I2CM_BAUD=400000</Value>
+      <Value>CONF_CAN0_BTP_BRP=2</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
