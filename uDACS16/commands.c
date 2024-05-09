@@ -124,6 +124,7 @@ static void cmd_poll(void) {
       case 40: i2c_icm_set_mode(ICM_MODE_NO); break;
       case 41: i2c_icm_set_mode(ICM_MODE_SLOW); break;
       case 42: i2c_icm_set_mode(ICM_MODE_FAST); break;
+      case 43: i2c_icm_set_mode(ICM_MODE_MAXG); break;
       case 50: i2c_icm_set_fs(ICM_FS_2G); break;
       case 51: i2c_icm_set_fs(ICM_FS_4G); break;
       case 52: i2c_icm_set_fs(ICM_FS_8G); break;

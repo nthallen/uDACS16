@@ -22,6 +22,7 @@
 #define ICM_MODE_NO   (0)
 #define ICM_MODE_SLOW (1)
 #define ICM_MODE_FAST (2)
+#define ICM_MODE_MAXG (3)
 #define ICM_MODE_MASK ((uint16_t)(7))
 #define ICM_FS_2G  0
 #define ICM_FS_4G  1

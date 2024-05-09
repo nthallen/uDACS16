@@ -141,20 +141,35 @@ static void i2c_icm_fifo_commit(uint16_t n_words) {
     0x3FFF & (uint16_t)icm_fifo.nw);
 }
 
+static void i2c_icm_fifo_consume(int N) {
+  if (N == 0) {
+    return;
+  } else if (N >= icm_fifo.nw) {
+    fifo_init();
+  } else {
+    int n_left = I2C_ICM_FIFO_SIZE-icm_fifo.head;
+    if (N >= n_left) {
+      N -= n_left;
+      icm_fifo.nw -= n_left;
+      icm_fifo.head = 0;
+      icm_fifo.status &= ~(I2C_ICM_FIFO_FULL|I2C_ICM_FIFO_WRAPPED);
+    }
+    if (N) {
+      icm_fifo.nw -= N;
+      icm_fifo.head += N;
+      icm_fifo.status &= ~I2C_ICM_FIFO_FULL;
+    }
+  }
+}
+
 static uint16_t i2c_icm_fifo_pop(void) {
   uint16_t val;
   if (icm_fifo.nw < 1) {
     val = 0;
     // set underflow bit
   } else {
-    --icm_fifo.nw;
     val = icm_fifo.fifo[icm_fifo.head++];
-    if (icm_fifo.head >= I2C_ICM_FIFO_SIZE) {
-      icm_fifo.head = 0;
-      icm_fifo.status &= ~(I2C_ICM_FIFO_FULL|I2C_ICM_FIFO_WRAPPED);
-    } else {
-      icm_fifo.status &= ~I2C_ICM_FIFO_FULL;
-    }
+    i2c_icm_fifo_consume(1);
   }
   return val;
 }
@@ -269,6 +284,7 @@ static bool check_icm_mode(void) {
         new_mode_init = s_mode1_init;
         break;
       case ICM_MODE_FAST:
+      case ICM_MODE_MAXG:
         new_mode_init = s_mode2_init;
         break;
       default: // restore current value
@@ -346,7 +362,38 @@ static int icm_read(uint8_t reg_addr, uint8_t *dest, int size, enum icm_state_t 
   icm_read_next = next;
   return icm_write_1(reg_addr, s_icm_read);
 }  
-      
+
+static uint32_t maxg2;
+
+static void icm_calculate_maxg() {
+  // process all the samples currently in the FIFO
+  int16_t cur_coord[3];
+  int nsamples = icm_fifo.nw/3;
+  int fhead = icm_fifo.head;
+  if (sb_cache_was_read(i2c_icm_cache, I2C_ICM_ACC_OFFSET)) {
+    maxg2 = 0;
+  }
+  for (int i = 0; i < nsamples; ++i) {
+    uint32_t sum = 0;
+    int32_t term;
+    for (int j = 0; j < 3; ++j) {
+      cur_coord[j] = icm_fifo.fifo[fhead++];
+      term = cur_coord[j];
+      term *= term; // <= 2^30
+      sum += (uint32_t)term; // <= 3*2^30 < 2^32
+      if (fhead == I2C_ICM_FIFO_SIZE)
+        fhead = 0;
+    }
+    if (sum > maxg2) {
+      maxg2 = sum;
+      for (int j = 0; j < 3; ++j) {
+        sb_cache_update(i2c_icm_cache, I2C_ICM_ACC_OFFSET+j,
+          (uint16_t)cur_coord[j]);
+      }
+    }
+  }
+  i2c_icm_fifo_consume(nsamples*3);
+}
 
 /**
  * @return true if the bus is free and available for another
@@ -418,7 +465,7 @@ static bool icm20948_poll(void) {
       return true;
 
     case s_mode2_init:
-      set_cur_mode(ICM_MODE_FAST);
+      // set_cur_mode(ICM_MODE_FAST);
       update_cache_mode();
       fifo_init();
       icm_shutdown_mode = s_mode2_shutdown;
@@ -471,6 +518,8 @@ static bool icm20948_poll(void) {
       sb_cache_update(i2c_icm_cache, I2C_ICM_FIFO_DIAG_OFFSET,
          icm_fifo_count+i2c_icm_cache[I2C_ICM_FIFO_DIAG_OFFSET].cache);
       i2c_icm_fifo_commit(icm_fifo_count*3);
+      if (icm_cur_mode == ICM_MODE_MAXG)
+        icm_calculate_maxg();
       icm_state = s_mode2_operate;
       return true;
 
