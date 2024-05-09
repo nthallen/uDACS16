@@ -114,8 +114,9 @@
   #if CONF_SERCOM_3_I2CM_BAUD != 400000
     #error SERCOM3 (CAN) Baud rate must be 400000 for vibration sensor data
   #endif
-  #if CONF_CAN0_BTP_BRP != 2
-    #error CAN0 Baud rate prescaler must be 2 for vibration sensor data
+  /* BRP == 4 should yield bitrate of 200KHz. BRP==2 produced comm errors */
+  #if CONF_CAN0_BTP_BRP != 4
+    #error CAN0 Baud rate prescaler must be 4 for vibration sensor data
   #endif
   #define SUBBUS_BOARD_ID 4 // SCoPEx Starboard Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
