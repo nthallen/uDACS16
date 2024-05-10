@@ -10,15 +10,15 @@
  *     0: Test
  *     1: DPOPS "A"
  *     2: DPOPS "B"
- *     3: SCoPEx Port (Left) Engine Assy
- *     4: SCoPEx Starboard (Right) Engine Assy
+ *     3: ALPHA-SB Port (Left) Engine Assy
+ *     4: ALPHA-SB Starboard (Right) Engine Assy
  *	   5: Halogens TRU Interface Box
  *     SUBBUS_SUBFUNCTION may be the same as SUBBUS_BOARD_ID if there is no significant
  *     configuration difference between boards. If different, the SUBBUS_BOARD_ID values
  *     should be documented along with the SUBBUS_BOARD_SN etc. in the board's Specifications document
  *       SUBBUS_SUBFUNCTION 15: default ?
  *  SUBBUS_BOARD_INSTRUMENT_ID: Number that maps to Instrument name. (not yet used as of 4/18/19)
- *     1: SCoPEx
+ *     1: ALPHA-SB
  *     4: Test
  *     5: Halogens
  *     7: DPOPS
@@ -39,12 +39,14 @@
  */
 #ifndef SERIAL_NUM_H_INCLUDED
 #define SERIAL_NUM_H_INCLUDED
+#include "config/hpl_can_config.h"
 #include "uDACS_pins.h"
 
 // These parameters are common to all boards built with this code
 // 2/7/24 Build #9 V1.7.0 Testing Vibration Sensor streaming
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.7.0"
-#define SUBBUS_BOARD_BUILD_NUM 9
+// 5/10/24 Build #10 V1.7.1 Vibration sensor mode 3
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.7.1"
+#define SUBBUS_BOARD_BUILD_NUM 10
 #define HAVE_RTC
 
 /**
@@ -96,14 +98,14 @@
   #if CONF_SERCOM_3_I2CM_BAUD != 400000
     #error SERCOM3 I2C bit rate must be 400000 for vibration sensor data
   #endif
-  #if CONF_CAN0_BTP_BRP != 2
-    #error CAN0 Baud rate prescaler must be 2 for vibration sensor data
+  #if CONF_CAN0_BTP_BRP != 16
+    #error CAN0 Baud rate prescaler must be 16 for vibration sensor data
   #endif
-  #define SUBBUS_BOARD_ID 3 // SCoPEx Port Engine Assy
+  #define SUBBUS_BOARD_ID 3 // ALPHA-SB Port Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
-  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
-  #define SUBBUS_BOARD_LOCATION "SCoPEx Port Engine Assy"
+  #define SUBBUS_BOARD_INSTRUMENT "ALPHA-SB"
+  #define SUBBUS_BOARD_LOCATION "ALPHA-SB Port Engine Assy"
   #define J4_IS_VIBE_SENSOR
   #define HAVE_VIBE_SENSOR
   #define CAN_BOARD_ID 1
@@ -114,15 +116,17 @@
   #if CONF_SERCOM_3_I2CM_BAUD != 400000
     #error SERCOM3 (CAN) Baud rate must be 400000 for vibration sensor data
   #endif
-  /* BRP == 4 should yield bitrate of 200KHz. BRP==2 produced comm errors */
-  #if CONF_CAN0_BTP_BRP != 4
-    #error CAN0 Baud rate prescaler must be 4 for vibration sensor data
+  /* BRP == 4 should yield bitrate of 200KHz. BRP==2 produced comm errors
+   * Reverting to START value of 16 for 50 KHz bit rate
+   */
+  #if CONF_CAN0_BTP_BRP != 16
+    #error CAN0 Baud rate prescaler must be 16 for vibration sensor data
   #endif
-  #define SUBBUS_BOARD_ID 4 // SCoPEx Starboard Engine Assy
+  #define SUBBUS_BOARD_ID 4 // ALPHA-SB Starboard Engine Assy
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
   #define SUBBUS_BOARD_INSTRUMENT_ID 1
-  #define SUBBUS_BOARD_INSTRUMENT "SCoPEx"
-  #define SUBBUS_BOARD_LOCATION "SCoPEx Starboard Engine Assy"
+  #define SUBBUS_BOARD_INSTRUMENT "ALPHA-SB"
+  #define SUBBUS_BOARD_LOCATION "ALPHA-SB Starboard Engine Assy"
   #define J4_IS_VIBE_SENSOR
   #define HAVE_VIBE_SENSOR
   #define CAN_BOARD_ID 2
