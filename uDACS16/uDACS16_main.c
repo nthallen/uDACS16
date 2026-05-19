@@ -8,7 +8,7 @@
 #include "i2c.h"
 #include "i2c_icm20948.h"
 #include "rtc_timer.h"
-#include "driver_temp.h"	// in place for driver_init
+#include "uDACS16_driver_init.h"	// in place for driver_init
 #include "commands.h"
 #include "serial_num.h"
 

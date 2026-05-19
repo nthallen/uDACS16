@@ -1,5 +1,5 @@
 /** @file i2c.c uDACS16 */
-#include "driver_temp.h"
+#include "uDACS16_driver_init.h"
 #include <utils.h>
 #include <hal_init.h>
 #include <hal_i2c_m_async.h>

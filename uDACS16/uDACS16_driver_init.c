@@ -6,7 +6,7 @@
  */
 
 // #include "driver_init.h"
-#include "driver_temp.h"
+#include "uDACS16_driver_init.h"
 #include "serial_num.h"
 #include <peripheral_clk_config.h>
 #include <utils.h>
@@ -38,7 +38,9 @@ static uint8_t VMON_ADC_map[VMON_ADC_CH_MAX + 1];
 static uint8_t USART_CTRL_buffer[USART_CTRL_BUFFER_SIZE];
 #endif
 
+#ifdef J6_HAS_SPI_PORT
 struct spi_m_async_descriptor PMOD_SPI;
+#endif
 
 struct i2c_m_async_desc DADC_I2C;
 
@@ -85,6 +87,7 @@ void VMON_ADC_init(void)
   gpio_set_pin_function(AOMON0, PINMUX_PA07B_ADC0_AIN7);
 }
 
+#ifdef J6_HAS_SPI_PORT
 void PMOD_SPI_PORT_init(void)
 {
 
@@ -139,6 +142,7 @@ void PMOD_SPI_init(void)
   spi_m_async_init(&PMOD_SPI, SERCOM1);
   PMOD_SPI_PORT_init();
 }
+#endif
 
 void DADC_I2C_PORT_init(void)
 {
@@ -392,7 +396,9 @@ void system_init(void)
 
   VMON_ADC_init();
 
+#ifdef J6_HAS_SPI_PORT
   PMOD_SPI_init();
+#endif
 
   DADC_I2C_init();
 

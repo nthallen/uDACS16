@@ -1,5 +1,5 @@
 /** @file i2c_icm20948.c for uDACS16 */
-#include "driver_temp.h"
+#include "uDACS16_driver_init.h"
 #include <utils.h>
 #include <hal_init.h>
 #include <hal_i2c_m_async.h>
@@ -631,7 +631,7 @@ static void I2C_ICM_txfr_completed(struct i2c_m_async_desc *const i2c) {
 
 static void i2c_icm_reset() {
   if (!sb_i2c_icm.initialized) {
-    // PMON_I2C_init(); // Called from driver_temp
+    // PMON_I2C_init(); // Called from uDACS16_driver_init
     i2c_m_async_get_io_descriptor(&PMON_I2C, &I2C_ICM_io);
     i2c_m_async_enable(&PMON_I2C);
     i2c_m_async_register_callback(&PMON_I2C, I2C_M_ASYNC_ERROR, (FUNC_PTR)I2C_ICM_async_error);

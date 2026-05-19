@@ -1,6 +1,6 @@
 #ifndef RTC_TIMER_H_INCLUDED
 #define RTC_TIMER_H_INCLUDED
-#include "driver_temp.h"
+#include "uDACS16_driver_init.h"
 #include "hal_timer.h"
 #include "subbus.h"
 

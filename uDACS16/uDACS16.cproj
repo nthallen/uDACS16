@@ -1634,10 +1634,10 @@
     <Compile Include="Device_Startup\system_samc21.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="driver_temp.c">
+    <Compile Include="uDACS16_driver_init.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="driver_temp.h">
+    <Compile Include="uDACS16_driver_init.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="examples\driver_examples.c">
@@ -2042,7 +2042,7 @@
     <Compile Include="i2c_icm20948.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="main.c">
+    <Compile Include="uDACS16_main.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rtc_timer.c">

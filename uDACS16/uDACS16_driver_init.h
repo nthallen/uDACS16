@@ -50,9 +50,11 @@ extern struct can_async_descriptor   CAN_CTRL;
 
 void VMON_ADC_init(void);
 
+#ifdef J6_HAS_SPI_PORT
 void PMOD_SPI_PORT_init(void);
 void PMOD_SPI_CLOCK_init(void);
 void PMOD_SPI_init(void);
+#endif
 
 void DADC_I2C_PORT_init(void);
 void DADC_I2C_CLOCK_init(void);

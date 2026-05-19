@@ -36,6 +36,7 @@
  *  J4_3_IS_FAIL_BAR
  *  J4_IS_VIBE_SENSOR
  *  HAVE_VIBE_SENSOR
+ *  J6_HAS_SPI_PORT : never defined, apparently never used
  */
 #ifndef SERIAL_NUM_H_INCLUDED
 #define SERIAL_NUM_H_INCLUDED
@@ -177,6 +178,11 @@
   #define MM_CMD2 PMOD4
   #define MM_ST1 PMOD6
   #define MM_ST2 PMOD8
+  // Mini Moudi Bypass Valve Interface
+  #define MM_BYPASS_CMD1 PMOD1
+  #define MM_BYPASS_CMD2 PMOD3
+  #define MM_BYPASS_ST1 PMOD5
+  #define MM_BYPASS_ST2 PMOD7
 #endif
 
 #if defined(J4_3_IS_FAIL_BAR) && defined(J4_IS_VIBE_SENSOR)
