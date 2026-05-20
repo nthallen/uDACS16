@@ -37,6 +37,7 @@
  *  J4_IS_VIBE_SENSOR
  *  HAVE_VIBE_SENSOR
  *  J6_HAS_SPI_PORT : never defined, apparently never used
+ *  J6_HAS_DRV8871 
  */
 #ifndef SERIAL_NUM_H_INCLUDED
 #define SERIAL_NUM_H_INCLUDED
@@ -46,7 +47,7 @@
 // These parameters are common to all boards built with this code
 // 2/7/24 Build #9 V1.7.0 Testing Vibration Sensor streaming
 // 5/10/24 Build #10 V1.7.1 Vibration sensor mode 3
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.7.1"
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.8.0"
 #define SUBBUS_BOARD_BUILD_NUM 10
 #define HAVE_RTC
 
@@ -68,6 +69,7 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 8
   #define SUBBUS_BOARD_INSTRUMENT "SMoudi"
   #define SUBBUS_BOARD_LOCATION "SMoudi Test"
+  #define J6_HAS_DRV8871
 #elif SUBBUS_BOARD_SN == 2
   #define SUBBUS_BOARD_ID 1 // uDACS "A"
   #define SUBBUS_BOARD_BOARD_TYPE "uDACS16"
@@ -178,12 +180,12 @@
   #define MM_CMD2 PMOD4
   #define MM_ST1 PMOD6
   #define MM_ST2 PMOD8
-  // Mini Moudi Bypass Valve Interface
-  #define MM_BYPASS_CMD1 PMOD1
-  #define MM_BYPASS_CMD2 PMOD3
-  #define MM_BYPASS_ST1 PMOD5
-  #define MM_BYPASS_ST2 PMOD7
-#endif
+#ifdef J6_HAS_DRV8871
+    // Mini Moudi Bypass Valve Interface
+    #define MM_BYPASS_IN1 PMOD1
+    #define MM_BYPASS_IN2 PMOD3
+#endif // J6_HAS_DRV8871
+#endif // SUBBUS_BOARD_ID == 1
 
 #if defined(J4_3_IS_FAIL_BAR) && defined(J4_IS_VIBE_SENSOR)
 #error J4 cannot support both I2C and Fail output

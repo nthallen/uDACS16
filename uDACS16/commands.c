@@ -5,6 +5,7 @@
 #ifdef HAVE_VIBE_SENSOR
 #include "i2c_icm20948.h"
 #endif
+#include "Moudi.h"
 
 static void commands_init(void) {
 #if SUBBUS_BOARD_ID == 1
@@ -29,6 +30,16 @@ static void commands_init(void) {
   gpio_set_pin_level(MM_CMD2, true);
   gpio_set_pin_direction(MM_CMD2, GPIO_DIRECTION_OUT);
   gpio_set_pin_function(MM_CMD2, GPIO_PIN_FUNCTION_OFF);
+
+#ifdef J6_HAS_DRV8871
+  gpio_set_pin_level(MM_BYPASS_IN1, false);
+  gpio_set_pin_direction(MM_BYPASS_IN1, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(MM_BYPASS_IN1, GPIO_PIN_FUNCTION_OFF);
+
+  gpio_set_pin_level(MM_BYPASS_IN2, false);
+  gpio_set_pin_direction(MM_BYPASS_IN2, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(MM_BYPASS_IN2, GPIO_PIN_FUNCTION_OFF);
+#endif // J6_HAS_DRV8871
 #endif
 }
 
@@ -95,12 +106,8 @@ static void cmd_poll(void) {
       if (cmd/2 < N_CMD_PINS) {
         uint8_t pin = cmd_pins[cmd/2];
         gpio_set_pin_level(pin, cmd & 1);
-      } else {
-        switch (cmd) {
-          case 8: gpio_set_pin_level(MM_CMD1, true); break; // Mini Moudi Valve Close
-          case 9: gpio_set_pin_level(MM_CMD1, false); break; // Mini Moudi Valve Open
-          default: break;
-        }
+      } else if (cmd >= 8 && cmd <= 10) {
+        moudi_poll(cmd);
       }
 #endif
 #if SUBBUS_BOARD_ID == 2
@@ -144,6 +151,16 @@ static void cmd_poll(void) {
   update_status(&status, MM_CMD2, 0x20);
   update_status(&status, MM_ST1, 0x40);
   update_status(&status, MM_ST2, 0x80);
+#ifdef J6_HAS_DRV8871
+  moudi_poll(0);
+  if (moudi_bypass_status) {
+    status |= 0x100;
+  } else {
+    status &= ~0x100;
+  }
+  update_status(&status, MM_BYPASS_IN1, 0x200);
+  update_status(&status, MM_BYPASS_IN2, 0x400);
+#endif
 #endif
 #if SUBBUS_BOARD_ID == 5
   update_status(&status, J34_EN, 0x04);
