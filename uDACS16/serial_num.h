@@ -48,7 +48,7 @@
 // 2/7/24 Build #9 V1.7.0 Testing Vibration Sensor streaming
 // 5/10/24 Build #10 V1.7.1 Vibration sensor mode 3
 #define SUBBUS_BOARD_FIRMWARE_REV "V1.8.0"
-#define SUBBUS_BOARD_BUILD_NUM 10
+#define SUBBUS_BOARD_BUILD_NUM 11
 #define HAVE_RTC
 
 /**
@@ -86,6 +86,7 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 8
   #define SUBBUS_BOARD_INSTRUMENT "SMoudi"
   #define SUBBUS_BOARD_LOCATION "SMoudi Backup"
+  #define J6_HAS_DRV8871
   // #define CAN_BOARD_ID 14 // for Test board
 #elif SUBBUS_BOARD_SN == 5
   #define SUBBUS_BOARD_ID 1 // SMoudi (SABRE Mini Moudi) Configured as DPOPS uDACS "A"
@@ -93,6 +94,7 @@
   #define SUBBUS_BOARD_INSTRUMENT_ID 8
   #define SUBBUS_BOARD_INSTRUMENT "SMoudi"
   #define SUBBUS_BOARD_LOCATION "SMoudi Flight"
+  #define J6_HAS_DRV8871
   // #define CAN_BOARD_ID 1 // for Test board
 #elif SUBBUS_BOARD_SN == 6
   #if CONF_SERCOM_5_USART_BAUD != 380400

@@ -77,6 +77,7 @@ void moudi_poll(uint16_t cmd) {
         moudi.state = moudi_open_1;
         return;
       case moudi_open_1:
+        if ( rtc_current_count <= moudi.endtime ) return;
         set_bypass_close(true);
         moudi.endtime = rtc_current_count + 50 * RTC_COUNTS_PER_MSEC;
         moudi.state = moudi_open_2;
