@@ -28,7 +28,10 @@ static moudi_poll_def moudi = {
 
 #ifdef J6_HAS_DRV8871
 #define set_bypass_open(val) gpio_set_pin_level(MM_BYPASS_IN1, val); // to true to initiate bypass open pulse
-#define set_bypass_close(val) gpio_set_pin_level(MM_BYPASS_IN2, val); // to true to initiate bypass close pulse
+#define set_bypass_closeA(val) gpio_set_pin_level(MM_BYPASS_IN2A, val); // to true to initiate bypass close pulse
+#define set_bypass_closeB(val) gpio_set_pin_level(MM_BYPASS_IN2B, val); // to true to initiate bypass close pulse
+#define set_bypass_closeC(val) gpio_set_pin_level(MM_BYPASS_IN2C, val); // to true to initiate bypass close pulse
+#define set_bypass_close(val) set_bypass_closeA(val); set_bypass_closeB(val); set_bypass_closeC(val);
 #else
 #define set_bypass_open(val)
 #define set_bypass_close(val)

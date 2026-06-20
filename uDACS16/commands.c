@@ -36,9 +36,17 @@ static void commands_init(void) {
   gpio_set_pin_direction(MM_BYPASS_IN1, GPIO_DIRECTION_OUT);
   gpio_set_pin_function(MM_BYPASS_IN1, GPIO_PIN_FUNCTION_OFF);
 
-  gpio_set_pin_level(MM_BYPASS_IN2, false);
-  gpio_set_pin_direction(MM_BYPASS_IN2, GPIO_DIRECTION_OUT);
-  gpio_set_pin_function(MM_BYPASS_IN2, GPIO_PIN_FUNCTION_OFF);
+  gpio_set_pin_level(MM_BYPASS_IN2A, false);
+  gpio_set_pin_direction(MM_BYPASS_IN2A, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(MM_BYPASS_IN2A, GPIO_PIN_FUNCTION_OFF);
+
+  gpio_set_pin_level(MM_BYPASS_IN2B, false);
+  gpio_set_pin_direction(MM_BYPASS_IN2B, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(MM_BYPASS_IN2B, GPIO_PIN_FUNCTION_OFF);
+
+  gpio_set_pin_level(MM_BYPASS_IN2C, false);
+  gpio_set_pin_direction(MM_BYPASS_IN2C, GPIO_DIRECTION_OUT);
+  gpio_set_pin_function(MM_BYPASS_IN2C, GPIO_PIN_FUNCTION_OFF);
 #endif // J6_HAS_DRV8871
 #endif
 }
@@ -159,7 +167,7 @@ static void cmd_poll(void) {
     status &= ~0x100;
   }
   update_status(&status, MM_BYPASS_IN1, 0x200);
-  update_status(&status, MM_BYPASS_IN2, 0x400);
+  update_status(&status, MM_BYPASS_IN2A, 0x400);
 #endif
 #endif
 #if SUBBUS_BOARD_ID == 5

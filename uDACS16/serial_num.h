@@ -47,8 +47,10 @@
 // These parameters are common to all boards built with this code
 // 2/7/24 Build #9 V1.7.0 Testing Vibration Sensor streaming
 // 5/10/24 Build #10 V1.7.1 Vibration sensor mode 3
-#define SUBBUS_BOARD_FIRMWARE_REV "V1.8.0"
-#define SUBBUS_BOARD_BUILD_NUM 11
+// 6/8/26  Build #11 V1.8.0 Add Moudi Bypass Valve control
+// 6/20/26 Build #12 V1.8.1 Add Redundant output pins for bypass valve control
+#define SUBBUS_BOARD_FIRMWARE_REV "V1.8.1"
+#define SUBBUS_BOARD_BUILD_NUM 12
 #define HAVE_RTC
 
 /**
@@ -185,7 +187,9 @@
 #ifdef J6_HAS_DRV8871
     // Mini Moudi Bypass Valve Interface
     #define MM_BYPASS_IN1 PMOD1
-    #define MM_BYPASS_IN2 PMOD3
+    #define MM_BYPASS_IN2A PMOD3
+    #define MM_BYPASS_IN2B PMOD5
+    #define MM_BYPASS_IN2C PMOD7
 #endif // J6_HAS_DRV8871
 #endif // SUBBUS_BOARD_ID == 1
 
